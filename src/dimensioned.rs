@@ -70,5 +70,5 @@ pub static mol: Dimensioned<Quantity> = Dimensioned(1.0);
 #[test]
 fn unit_arithmetic() {
     let b = m + m;
-    let c = m + g;
+    //let c = m + g;
 }
