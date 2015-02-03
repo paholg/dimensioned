@@ -1,4 +1,3 @@
-#![allow(unstable)]
 #![allow(dead_code)]
 use std::intrinsics::get_tydesc;
 
@@ -27,63 +26,41 @@ impl<T: NonPos> NonPos for Pred<T> {}
 impl<T: NonPos> NonZero for Pred<T> {}
 impl<T: NonPos> Neg for Pred<T> {}
 
-// trait AddPeano<Rhs> {
-//     type Result;
-// }
-
-// impl<Rhs: Peano> AddPeano<Rhs> for Zero {
-//     type Result = Rhs;
-// }
-
-// /// Adding two non-negative integers (e.g. 1 + 1)
-// impl<Rhs: NonNeg, T: AddPeano<Rhs> + NonNeg> AddPeano<Rhs> for Succ<T> {
-//     type Result = Succ<<T as AddPeano<Rhs>>::Result>;
-// }
-
-// /// Adding two non-positive integers (e.g. -1 + -1)
-// impl<Rhs: NonPos, T: AddPeano<Rhs> + NonPos> AddPeano<Rhs> for Pred<T> {
-//     type Result = Pred<<T as AddPeano<Rhs>>::Result>;
-// }
-
-trait AddOne {
-    type Result;
-}
-impl AddOne for Zero {
-    type Result = Succ<Zero>;
-}
-impl<T: NonNeg> AddOne for Succ<T> {
-    type Result = Succ<Succ<T>>;
-}
-impl<T: NonPos> AddOne for Pred<T> {
-    type Result = T;
-}
-
-trait SubOne {
-    type Result;
-}
-impl SubOne for Zero {
-    type Result = Pred<Zero>;
-}
-impl<T: NonNeg> SubOne for Succ<T> {
-    type Result = T;
-}
-impl<T: NonPos> SubOne for Pred<T> {
-    type Result = Pred<Pred<T>>;
-}
-
 trait AddPeano<Rhs> {
     type Result;
 }
 
+/// Adding things to zero (e.g. 0 + 3)
 impl<Rhs: Peano> AddPeano<Rhs> for Zero {
     type Result = Rhs;
 }
 
-impl<Rhs, T> AddPeano<Rhs> for Succ<T>
-    where T: AddPeano<<Rhs as AddOne>::Result> + NonNeg, Rhs: AddOne {
-        // Result: T + Rhs as AddOne
-        type Result = <T as AddPeano<<Rhs as AddOne>::Result>>::Result;
+/// Adding positive numbers (e.g. 1 + 2)
+impl<T: NonNeg + AddPeano<Succ<Rhs>>, Rhs: NonNeg> AddPeano<Succ<Rhs>> for Succ<T> {
+    type Result = Succ<<T as AddPeano<Succ<Rhs>>>::Result>;
 }
+/// Adding zero to positive numbers (e.g. 3 + 0)
+impl<T: NonNeg> AddPeano<Zero> for Succ<T> {
+    type Result = Succ<T>;
+}
+/// Adding negative numbers to positive numbers (e.g. 2 + -3)
+impl<T: NonNeg + AddPeano<Rhs>, Rhs: NonPos> AddPeano<Pred<Rhs>> for Succ<T> {
+    type Result = <T as AddPeano<Rhs>>::Result;
+}
+
+/// Adding negative numbers (e.g. -1 + -2)
+impl<T: NonPos + AddPeano<Pred<Rhs>>, Rhs: NonPos> AddPeano<Pred<Rhs>> for Pred<T> {
+    type Result = Pred<<T as AddPeano<Pred<Rhs>>>::Result>;
+}
+/// Adding zero to negative numbers (e.g. -3 + 0)
+impl<T: NonPos> AddPeano<Zero> for Pred<T> {
+    type Result = Pred<T>;
+}
+/// Adding positive numbers to negative numbers (e.g. -2 + 3)
+impl<T: NonPos + AddPeano<Rhs>, Rhs: NonNeg> AddPeano<Succ<Rhs>> for Pred<T> {
+    type Result = <T as AddPeano<Rhs>>::Result;
+}
+
 
 fn print_type<T>() {
     let type_name = unsafe { (*get_tydesc::<T>()).name };
@@ -93,28 +70,48 @@ fn print_type<T>() {
 #[test]
 fn count() {
     type One = Succ<Zero>;
+    type Two = Succ<One>;
+    type Three = Succ<Two>;
+
+    type NegOne = Pred<Zero>;
+    type NegTwo = Pred<NegOne>;
+    type NegThree = Pred<NegTwo>;
+
     print!("      1 = ");
     print_type::<One>();
-    type NegOne = Pred<Zero>;
+
     print!("     -1 = ");
     print_type::<NegOne>();
 
-    print!("  0 + 1 = ");
-    print_type::<<Zero as AddOne>::Result>();
-    print!("  1 + 1 = ");
-    type Two = <One as AddOne>::Result;
-    print_type::<Two>();
-    print!(" -1 + 1 = ");
-    print_type::<<NegOne as AddOne>::Result>();
+    print!(" 0 +  2 = ");
+    print_type::<<Zero as AddPeano<Two>>::Result>();
+    print!(" 2 +  0 = ");
+    print_type::<<Two as AddPeano<Zero>>::Result>();
 
-    print!("  0 - 1 = ");
-    print_type::<<Zero as SubOne>::Result>();
-    print!("  1 - 1 = ");
-    print_type::<<One as SubOne>::Result>();
-    print!(" -1 - 1 = ");
-    type NegTwo = <NegOne as SubOne>::Result;
-    print_type::<NegTwo>();
+    print!(" 1 +  2 = ");
+    print_type::<<One as AddPeano<Two>>::Result>();
+    print!(" 2 +  1 = ");
+    print_type::<<Two as AddPeano<One>>::Result>();
 
-    print!("1 + 2 = ");
-    print_type::<<One as AddPeano<Two>>::Sum>();
+    print!(" 1 + -1 = ");
+    print_type::<<One as AddPeano<NegOne>>::Result>();
+    print!(" 1 + -2 = ");
+    print_type::<<One as AddPeano<NegTwo>>::Result>();
+    print!(" 2 + -1 = ");
+    print_type::<<Two as AddPeano<NegOne>>::Result>();
+
+    print!("-2 +  0 = ");
+    print_type::<<NegTwo as AddPeano<Zero>>::Result>();
+
+    print!("-1 + -2 = ");
+    print_type::<<NegOne as AddPeano<NegTwo>>::Result>();
+    print!("-2 + -1 = ");
+    print_type::<<NegTwo as AddPeano<NegOne>>::Result>();
+
+    print!("-1 +  1 = ");
+    print_type::<<NegOne as AddPeano<One>>::Result>();
+    print!("-1 +  2 = ");
+    print_type::<<NegOne as AddPeano<Two>>::Result>();
+    print!("-2 +  1 = ");
+    print_type::<<NegTwo as AddPeano<One>>::Result>();
 }
