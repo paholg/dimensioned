@@ -111,26 +111,26 @@ impl<T: NonPos + SubPeano<Rhs>, Rhs: NonPos> SubPeano<Pred<Rhs>> for Pred<T> {
     type Result = <T as SubPeano<Rhs>>::Result;
 }
 
-// trait MulPeano<Rhs> {
-//     type Result;
-// }
+trait MulPeano<Rhs> {
+    type Result;
+}
 
-// /// Multiplying zero by things (e.g. 0 * 7)
-// impl<Rhs: Peano> MulPeano<Rhs> for Zero {
-//     type Result = Zero;
-// }
+/// Multiplying zero by things (e.g. 0 * 7)
+impl<Rhs: Peano> MulPeano<Rhs> for Zero {
+    type Result = Zero;
+}
 
-// /// Multiplying non-negative integers (e.g. 1 * 8)
-// impl<T, Rhs> MulPeano<Rhs> for Succ<T>
-//     where T: NonNeg + MulPeano<Rhs>, Rhs: AddPeano<<T as MulPeano<Rhs>>::Result> {
-//         type Result = <Rhs as AddPeano<<T as MulPeano<Rhs>>::Result>>::Result;
-// }
+/// Multiplying a positive integer by an arbitrary integer (e.g. 2 * N)
+impl<T, Rhs> MulPeano<Rhs> for Succ<T>
+    where T: NonNeg + MulPeano<Rhs>, Rhs: AddPeano<<T as MulPeano<Rhs>>::Result> {
+        type Result = <Rhs as AddPeano<<T as MulPeano<Rhs>>::Result>>::Result;
+}
 
-// /// Multiplying non-positive integers (e.g. -1 * -8)
-// impl<T, Rhs> MulPeano<Rhs> for Succ<T>
-//     where T: NonPos + MulPeano<Rhs>, Rhs: AddPeano<<T as MulPeano<Rhs>>::Result> {
-//         type Result = <Rhs as AddPeano<<T as MulPeano<Rhs>>::Result>>::Result;
-// }
+/// Multiplying a negative integer by an arbitrary integer (e.g. -2 * N)
+impl<T, Rhs> MulPeano<Rhs> for Pred<T>
+    where T: NonPos + MulPeano<Rhs>, Rhs: Peano, <T as MulPeano<Rhs>>::Result: SubPeano<Rhs> {
+        type Result = <<T as MulPeano<Rhs>>::Result as SubPeano<Rhs>>::Result;
+}
 
 
 
@@ -205,6 +205,8 @@ fn count() {
     print_type::<<Two as Negate>::Result>();
     print!("    --2 = ");
     print_type::<<NegTwo as Negate>::Result>();
+    print!("   - -2 = ");
+    print_type::<<<Two as Negate>::Result as Negate>::Result>();
 
     println!("\nSubtraction:");
     print!(" 0 -  0 = ");
@@ -227,12 +229,27 @@ fn count() {
     print!("-1 -  2 = ");
     print_type::<<NegOne as SubPeano<Two>>::Result>();
 
-    // println!("\nMultiplication:");
-    // print!(" 3 *  0 = ");
-    // print_type::<<Three as MulPeano<Zero>>::Result>();
-    // print!(" 0 *  3 = ");
-    // print_type::<<Zero as MulPeano<Three>>::Result>();
-    // print!(" 2 *  2 = ");
-    // print_type::<<Two as MulPeano<Two>>::Result>();
+    println!("\nMultiplication:");
+    print!(" 0 *  0 = ");
+    print_type::<<Zero as MulPeano<Zero>>::Result>();
+    print!(" 0 *  3 = ");
+    print_type::<<Zero as MulPeano<Three>>::Result>();
+
+    print!(" 1 *  3 = ");
+    print_type::<<One as MulPeano<Three>>::Result>();
+
+    print!(" 3 *  0 = ");
+    print_type::<<Three as MulPeano<Zero>>::Result>();
+    print!(" 2 *  2 = ");
+    print_type::<<Two as MulPeano<Two>>::Result>();
+    print!(" 2 * -2 = ");
+    print_type::<<Two as MulPeano<NegTwo>>::Result>();
+
+    print!("-3 *  0 = ");
+    print_type::<<NegThree as MulPeano<Zero>>::Result>();
+    print!("-2 *  2 = ");
+    print_type::<<NegTwo as MulPeano<Two>>::Result>();
+    print!("-2 * -2 = ");
+    print_type::<<NegTwo as MulPeano<NegTwo>>::Result>();
 
 }
