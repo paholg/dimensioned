@@ -1,0 +1,9 @@
+[package]
+
+name = "dimensioned"
+version = "0.0.1"
+authors = ["Paho Lurie-Gregg <paho@paholg.com>"]
+description = "A library for performing arthimetic with physical quantities with built-in type-checking."
+repository = "https://github.com/paholg/dimensioned"
+readme = "README.md"
+license = "MIT"
