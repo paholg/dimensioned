@@ -1,3 +1,4 @@
+#![allow(unstable)]
 // #![feature(associated_types)]
 // #![feature(globs)]
 // #![feature(phase)]
