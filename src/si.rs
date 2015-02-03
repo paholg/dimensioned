@@ -3,54 +3,11 @@ use std::fmt;
 //use dimensioned::{nano, pico};
 use dimensioned::Dimensioned;
 use dimensioned::Dim;
+use peano::*;
 
 /// SI units
-pub struct SI {
-    pub meters: i8,
-    pub kilograms: i8,
-    pub seconds: i8,
-    pub amperes: i8,
-    pub kelvin: i8,
-    pub candela: i8,
-    pub moles: i8
-}
 
-impl Dim for SI {
-    fn to_si(&self) -> SI { *self }
-
-    fn unitless() -> Dimensioned<SI> {
-        Dimensioned{val: 1.0, units: SI{ meters: 0, kilograms: 0, seconds: 0, amperes: 0,
-                                         kelvin: 0, candela: 0, moles: 0 } }
-    }
-    fn meters() -> Dimensioned<SI> {
-        Dimensioned{val: 1.0, units: SI{ meters: 1, kilograms: 0, seconds: 0, amperes: 0,
-                                         kelvin: 0, candela: 0, moles: 0 } }
-    }
-    fn grams() -> Dimensioned<SI> {
-        Dimensioned{val: 0.001, units: SI{ meters: 0, kilograms: 1, seconds: 0, amperes: 0,
-                                               kelvin: 0, candela: 0, moles: 0 } }
-    }
-    fn seconds() -> Dimensioned<SI> {
-        Dimensioned{val: 1.0, units: SI{ meters: 0, kilograms: 0, seconds: 1, amperes: 0,
-                                         kelvin: 0, candela: 0, moles: 0 } }
-    }
-    fn amperes() -> Dimensioned<SI> {
-        Dimensioned{val: 1.0, units: SI{ meters: 0, kilograms: 0, seconds: 0, amperes: 1,
-                                         kelvin: 0, candela: 0, moles: 0 } }
-    }
-    fn kelvin() -> Dimensioned<SI> {
-        Dimensioned{val: 1.0, units: SI{ meters: 0, kilograms: 0, seconds: 0, amperes: 0,
-                                         kelvin: 1, candela: 0, moles: 0 } }
-    }
-    fn candela() -> Dimensioned<SI> {
-        Dimensioned{val: 1.0, units: SI{ meters: 0, kilograms: 0, seconds: 0, amperes: 0,
-                                         kelvin: 0, candela: 1, moles: 0 } }
-    }
-    fn moles() -> Dimensioned<SI> {
-        Dimensioned{val: 1.0, units: SI{ meters: 0, kilograms: 0, seconds: 0, amperes: 0,
-                                         kelvin: 0, candela: 0, moles: 1 } }
-    }
-}
+impl Dim for SI {}
 impl Mul<SI, SI> for SI {
     fn mul(&self, other: &SI) -> SI {
         SI {
