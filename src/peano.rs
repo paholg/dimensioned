@@ -1,18 +1,17 @@
-#![allow(dead_code)]
 use std::intrinsics::get_tydesc;
 
-struct Zero;
-struct Succ<T: NonNeg>;
-struct Pred<T: NonPos>;
+pub struct Zero;
+pub struct Succ<T: NonNeg>;
+pub struct Pred<T: NonPos>;
 
-type One = Succ<Zero>;
+pub type One = Succ<Zero>;
 
-trait Peano {}
-trait NonZero: Peano {}
-trait NonNeg: Peano {}
-trait NonPos: Peano {}
-trait Pos: Peano + NonZero + NonNeg {}
-trait Neg: Peano + NonZero + NonPos {}
+pub trait Peano {}
+pub trait NonZero: Peano {}
+pub trait NonNeg: Peano {}
+pub trait NonPos: Peano {}
+pub trait Pos: Peano + NonZero + NonNeg {}
+pub trait Neg: Peano + NonZero + NonPos {}
 
 impl Peano for Zero {}
 impl NonNeg for Zero {}
@@ -28,7 +27,9 @@ impl<T: NonPos> NonPos for Pred<T> {}
 impl<T: NonPos> NonZero for Pred<T> {}
 impl<T: NonPos> Neg for Pred<T> {}
 
-trait AddPeano<Rhs> {
+impl Copy for Zero {}
+
+pub trait AddPeano<Rhs> {
     type Result;
 }
 
@@ -63,7 +64,7 @@ impl<T: NonPos + AddPeano<Rhs>, Rhs: NonNeg> AddPeano<Succ<Rhs>> for Pred<T> {
     type Result = <T as AddPeano<Rhs>>::Result;
 }
 
-trait Negate {
+pub trait Negate {
     type Result;
 }
 impl Negate for Zero {
@@ -76,7 +77,7 @@ impl<T: NonPos + Negate> Negate for Pred<T> {
     type Result = Succ<<T as Negate>::Result>;
 }
 
-trait SubPeano<Rhs> {
+pub trait SubPeano<Rhs> {
     type Result;
 }
 
@@ -111,7 +112,7 @@ impl<T: NonPos + SubPeano<Rhs>, Rhs: NonPos> SubPeano<Pred<Rhs>> for Pred<T> {
     type Result = <T as SubPeano<Rhs>>::Result;
 }
 
-trait MulPeano<Rhs> {
+pub trait MulPeano<Rhs> {
     type Result;
 }
 
@@ -133,7 +134,7 @@ impl<T, Rhs> MulPeano<Rhs> for Pred<T>
 }
 
 
-
+#[allow(dead_code)]
 fn print_type<T>() {
     let type_name = unsafe { (*get_tydesc::<T>()).name };
     println!("{}", type_name);

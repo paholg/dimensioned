@@ -1,11 +1,18 @@
 use std::fmt;
-// use dimensioned::*;
-//use dimensioned::{nano, pico};
 use dimensioned::Dimensioned;
 use dimensioned::Dim;
 use peano::*;
 
 /// SI units
+pub struct SI {
+    pub meters: Peano,
+    pub kilograms: Peano,
+    pub seconds: Peano,
+    pub amperes: Peano,
+    pub kelvin: Peano,
+    pub candela: Peano,
+    pub moles: Peano,
+}
 
 impl Dim for SI {}
 impl Mul<SI, SI> for SI {
@@ -68,25 +75,3 @@ impl fmt::Show for SI {
         write!(f, "{}", unit_string)
     }
 }
-
-
-// #[macro_export]
-// // fixme: find a better way to do this
-// macro_rules! si(
-//     ($val:expr $dim:expr) => (
-//         let s = stringify!($dim);
-//         let re = regex!("");
-//         );
-//     )
-
-// #[test]
-// fn str_parse_test() {
-//     // let s = si!(3 m/s^2);
-//     // let s = "4.5e-7 nm/ps^2";
-//     // let x1: Dimensioned<SI> = nano(Dim::meters(4.5e-7))/pico(Dim::seconds(1.0))/Dim::seconds(1.0);
-//     // let x2: Dimensioned<SI> = from_str("4.5e-7 nm/ps^2").unwrap();
-//     // assert_eq!(x1, x2);
-
-//     // println!("\n\nmacro-test: {}\n\n", s);
-// }
-
