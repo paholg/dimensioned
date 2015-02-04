@@ -6,7 +6,7 @@ This will be a library to do compile-time checking of physical dimensions. It wi
 
 Right now (version 0.0.2), it is an implementation of the peano numbers that will be used for dimensional powers.
 
-To view test output, run:
+To build, simply run
 ```
-cargo test -- --nocapture
+cargo build
 ```

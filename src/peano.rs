@@ -1,5 +1,3 @@
-// use std::intrinsics::get_tydesc;
-
 pub struct Zero;
 pub struct Succ<T: NonNeg>;
 pub struct Pred<T: NonPos>;
@@ -133,12 +131,6 @@ impl<T, Rhs> MulPeano<Rhs> for Pred<T>
         type Result = <<T as MulPeano<Rhs>>::Result as SubPeano<Rhs>>::Result;
 }
 
-// #[allow(dead_code)]
-// fn print_type<T>() {
-//     let type_name = unsafe { (*get_tydesc::<T>()).name };
-//     println!("{}", type_name);
-// }
-
 trait ToInt {
     fn to_int() -> i32;
 }
@@ -152,10 +144,8 @@ impl<T:NonPos + ToInt> ToInt for Pred<T> {
     fn to_int() -> i32 { -1 + <T as ToInt>::to_int() }
 }
 
-
 #[test]
 fn test_peano() {
-    type One = Succ<Zero>;
     type Two = Succ<One>;
     type Three = Succ<Two>;
 
@@ -252,5 +242,4 @@ fn test_peano() {
     assert_eq!( -6, <<NegTwo as MulPeano<Three>>::Result as ToInt>::to_int() );
     // -2 * -3 == 6
     assert_eq!( 6, <<NegTwo as MulPeano<NegThree>>::Result as ToInt>::to_int() );
-
 }
