@@ -1,6 +1,7 @@
 # "Skipped" things
 - Scalar multiplication/division :: waiting on Rust changes (I'm pretty sure) to have scalars on LHS
 - Index/IndexMut :: Lifetime stuff that I need to figure out
+- Float :: Implement for Dimensionless, this had dependencies on other thigns being implemented first
 
 # Features to implement
 - Peano Division :: Keep them a ring, so it won't be closed, but this will allow things like Gaussian units
