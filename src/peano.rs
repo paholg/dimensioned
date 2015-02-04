@@ -1,4 +1,4 @@
-use std::intrinsics::get_tydesc;
+// use std::intrinsics::get_tydesc;
 
 pub struct Zero;
 pub struct Succ<T: NonNeg>;
@@ -133,15 +133,28 @@ impl<T, Rhs> MulPeano<Rhs> for Pred<T>
         type Result = <<T as MulPeano<Rhs>>::Result as SubPeano<Rhs>>::Result;
 }
 
+// #[allow(dead_code)]
+// fn print_type<T>() {
+//     let type_name = unsafe { (*get_tydesc::<T>()).name };
+//     println!("{}", type_name);
+// }
 
-#[allow(dead_code)]
-fn print_type<T>() {
-    let type_name = unsafe { (*get_tydesc::<T>()).name };
-    println!("{}", type_name);
+trait ToInt {
+    fn to_int() -> i32;
+}
+impl ToInt for Zero {
+    fn to_int() -> i32 { 0 }
+}
+impl<T:NonNeg + ToInt> ToInt for Succ<T> {
+    fn to_int() -> i32 { 1 + <T as ToInt>::to_int() }
+}
+impl<T:NonPos + ToInt> ToInt for Pred<T> {
+    fn to_int() -> i32 { -1 + <T as ToInt>::to_int() }
 }
 
+
 #[test]
-fn count() {
+fn test_peano() {
     type One = Succ<Zero>;
     type Two = Succ<One>;
     type Three = Succ<Two>;
@@ -150,107 +163,94 @@ fn count() {
     type NegTwo = Pred<NegOne>;
     type NegThree = Pred<NegTwo>;
 
-    println!("\nA couple numbers:");
-    print!("      0 = ");
-    print_type::<Zero>();
-    print!("      1 = ");
-    print_type::<One>();
-    print!("      2 = ");
-    print_type::<Two>();
 
-    print!("     -1 = ");
-    print_type::<NegOne>();
-    print!("     -2 = ");
-    print_type::<NegTwo>();
+    // Testing equality
+    // 0 == 0
+    assert_eq!( 0, <Zero as ToInt>::to_int() );
+    // 2 == 2
+    assert_eq!( 2, <Two as ToInt>::to_int() );
+    // -2 == -2
+    assert_eq!( -2, <NegTwo as ToInt>::to_int() );
 
-    println!("\nAddition:");
 
-    print!(" 0 +  0 = ");
-    print_type::<<Zero as AddPeano<Zero>>::Result>();
-    print!(" 0 +  2 = ");
-    print_type::<<Zero as AddPeano<Two>>::Result>();
-    print!(" 2 +  0 = ");
-    print_type::<<Two as AddPeano<Zero>>::Result>();
+    // Testing addition
+    // 0 + 0 == 0
+    assert_eq!( 0, <<Zero as AddPeano<Zero>>::Result as ToInt>::to_int() );
+    // 0 + 3 == 3
+    assert_eq!( 3, <<Zero as AddPeano<Three>>::Result as ToInt>::to_int() );
+    // 0 + -3 == -3
+    assert_eq!( -3, <<Zero as AddPeano<NegThree>>::Result as ToInt>::to_int() );
 
-    print!(" 1 +  2 = ");
-    print_type::<<One as AddPeano<Two>>::Result>();
-    print!(" 2 +  1 = ");
-    print_type::<<Two as AddPeano<One>>::Result>();
+    // 2 + 0 == 2
+    assert_eq!( 2, <<Two as AddPeano<Zero>>::Result as ToInt>::to_int() );
+    // 2 + 3 == 5
+    assert_eq!( 5, <<Two as AddPeano<Three>>::Result as ToInt>::to_int() );
+    // 2 + -3 == -1
+    assert_eq!( -1, <<Two as AddPeano<NegThree>>::Result as ToInt>::to_int() );
+    // 3 + -2 == 1
+    assert_eq!( 1, <<Three as AddPeano<NegTwo>>::Result as ToInt>::to_int() );
 
-    print!(" 1 + -1 = ");
-    print_type::<<One as AddPeano<NegOne>>::Result>();
-    print!(" 1 + -2 = ");
-    print_type::<<One as AddPeano<NegTwo>>::Result>();
-    print!(" 2 + -1 = ");
-    print_type::<<Two as AddPeano<NegOne>>::Result>();
+    // -2 + 0 == 2
+    assert_eq!( -2, <<NegTwo as AddPeano<Zero>>::Result as ToInt>::to_int() );
+    // -2 + -3 == -5
+    assert_eq!( -5, <<NegTwo as AddPeano<NegThree>>::Result as ToInt>::to_int() );
+    // -2 + 3 == 1
+    assert_eq!( 1, <<NegTwo as AddPeano<Three>>::Result as ToInt>::to_int() );
+    // -3 + 2 == -1
+    assert_eq!( -1, <<NegThree as AddPeano<Two>>::Result as ToInt>::to_int() );
 
-    print!("-2 +  0 = ");
-    print_type::<<NegTwo as AddPeano<Zero>>::Result>();
 
-    print!("-1 + -2 = ");
-    print_type::<<NegOne as AddPeano<NegTwo>>::Result>();
-    print!("-2 + -1 = ");
-    print_type::<<NegTwo as AddPeano<NegOne>>::Result>();
+    // Testing Negation
+    // -3 == -(3)
+    assert_eq!( -3, <<Three as Negate>::Result as ToInt>::to_int() );
+    // 3 == -(-3)
+    assert_eq!( 3, <<NegThree as Negate>::Result as ToInt>::to_int() );
+    // 0 == -0
+    assert_eq!( 0, <<Zero as Negate>::Result as ToInt>::to_int() );
 
-    print!("-1 +  1 = ");
-    print_type::<<NegOne as AddPeano<One>>::Result>();
-    print!("-1 +  2 = ");
-    print_type::<<NegOne as AddPeano<Two>>::Result>();
-    print!("-2 +  1 = ");
-    print_type::<<NegTwo as AddPeano<One>>::Result>();
 
-    println!("\nNegation:");
-    print!("     -0 = ");
-    print_type::<<Zero as Negate>::Result>();
-    print!("     -2 = ");
-    print_type::<<Two as Negate>::Result>();
-    print!("    --2 = ");
-    print_type::<<NegTwo as Negate>::Result>();
-    print!("   - -2 = ");
-    print_type::<<<Two as Negate>::Result as Negate>::Result>();
+    // Testing Subtraction
+    // 0 - 0 == 0
+    assert_eq!( 0, <<Zero as SubPeano<Zero>>::Result as ToInt>::to_int() );
+    // 0 - 3 == -3
+    assert_eq!( -3, <<Zero as SubPeano<Three>>::Result as ToInt>::to_int() );
+    // 0 - -3 == 3
+    assert_eq!( 3, <<Zero as SubPeano<NegThree>>::Result as ToInt>::to_int() );
 
-    println!("\nSubtraction:");
-    print!(" 0 -  0 = ");
-    print_type::<<Zero as SubPeano<Zero>>::Result>();
-    print!(" 2 -  0 = ");
-    print_type::<<Two as SubPeano<Zero>>::Result>();
-    print!(" 0 -  2 = ");
-    print_type::<<Zero as SubPeano<Two>>::Result>();
-    print!(" 3 -  2 = ");
-    print_type::<<Three as SubPeano<Two>>::Result>();
-    print!(" 2 -  3 = ");
-    print_type::<<Two as SubPeano<Three>>::Result>();
-    print!(" 1 - -2 = ");
-    print_type::<<One as SubPeano<NegTwo>>::Result>();
+    // 2 - 0 == 2
+    assert_eq!( 2, <<Two as SubPeano<Zero>>::Result as ToInt>::to_int() );
+    // 2 - 3 == -1
+    assert_eq!( -1, <<Two as SubPeano<Three>>::Result as ToInt>::to_int() );
+    // 2 - -3 == 5
+    assert_eq!( 5, <<Two as SubPeano<NegThree>>::Result as ToInt>::to_int() );
+    // 3 - -2 == 5
+    assert_eq!( 5, <<Three as SubPeano<NegTwo>>::Result as ToInt>::to_int() );
 
-    print!("-3 - -2 = ");
-    print_type::<<NegThree as SubPeano<NegTwo>>::Result>();
-    print!("-2 - -3 = ");
-    print_type::<<NegTwo as SubPeano<NegThree>>::Result>();
-    print!("-1 -  2 = ");
-    print_type::<<NegOne as SubPeano<Two>>::Result>();
+    // -2 - 0 == -2
+    assert_eq!( -2, <<NegTwo as SubPeano<Zero>>::Result as ToInt>::to_int() );
+    // -2 - -3 == 1
+    assert_eq!( 1, <<NegTwo as SubPeano<NegThree>>::Result as ToInt>::to_int() );
+    // -2 - 3 == -5
+    assert_eq!( -5, <<NegTwo as SubPeano<Three>>::Result as ToInt>::to_int() );
+    // -3 - 2 == -5
+    assert_eq!( -5, <<NegThree as SubPeano<Two>>::Result as ToInt>::to_int() );
 
-    println!("\nMultiplication:");
-    print!(" 0 *  0 = ");
-    print_type::<<Zero as MulPeano<Zero>>::Result>();
-    print!(" 0 *  3 = ");
-    print_type::<<Zero as MulPeano<Three>>::Result>();
 
-    print!(" 1 *  3 = ");
-    print_type::<<One as MulPeano<Three>>::Result>();
+    // Testing Multiplication
+    // 0 * 0 == 0
+    assert_eq!( 0, <<Zero as MulPeano<Zero>>::Result as ToInt>::to_int() );
+    // 0 * 2 == 0
+    assert_eq!( 0, <<Zero as MulPeano<Two>>::Result as ToInt>::to_int() );
+    // 2 * 0 == 0
+    assert_eq!( 0, <<Two as MulPeano<Zero>>::Result as ToInt>::to_int() );
 
-    print!(" 3 *  0 = ");
-    print_type::<<Three as MulPeano<Zero>>::Result>();
-    print!(" 2 *  2 = ");
-    print_type::<<Two as MulPeano<Two>>::Result>();
-    print!(" 2 * -2 = ");
-    print_type::<<Two as MulPeano<NegTwo>>::Result>();
-
-    print!("-3 *  0 = ");
-    print_type::<<NegThree as MulPeano<Zero>>::Result>();
-    print!("-2 *  2 = ");
-    print_type::<<NegTwo as MulPeano<Two>>::Result>();
-    print!("-2 * -2 = ");
-    print_type::<<NegTwo as MulPeano<NegTwo>>::Result>();
+    // 2 * 3 == 6
+    assert_eq!( 6, <<Two as MulPeano<Three>>::Result as ToInt>::to_int() );
+    // 2 * -3 == -6
+    assert_eq!( -6, <<Two as MulPeano<NegThree>>::Result as ToInt>::to_int() );
+    // -2 * 3 == -6
+    assert_eq!( -6, <<NegTwo as MulPeano<Three>>::Result as ToInt>::to_int() );
+    // -2 * -3 == 6
+    assert_eq!( 6, <<NegTwo as MulPeano<NegThree>>::Result as ToInt>::to_int() );
 
 }
