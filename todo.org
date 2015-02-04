@@ -1,0 +1,7 @@
+# "Skipped" things
+- Scalar multiplication/division :: waiting on Rust changes (I'm pretty sure) to have scalars on LHS
+- Index/IndexMut :: Lifetime stuff that I need to figure out
+
+# Features to implement
+- Peano Division :: Keep them a ring, so it won't be closed, but this will allow things like Gaussian units
+- Unit system creator :: Probably a python script, to make it easy to make your own unit system
