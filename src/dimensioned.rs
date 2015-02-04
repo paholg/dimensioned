@@ -1,5 +1,5 @@
 use std::ops::*;
-//use std::num::Float;
+use std::num::{ToPrimitive, NumCast, Float};
 use core::cmp::*;
 
 pub trait AddDim<RHS = Self> {
@@ -20,7 +20,21 @@ impl Scalar for f32 {}
 pub struct Dimensioned<T: Dim, V>(pub V);
 impl<T: Dim, V: Copy> Copy for Dimensioned<T, V> {}
 
-// Implementing traits from std::ops:
+//------------------------------------------------------------------------------
+// Clone
+//------------------------------------------------------------------------------
+impl<T, V> Clone for Dimensioned<T, V> where T: Dim, V: Clone {
+    fn clone(&self) -> Self {
+        Dimensioned((self.0).clone())
+    }
+    fn clone_from(&mut self, source: &Self) {
+        (self.0).clone_from(&source.0);
+    }
+}
+
+//------------------------------------------------------------------------------
+// Traits from std::ops
+//------------------------------------------------------------------------------
 
 /// Multiplying! Dimensions must be able to add.
 impl<Tl, Tr, Vl, Vr> Mul<Dimensioned<Tr, Vr>> for Dimensioned<Tl, Vl>
@@ -109,7 +123,10 @@ define_binary_op!(Shl, shl);
 define_binary_op!(Shr, shr);
 define_binary_op!(Sub, sub);
 
-// Implementing traits from core::cmp:
+
+//------------------------------------------------------------------------------
+// Traits from core::cmp
+//------------------------------------------------------------------------------
 impl<T, Vl, Vr> PartialEq<Dimensioned<T, Vr>> for Dimensioned<T, Vl>
     where T: Dim, Vl: PartialEq<Vr> {
         fn eq(&self, rhs: &Dimensioned<T, Vr>) -> bool { self.0 == rhs.0 }
@@ -141,14 +158,63 @@ impl<T, V> Ord for Dimensioned<T, V> where T: Dim, V: Ord {
 //         }
 //     }
 
+//------------------------------------------------------------------------------
+// DIMENSIONLESS THINGS HERE
+//------------------------------------------------------------------------------
 
-// Implementing Float for Dimensionless types
+//------------------------------------------------------------------------------
+// Dimensionless multiplication and division
+// fixme
+// impl<T, V> Mul for Dimensioned<T, V>
+//     where T: Dimensionless, V: Mul {
+//         type Output = Dimensioned<T, <V as Mul>::Output>;
+//         fn mul(self, rhs: Self) -> Dimensioned<T, <V as Mul>::Output> {
+//             Dimensioned(self.0 * rhs.0)
+//         }
+//     }
 
-// macro_rules! define_unary_float {
-//     ($fun:ident, $returns:ty) => (
-//         fn $fun(self) -> $returns { Dimensioned( (self.0).$fun()) }
-//         )
-// }
+macro_rules! define_cast_fun {
+    ($fun:ident, $prim:ident) => (
+        fn $fun(&self) -> Option<$prim> {
+            (self.0).$fun()
+        }
+        )
+}
+//------------------------------------------------------------------------------
+// ToPrimitive
+impl<T, V> ToPrimitive for Dimensioned<T, V> where T: Dimensionless, V: ToPrimitive {
+    define_cast_fun!(to_i64, i64);
+    define_cast_fun!(to_u64, u64);
+    define_cast_fun!(to_int, isize);
+    define_cast_fun!(to_i8, i8);
+    define_cast_fun!(to_i16, i16);
+    define_cast_fun!(to_i32, i32);
+    define_cast_fun!(to_uint, usize);
+    define_cast_fun!(to_u8, u8);
+    define_cast_fun!(to_u16, u16);
+    define_cast_fun!(to_u32, u32);
+    define_cast_fun!(to_f32, f32);
+    define_cast_fun!(to_f64, f64);
+}
+
+//------------------------------------------------------------------------------
+// NumCast
+impl<T, V> NumCast for Dimensioned<T, V> where T: Dimensionless, V: NumCast {
+    fn from<N>(n: N) -> Option<Self> where N: ToPrimitive {
+        match NumCast::from(n) {
+            Some(v) => Some(Dimensioned(v)),
+            None => None
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+// Float
+macro_rules! define_unary_float {
+    ($fun:ident, $returns:ty) => (
+        fn $fun(self) -> $returns { Dimensioned( (self.0).$fun()) }
+        )
+}
 
 // impl<T, V> Float for Dimensioned<T, V>
 //     where T: Dimensionless, V: Float {

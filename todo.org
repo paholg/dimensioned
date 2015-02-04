@@ -1,8 +1,14 @@
 # "Skipped" things
-- Scalar multiplication/division :: waiting on Rust changes (I'm pretty sure) to have scalars on LHS
+- LHS Scalars :: waiting on Rust changes (I'm pretty sure) to have scalars on LHS for
+                 multiplication / division
 - Index/IndexMut :: Lifetime stuff that I need to figure out
-- Float :: Implement for Dimensionless, this had dependencies on other thigns being implemented first
+- Float :: In order to implement for Dimensionless, it needs Mul and Div implemented,
+           but any attempt to implement them in a type-preserving way conflicts with the
+           already existing definitions.
 
 # Features to implement
-- Peano Division :: Keep them a ring, so it won't be closed, but this will allow things like Gaussian units
-- Unit system creator :: Probably a python script, to make it easy to make your own unit system
+- Peano Division :: Keep them a ring, so it won't be closed, but this will allow things
+                    like Gaussian units
+- Unit system creator :: Probably a python script, to make it easy to make your own unit
+     system
+- Dimensioned :: Figure out if I want to implement any more traits for this.
