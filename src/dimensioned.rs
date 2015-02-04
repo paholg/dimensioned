@@ -2,23 +2,41 @@ use std::ops::*;
 use std::num::{ToPrimitive, NumCast, Float};
 use core::cmp::*;
 
-pub trait AddDim<RHS = Self> {
-    type Output;
-}
-
-pub trait SubDim<RHS = Self> {
-    type Output;
-}
-
-pub trait Dim: AddDim + SubDim {}
+pub trait Dim {}
 pub trait Dimensionless: Dim {}
+
+pub trait AddDim<RHS = Self>: Dim {
+    type Output;
+}
+pub trait SubDim<RHS = Self>: Dim {
+    type Output;
+}
+pub trait MulDim<RHS = Self>: Dim {
+    type Output;
+}
+pub trait DivDim<RHS = Self>: Dim {
+    type Output;
+}
+
 
 pub trait Scalar {}
 impl Scalar for f64 {}
 impl Scalar for f32 {}
 
 pub struct Dimensioned<T: Dim, V>(pub V);
+
+// trait PowI {
+//     type Output;
+// }
+// impl<T, V> PowI for Dimensioned<T, V>
+//     where T: MulDim, V: Float {
+//         type Output = Dimensioned<>
+//             fn powi(self, n: i32) -> 
+//     }
+
 impl<T: Dim, V: Copy> Copy for Dimensioned<T, V> {}
+
+
 
 //------------------------------------------------------------------------------
 // Clone

@@ -11,4 +11,6 @@
                     like Gaussian units
 - Unit system creator :: Probably a python script, to make it easy to make your own unit
      system
-- Dimensioned :: Figure out if I want to implement any more traits for this.
+- Dimensioned :: Implement powi() and sqrt() and maybe cuberoot()
+                 Figure out if I want to implement any more traits for this.
+

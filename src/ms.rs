@@ -2,47 +2,54 @@
 use peano::*;
 use dimensioned::*;
 
-/// SI units
-pub struct SI<Length: PInt, Mass: PInt, Time: PInt, Current: PInt, Temp: PInt, Intensity: PInt, Quanity: PInt>;
+/// Units with just meters and seconds as a test case
+pub struct MS<Meter: PInt, Second: PInt>;
 
-impl<Length: PInt, Mass: PInt, Time: PInt, Current: PInt, Temp: PInt, Intensity: PInt, Quantity: PInt> Dim for SI<Length, Mass, Time, Current, Temp, Intensity, Quantity> {}
+impl<Meter: PInt, Second: PInt> Dim for MS<Meter, Second> {}
 
 
-impl<L1, L2, L3, L4, L5, L6, L7, R1, R2, R3, R4, R5, R6, R7>
-    AddDim<SI<R1, R2, R3, R4, R5, R6, R7>> for SI<L1, L2, L3, L4, L5, L6, L7>
-    where L1: PInt + AddPeano<R1>, L2: PInt, L3: PInt, L4: PInt, L5: PInt, L6: PInt, L7: PInt,
-          R1: PInt, R2: PInt, R3: PInt, R4: PInt, R5: PInt, R6: PInt, R7: PInt {
-              type Output = SI<<L1 as AddPeano<R1>>::Output, L2, L3, L4, L5, L6, L7>;
+impl<L1, L2, R1, R2>
+    AddDim<MS<R1, R2>> for MS<L1, L2>
+    where L1: PInt + AddPeano<R1>, L2: PInt + AddPeano<R2>, R1: PInt, R2: PInt {
+              type Output = MS<<L1 as AddPeano<R1>>::Output, <L2 as AddPeano<R2>>::Output>;
 }
 
-
-// pub type Length = SI<One, Zero, Zero, Zero, Zero, Zero, Zero>;
-// pub type Mass = SI<Zero, One, Zero, Zero, Zero, Zero, Zero>;
-// pub type Time = SI<Zero, Zero, One, Zero, Zero, Zero, Zero>;
-// pub type Current = SI<Zero, Zero, Zero, One, Zero, Zero, Zero>;
-// pub type Temp = SI<Zero, Zero, Zero, Zero, One, Zero, Zero>;
-// pub type Intensity = SI<Zero, Zero, Zero, Zero, Zero, One, Zero>;
-// pub type Quantity = SI<Zero, Zero, Zero, Zero, Zero, Zero, One>;
-
-// pub static m: Dimensioned<Length, f64> = Dimensioned(1.0);
-// pub static g: Dimensioned<Mass, f64> = Dimensioned(1.0e-3);
-// pub static kg: Dimensioned<Mass, f64> = Dimensioned(1.0);
-// pub static s: Dimensioned<Time, f64> = Dimensioned(1.0);
-// pub static A: Dimensioned<Current, f64> = Dimensioned(1.0);
-// pub static K: Dimensioned<Temp, f64> = Dimensioned(1.0);
-// pub static cd: Dimensioned<Intensity, f64> = Dimensioned(1.0);
-// pub static mol: Dimensioned<Quantity, f64> = Dimensioned(1.0);
+impl<L1, L2, R1, R2>
+    SubDim<MS<R1, R2>> for MS<L1, L2>
+    where L1: PInt + SubPeano<R1>, L2: PInt + SubPeano<R2>, R1: PInt, R2: PInt {
+              type Output = MS<<L1 as SubPeano<R1>>::Output, <L2 as SubPeano<R2>>::Output>;
+    }
 
 
 
+pub type Unitless = MS<Zero, Zero>;
+impl Dimensionless for Unitless {}
+pub type Meter = MS<One, Zero>;
+pub type Second = MS<Zero, One>;
 
 
+pub static one: Dimensioned<Unitless, f64> = Dimensioned(1.0);
+pub static m: Dimensioned<Meter, f64> = Dimensioned(1.0);
+pub static s: Dimensioned<Second, f64> = Dimensioned(1.0);
 
-
-
-
-
-
+#[test]
+fn test_ms() {
+    let x = m;
+    let y = m*7.3;
+    let t = s;
+    let n = one*3.5;
+    let v1 = x/t;
+    let v2 = y/t;
+    // fixme: can't do this yet!
+    //3.4 * x;
+    n + x/y;
+    x+x;
+    n + one*3.2;
+    x*one;
+    one*x;
+    v1 + v2;
+    -x;
+}
 
 
 
