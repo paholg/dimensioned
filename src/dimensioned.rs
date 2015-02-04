@@ -1,66 +1,49 @@
-// use si::SI;
-//use peano::*;
 use std::ops::{Add, Sub, Mul, Div};
 
+pub trait AddDim<Rhs = Self> {
+    type Output;
+}
 
-pub trait Dim {}
+pub trait SubDim<Rhs = Self> {
+    type Output;
+}
 
-// fixme
+pub trait Dim: AddDim + SubDim {}
+
 pub struct Dimensioned<T: Dim, V: Add + Sub + Mul + Div>(pub V);
 
+/// Adding! Dimensions must be the same (although value types can differ)
 impl<T, Vl, Vr> Add<Dimensioned<T, Vr>> for Dimensioned<T, Vl>
-    where T: Dim, Vl: Add + Sub + Mul + Div, Vr: Add + Sub + Mul + Div, <Vl as Add<Vr>>::Output: Add + Sub + Mul + Div {
+    where T: Dim, Vl: Add<Vr> + Add + Sub + Mul + Div, Vr: Add + Sub + Mul + Div, <Vl as Add<Vr>>::Output: Add + Sub + Mul + Div {
         type Output = Dimensioned<T, <Vl as Add<Vr>>::Output>;
         fn add(self, rhs: Dimensioned<T, Vr>) -> Dimensioned<T, <Vl as Add<Vr>>::Output> {
             Dimensioned(self.0 + rhs.0)
         }
 }
 
-// impl<T, V> Sub<Self> for Dimensioned<T, V>
-//     where T: Dim, V: Add + Sub + Mul + Div, <V as Sub>::Output: Add + Sub + Mul + Div {
-//         type Output = Dimensioned<T, <V as Sub>::Output>;
-//         fn sub(self, rhs: Self) -> Dimensioned<T, <V as Sub>::Output> {
-//             Dimensioned(self.0 - rhs.0)
-//         }
-// }
+/// Subtracting! Dimensions must be the same (although value types can differ)
+impl<T, Vl, Vr> Sub<Dimensioned<T, Vr>> for Dimensioned<T, Vl>
+    where T: Dim, Vl: Sub<Vr> + Add + Sub + Mul + Div, Vr: Add + Sub + Mul + Div, <Vl as Sub<Vr>>::Output: Add + Sub + Mul + Div {
+        type Output = Dimensioned<T, <Vl as Sub<Vr>>::Output>;
+        fn sub(self, rhs: Dimensioned<T, Vr>) -> Dimensioned<T, <Vl as Sub<Vr>>::Output> {
+            Dimensioned(self.0 - rhs.0)
+        }
+}
 
-// impl<T1, V1, T2, V2> Mul<Self> for Dimensioned<T, V>
-//     where T: Dim, V: Add + Sub + Mul + Div, <V as Add>::Output: Add + Sub + Mul + Div {
-//         type Output = Dimensioned<T, <V as Add>::Output>;
-//         fn add(self, rhs: Self) -> Dimensioned<T, <V as Add>::Output> {
-//             Dimensioned(self.0 + rhs.0)
-//         }
-// }
+/// Multiplying! Dimensions must be able to add.
+impl<Tl, Tr, Vl, Vr> Mul<Dimensioned<Tr, Vr>> for Dimensioned<Tl, Vl>
+    where Tl: Dim + AddDim<Tr>, Tr: Dim, Vl: Mul<Vr> + Add + Sub + Mul + Div, Vr: Add + Sub + Mul + Div, <Vl as Mul<Vr>>::Output: Add + Sub + Mul + Div, <Tl as AddDim<Tr>>::Output: Dim {
+        type Output = Dimensioned<<Tl as AddDim<Tr>>::Output, <Vl as Mul<Vr>>::Output>;
+        fn mul(self, rhs: Dimensioned<Tr, Vr>) -> Dimensioned<<Tl as AddDim<Tr>>::Output, <Vl as Mul<Vr>>::Output> {
+            Dimensioned(self.0 * rhs.0)
+        }
+}
 
-
-// fixme: figure out how to do this
-// impl<T: Dim, Rhs: Dim> AddDim<Rhs> for T {
-//     type Result =
-// }
-
-
-// impl<T: Dim> Copy for Dimensioned<T> {}
-
-// impl<T: Dim> Add for Dimensioned<T> {
-//     type Output = Dimensioned<T>;
-//     fn add(self, rhs: Dimensioned<T>) -> Dimensioned<T> {
-//         Dimensioned(self.0 + rhs.0)
-//     }
-// }
-
-// impl<T: Dim> Sub for Dimensioned<T> {
-//     type Output = Dimensioned<T>;
-//     fn sub(self, rhs: Dimensioned<T>) -> Dimensioned<T> {
-//         Dimensioned(self.0 - rhs.0)
-//     }
-// }
-
-// impl<T: Dim, U: Dim> Mul<Dimensioned<U>> for Dimensioned<T> {
-//     type Output = Dimensioned<<T as AddDim<U>>::Result>;
-//     fn mul(self, rhs: Dimensioned<U>) -> Dimensioned<<T as AddDim<U>>::Result> {
-//         Dimensioned(self.0 * rhs.0)
-//     }
-// }
-
-
-// fixme: pick more unique names? Preface all constants with a unit system?
+/// Dividing! Dimensions must be able to subtract.
+impl<Tl, Tr, Vl, Vr> Div<Dimensioned<Tr, Vr>> for Dimensioned<Tl, Vl>
+    where Tl: Dim + SubDim<Tr>, Tr: Dim, Vl: Div<Vr> + Add + Sub + Mul + Div, Vr: Add + Sub + Mul + Div, <Vl as Div<Vr>>::Output: Add + Sub + Mul + Div, <Tl as SubDim<Tr>>::Output: Dim {
+        type Output = Dimensioned<<Tl as SubDim<Tr>>::Output, <Vl as Div<Vr>>::Output>;
+        fn div(self, rhs: Dimensioned<Tr, Vr>) -> Dimensioned<<Tl as SubDim<Tr>>::Output, <Vl as Div<Vr>>::Output> {
+            Dimensioned(self.0 / rhs.0)
+        }
+}
