@@ -1,16 +1,21 @@
 use std::ops::{Add, Sub, Mul, Div};
 
-pub trait AddDim<Rhs = Self> {
+pub trait AddDim<RHS = Self> {
     type Output;
 }
 
-pub trait SubDim<Rhs = Self> {
+pub trait SubDim<RHS = Self> {
     type Output;
 }
 
 pub trait Dim: AddDim + SubDim {}
 
+pub trait Scalar {}
+impl Scalar for f64 {}
+impl Scalar for f32 {}
+
 pub struct Dimensioned<T: Dim, V: Add + Sub + Mul + Div>(pub V);
+impl<T: Dim, V: Add + Sub + Mul + Div + Copy> Copy for Dimensioned<T, V> {}
 
 /// Adding! Dimensions must be the same (although value types can differ)
 impl<T, Vl, Vr> Add<Dimensioned<T, Vr>> for Dimensioned<T, Vl>
@@ -36,6 +41,24 @@ impl<Tl, Tr, Vl, Vr> Mul<Dimensioned<Tr, Vr>> for Dimensioned<Tl, Vl>
         type Output = Dimensioned<<Tl as AddDim<Tr>>::Output, <Vl as Mul<Vr>>::Output>;
         fn mul(self, rhs: Dimensioned<Tr, Vr>) -> Dimensioned<<Tl as AddDim<Tr>>::Output, <Vl as Mul<Vr>>::Output> {
             Dimensioned(self.0 * rhs.0)
+        }
+}
+
+/// Scalar multiplication (with scalar on RHS)!
+impl<T, V, RHS> Mul<RHS> for Dimensioned<T, V>
+    where T: Dim, V: Mul<RHS> + Add + Sub + Mul + Div, RHS: Scalar, <V as Mul<RHS>>::Output: Add + Sub + Mul + Div {
+        type Output = Dimensioned<T, <V as Mul<RHS>>::Output>;
+        fn mul(self, rhs: RHS) -> Dimensioned<T, <V as Mul<RHS>>::Output> {
+            Dimensioned(self.0 * rhs)
+        }
+}
+
+/// Scalar multiplication (with scalar on LHS)!
+impl<'a, T, V> Mul<Dimensioned<T, V>> for Scalar
+    where T: Dim, V: Add + Sub + Mul + Div {
+        type Output = Dimensioned<T, V>;
+        fn mul(self, rhs: Dimensioned<T, V>) -> Dimensioned<T, V> {
+            Dimensioned(self * rhs.0 )
         }
 }
 
