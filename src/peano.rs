@@ -25,41 +25,46 @@ impl<T: NonPos> NonPos for Pred<T> {}
 impl<T: NonPos> NonZero for Pred<T> {}
 impl<T: NonPos> Neg for Pred<T> {}
 
+pub trait PInt: Peano + AddPeano + SubPeano + MulPeano + Negate + ToInt {}
+impl PInt for Zero {}
+impl PInt for One {}
+impl PInt for Pred<Zero> {}
+
 impl Copy for Zero {}
 
-pub trait AddPeano<Rhs> {
+pub trait AddPeano<RHS = Self> {
     type Output;
 }
 
 /// Adding things to zero (e.g. 0 + 3)
-impl<Rhs: Peano> AddPeano<Rhs> for Zero {
-    type Output = Rhs;
+impl<RHS: Peano> AddPeano<RHS> for Zero {
+    type Output = RHS;
 }
 
 /// Adding positive numbers (e.g. 1 + 2)
-impl<T: NonNeg + AddPeano<Succ<Rhs>>, Rhs: NonNeg> AddPeano<Succ<Rhs>> for Succ<T> {
-    type Output = Succ<<T as AddPeano<Succ<Rhs>>>::Output>;
+impl<T: NonNeg + AddPeano<Succ<RHS>>, RHS: NonNeg> AddPeano<Succ<RHS>> for Succ<T> {
+    type Output = Succ<<T as AddPeano<Succ<RHS>>>::Output>;
 }
 /// Adding zero to positive numbers (e.g. 3 + 0)
 impl<T: NonNeg> AddPeano<Zero> for Succ<T> {
     type Output = Succ<T>;
 }
 /// Adding negative numbers to positive numbers (e.g. 2 + -3)
-impl<T: NonNeg + AddPeano<Rhs>, Rhs: NonPos> AddPeano<Pred<Rhs>> for Succ<T> {
-    type Output = <T as AddPeano<Rhs>>::Output;
+impl<T: NonNeg + AddPeano<RHS>, RHS: NonPos> AddPeano<Pred<RHS>> for Succ<T> {
+    type Output = <T as AddPeano<RHS>>::Output;
 }
 
 /// Adding negative numbers (e.g. -1 + -2)
-impl<T: NonPos + AddPeano<Pred<Rhs>>, Rhs: NonPos> AddPeano<Pred<Rhs>> for Pred<T> {
-    type Output = Pred<<T as AddPeano<Pred<Rhs>>>::Output>;
+impl<T: NonPos + AddPeano<Pred<RHS>>, RHS: NonPos> AddPeano<Pred<RHS>> for Pred<T> {
+    type Output = Pred<<T as AddPeano<Pred<RHS>>>::Output>;
 }
 /// Adding zero to negative numbers (e.g. -3 + 0)
 impl<T: NonPos> AddPeano<Zero> for Pred<T> {
     type Output = Pred<T>;
 }
 /// Adding positive numbers to negative numbers (e.g. -2 + 3)
-impl<T: NonPos + AddPeano<Rhs>, Rhs: NonNeg> AddPeano<Succ<Rhs>> for Pred<T> {
-    type Output = <T as AddPeano<Rhs>>::Output;
+impl<T: NonPos + AddPeano<RHS>, RHS: NonNeg> AddPeano<Succ<RHS>> for Pred<T> {
+    type Output = <T as AddPeano<RHS>>::Output;
 }
 
 pub trait Negate {
@@ -75,63 +80,63 @@ impl<T: NonPos + Negate> Negate for Pred<T> {
     type Output = Succ<<T as Negate>::Output>;
 }
 
-pub trait SubPeano<Rhs> {
+pub trait SubPeano<RHS = Self> {
     type Output;
 }
 
 /// Subtracting from zero
-impl<Rhs: Peano + Negate> SubPeano<Rhs> for Zero {
-    type Output = <Rhs as Negate>::Output;
+impl<RHS: Peano + Negate> SubPeano<RHS> for Zero {
+    type Output = <RHS as Negate>::Output;
 }
 
 /// Subtracting positive numbers from positive numbers (e.g. 3 - 4)
-impl<T: NonNeg + SubPeano<Rhs>, Rhs: NonNeg> SubPeano<Succ<Rhs>> for Succ<T> {
-    type Output = <T as SubPeano<Rhs>>::Output;
+impl<T: NonNeg + SubPeano<RHS>, RHS: NonNeg> SubPeano<Succ<RHS>> for Succ<T> {
+    type Output = <T as SubPeano<RHS>>::Output;
 }
 /// Subtracting zero from positive numbers (e.g. 3 - 0)
 impl<T: NonNeg> SubPeano<Zero> for Succ<T> {
     type Output = Succ<T>;
 }
 /// Subtracting negative numbers from positive numbers (e.g. 3 - -4)
-impl<T: NonNeg + SubPeano<Rhs>, Rhs: NonPos> SubPeano<Pred<Rhs>> for Succ<T> {
-    type Output = Succ<Succ<<T as SubPeano<Rhs>>::Output>>;
+impl<T: NonNeg + SubPeano<RHS>, RHS: NonPos> SubPeano<Pred<RHS>> for Succ<T> {
+    type Output = Succ<Succ<<T as SubPeano<RHS>>::Output>>;
 }
 
 /// Subtracting positive numbers from negative numbers (e.g. -3 - 4)
-impl<T: NonPos + SubPeano<Rhs>, Rhs: NonNeg> SubPeano<Succ<Rhs>> for Pred<T> {
-    type Output = Pred<Pred<<T as SubPeano<Rhs>>::Output>>;
+impl<T: NonPos + SubPeano<RHS>, RHS: NonNeg> SubPeano<Succ<RHS>> for Pred<T> {
+    type Output = Pred<Pred<<T as SubPeano<RHS>>::Output>>;
 }
 /// Subtracting zero from negative numbers (e.g. -3 - 0)
 impl<T: NonPos> SubPeano<Zero> for Pred<T> {
     type Output = Pred<T>;
 }
 /// Subtracting negative numbers from negative numbers (e.g. -3 - -4)
-impl<T: NonPos + SubPeano<Rhs>, Rhs: NonPos> SubPeano<Pred<Rhs>> for Pred<T> {
-    type Output = <T as SubPeano<Rhs>>::Output;
+impl<T: NonPos + SubPeano<RHS>, RHS: NonPos> SubPeano<Pred<RHS>> for Pred<T> {
+    type Output = <T as SubPeano<RHS>>::Output;
 }
 
-pub trait MulPeano<Rhs> {
+pub trait MulPeano<RHS = Self> {
     type Output;
 }
 
 /// Multiplying zero by things (e.g. 0 * 7)
-impl<Rhs: Peano> MulPeano<Rhs> for Zero {
+impl<RHS: Peano> MulPeano<RHS> for Zero {
     type Output = Zero;
 }
 
 /// Multiplying a positive integer by an arbitrary integer (e.g. 2 * N)
-impl<T, Rhs> MulPeano<Rhs> for Succ<T>
-    where T: NonNeg + MulPeano<Rhs>, Rhs: AddPeano<<T as MulPeano<Rhs>>::Output> {
-        type Output = <Rhs as AddPeano<<T as MulPeano<Rhs>>::Output>>::Output;
+impl<T, RHS> MulPeano<RHS> for Succ<T>
+    where T: NonNeg + MulPeano<RHS>, RHS: AddPeano<<T as MulPeano<RHS>>::Output> {
+        type Output = <RHS as AddPeano<<T as MulPeano<RHS>>::Output>>::Output;
 }
 
 /// Multiplying a negative integer by an arbitrary integer (e.g. -2 * N)
-impl<T, Rhs> MulPeano<Rhs> for Pred<T>
-    where T: NonPos + MulPeano<Rhs>, Rhs: Peano, <T as MulPeano<Rhs>>::Output: SubPeano<Rhs> {
-        type Output = <<T as MulPeano<Rhs>>::Output as SubPeano<Rhs>>::Output;
+impl<T, RHS> MulPeano<RHS> for Pred<T>
+    where T: NonPos + MulPeano<RHS>, RHS: Peano, <T as MulPeano<RHS>>::Output: SubPeano<RHS> {
+        type Output = <<T as MulPeano<RHS>>::Output as SubPeano<RHS>>::Output;
 }
 
-trait ToInt {
+pub trait ToInt {
     fn to_int() -> i32;
 }
 impl ToInt for Zero {
