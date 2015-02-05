@@ -57,8 +57,6 @@ impl fmt::Display for Vector2d {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "({}, {})", self.x, self.y) }
 }
 
-trait Scalar {}
-
 
 fn main() {
     let start: Dim<Meter, Vector2d> = Dim(Vector2d{x: -13.0, y: 33.0});
@@ -67,8 +65,9 @@ fn main() {
     let time = s*26.0;
     let vel = displace/time;
     // Dim has Deref, but doesn't know about norm(), so vel.norm() returns f64 *not*
-    // Dim<Meter, f64>, which is what we desire. This is the use for vel.wrap() -- it
-    // "wraps" the argument in the same dimensions as vel
+    // Dim<Meter, f64>, which is what we desire. This is the use for vel.wrap()---it
+    // "wraps" the argument in the same dimensions as vel. We could avoid using wrap()
+    // by putting norm() in a trait and implementing it for Dim.
     let speed = vel.wrap(vel.norm());
     println!("
 A physicist was standing at {}.
