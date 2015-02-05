@@ -8,3 +8,9 @@ To build, simply run
 ```
 cargo build
 ```
+
+
+To see an example with vectors, run
+```
+cargo run --example vec
+```

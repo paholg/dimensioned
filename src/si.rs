@@ -1,126 +1,45 @@
+
+// This is a generated file. It was created using unitsmaker.py.
 #![allow(non_upper_case_globals)]
 use peano::*;
 use dimensioned::*;
 
-/// SI units
-pub struct SI<Length: PInt, Mass: PInt, Time: PInt, Current: PInt, Temp: PInt, Intensity: PInt, Quanity: PInt>;
-
+pub struct SI<Length: PInt, Mass: PInt, Time: PInt, Current: PInt, Temp: PInt, Intensity: PInt, Quantity: PInt>;
 impl<Length: PInt, Mass: PInt, Time: PInt, Current: PInt, Temp: PInt, Intensity: PInt, Quantity: PInt> Dim for SI<Length, Mass, Time, Current, Temp, Intensity, Quantity> {}
 
 
-impl<L1, L2, L3, L4, L5, L6, L7, R1, R2, R3, R4, R5, R6, R7>
-    AddDim<SI<R1, R2, R3, R4, R5, R6, R7>> for SI<L1, L2, L3, L4, L5, L6, L7>
-    where L1: PInt + AddPeano<R1>, L2: PInt, L3: PInt, L4: PInt, L5: PInt, L6: PInt, L7: PInt,
-          R1: PInt, R2: PInt, R3: PInt, R4: PInt, R5: PInt, R6: PInt, R7: PInt {
-              type Output = SI<<L1 as AddPeano<R1>>::Output, L2, L3, L4, L5, L6, L7>;
+impl<Length1, Mass1, Time1, Current1, Temp1, Intensity1, Quantity1, Length2, Mass2, Time2, Current2, Temp2, Intensity2, Quantity2> AddDim<SI<Length2, Mass2, Time2, Current2, Temp2, Intensity2, Quantity2>> for SI<Length1, Mass1, Time1, Current1, Temp1, Intensity1, Quantity1>
+where Length1: PInt + AddPeano<Length2>, Mass1: PInt + AddPeano<Mass2>, Time1: PInt + AddPeano<Time2>, Current1: PInt + AddPeano<Current2>, Temp1: PInt + AddPeano<Temp2>, Intensity1: PInt + AddPeano<Intensity2>, Quantity1: PInt + AddPeano<Quantity2>, Length2: PInt, Mass2: PInt, Time2: PInt, Current2: PInt, Temp2: PInt, Intensity2: PInt, Quantity2: PInt
+{
+  type Output = SI<<Length1 as AddPeano<Length2>>::Output, <Mass1 as AddPeano<Mass2>>::Output, <Time1 as AddPeano<Time2>>::Output, <Current1 as AddPeano<Current2>>::Output, <Temp1 as AddPeano<Temp2>>::Output, <Intensity1 as AddPeano<Intensity2>>::Output, <Quantity1 as AddPeano<Quantity2>>::Output>;
 }
 
+impl<Length1, Mass1, Time1, Current1, Temp1, Intensity1, Quantity1, Length2, Mass2, Time2, Current2, Temp2, Intensity2, Quantity2> SubDim<SI<Length2, Mass2, Time2, Current2, Temp2, Intensity2, Quantity2>> for SI<Length1, Mass1, Time1, Current1, Temp1, Intensity1, Quantity1>
+where Length1: PInt + SubPeano<Length2>, Mass1: PInt + SubPeano<Mass2>, Time1: PInt + SubPeano<Time2>, Current1: PInt + SubPeano<Current2>, Temp1: PInt + SubPeano<Temp2>, Intensity1: PInt + SubPeano<Intensity2>, Quantity1: PInt + SubPeano<Quantity2>, Length2: PInt, Mass2: PInt, Time2: PInt, Current2: PInt, Temp2: PInt, Intensity2: PInt, Quantity2: PInt
+{
+  type Output = SI<<Length1 as SubPeano<Length2>>::Output, <Mass1 as SubPeano<Mass2>>::Output, <Time1 as SubPeano<Time2>>::Output, <Current1 as SubPeano<Current2>>::Output, <Temp1 as SubPeano<Temp2>>::Output, <Intensity1 as SubPeano<Intensity2>>::Output, <Quantity1 as SubPeano<Quantity2>>::Output>;
+}
 
-// pub type Length = SI<One, Zero, Zero, Zero, Zero, Zero, Zero>;
-// pub type Mass = SI<Zero, One, Zero, Zero, Zero, Zero, Zero>;
-// pub type Time = SI<Zero, Zero, One, Zero, Zero, Zero, Zero>;
-// pub type Current = SI<Zero, Zero, Zero, One, Zero, Zero, Zero>;
-// pub type Temp = SI<Zero, Zero, Zero, Zero, One, Zero, Zero>;
-// pub type Intensity = SI<Zero, Zero, Zero, Zero, Zero, One, Zero>;
-// pub type Quantity = SI<Zero, Zero, Zero, Zero, Zero, Zero, One>;
+impl<Length1, Mass1, Time1, Current1, Temp1, Intensity1, Quantity1, Length2, Mass2, Time2, Current2, Temp2, Intensity2, Quantity2> MulDim<SI<Length2, Mass2, Time2, Current2, Temp2, Intensity2, Quantity2>> for SI<Length1, Mass1, Time1, Current1, Temp1, Intensity1, Quantity1>
+where Length1: PInt + MulPeano<Length2>, Mass1: PInt + MulPeano<Mass2>, Time1: PInt + MulPeano<Time2>, Current1: PInt + MulPeano<Current2>, Temp1: PInt + MulPeano<Temp2>, Intensity1: PInt + MulPeano<Intensity2>, Quantity1: PInt + MulPeano<Quantity2>, Length2: PInt, Mass2: PInt, Time2: PInt, Current2: PInt, Temp2: PInt, Intensity2: PInt, Quantity2: PInt
+{
+  type Output = SI<<Length1 as MulPeano<Length2>>::Output, <Mass1 as MulPeano<Mass2>>::Output, <Time1 as MulPeano<Time2>>::Output, <Current1 as MulPeano<Current2>>::Output, <Temp1 as MulPeano<Temp2>>::Output, <Intensity1 as MulPeano<Intensity2>>::Output, <Quantity1 as MulPeano<Quantity2>>::Output>;
+}
+pub type Unitless = SI<Zero, Zero, Zero, Zero, Zero, Zero, Zero>;
+impl Dimensionless for Unitless {}
+pub type Length = SI<Succ<Zero>, Zero, Zero, Zero, Zero, Zero, Zero>;
+pub type Mass = SI<Zero, Succ<Zero>, Zero, Zero, Zero, Zero, Zero>;
+pub type Time = SI<Zero, Zero, Succ<Zero>, Zero, Zero, Zero, Zero>;
+pub type Current = SI<Zero, Zero, Zero, Succ<Zero>, Zero, Zero, Zero>;
+pub type Temp = SI<Zero, Zero, Zero, Zero, Succ<Zero>, Zero, Zero>;
+pub type Intensity = SI<Zero, Zero, Zero, Zero, Zero, Succ<Zero>, Zero>;
+pub type Quantity = SI<Zero, Zero, Zero, Zero, Zero, Zero, Succ<Zero>>;
 
-// pub static m: Dimensioned<Length, f64> = Dimensioned(1.0);
-// pub static g: Dimensioned<Mass, f64> = Dimensioned(1.0e-3);
-// pub static kg: Dimensioned<Mass, f64> = Dimensioned(1.0);
-// pub static s: Dimensioned<Time, f64> = Dimensioned(1.0);
-// pub static A: Dimensioned<Current, f64> = Dimensioned(1.0);
-// pub static K: Dimensioned<Temp, f64> = Dimensioned(1.0);
-// pub static cd: Dimensioned<Intensity, f64> = Dimensioned(1.0);
-// pub static mol: Dimensioned<Quantity, f64> = Dimensioned(1.0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// impl Dim for SI {}
-// impl Mul<SI, SI> for SI {
-//     fn mul(&self, other: &SI) -> SI {
-//         SI {
-//             meters: self.meters + other.meters, kilograms: self.kilograms + other.kilograms,
-//             seconds: self.seconds + other.seconds, amperes: self.amperes + other.amperes,
-//             kelvin: self.kelvin + other.kelvin, candela: self.candela + other.candela,
-//             moles: self.moles + other.moles
-//         }
-//     }
-// }
-// impl Div<SI, SI> for SI {
-//     fn div(&self, other: &SI) -> SI {
-//         SI {
-//             meters: self.meters - other.meters, kilograms: self.kilograms - other.kilograms,
-//             seconds: self.seconds - other.seconds, amperes: self.amperes - other.amperes,
-//             kelvin: self.kelvin - other.kelvin, candela: self.candela - other.candela,
-//             moles: self.moles - other.moles
-//         }
-//     }
-// }
-// impl PartialEq for SI {
-//     fn eq(&self, other: &SI) -> bool {
-//         self.meters == other.meters && self.kilograms == other.kilograms &&
-//             self.seconds == other.seconds && self.amperes == other.amperes &&
-//             self.kelvin == other.kelvin && self.candela == other.candela &&
-//             self.moles == other.moles
-//     }
-//     fn ne(&self, other: &SI) -> bool {
-//         !(self == other)
-//     }
-// }
-
-// impl Clone for SI {
-//     fn clone(&self) -> SI {
-//         SI {
-//             meters: self.meters, kilograms: self.kilograms, seconds: self.seconds,
-//             amperes: self.amperes, kelvin: self.kelvin, candela: self.candela, moles: self.moles
-//         }
-//     }
-// }
-
-// impl fmt::Show for SI {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         let mut unit_string = String::new();
-//         let mut first = true;
-//         for (unit, exp) in ["m", "kg", "s", "A", "K", "cd", "mol"].iter().zip([self.meters, self.kilograms, self.seconds, self.amperes, self.kelvin, self.candela, self.moles].iter()) {
-//             if *exp != 0 {
-//                 if first == false {
-//                     unit_string.push('*');
-//                 }
-//                 unit_string.push_str(*unit);
-//                 if *exp != 1 {
-//                     unit_string = format!("{}^{}", unit_string, exp);
-//                 }
-//                 first = false;
-//             }
-//         }
-//         write!(f, "{}", unit_string)
-//     }
-// }
+pub static one: Dimensioned<Unitless, f64> = Dimensioned(1.0);
+pub static m: Dimensioned<Length, f64> = Dimensioned(1.0);
+pub static kg: Dimensioned<Mass, f64> = Dimensioned(1.0);
+pub static s: Dimensioned<Time, f64> = Dimensioned(1.0);
+pub static A: Dimensioned<Current, f64> = Dimensioned(1.0);
+pub static K: Dimensioned<Temp, f64> = Dimensioned(1.0);
+pub static cd: Dimensioned<Intensity, f64> = Dimensioned(1.0);
+pub static mol: Dimensioned<Quantity, f64> = Dimensioned(1.0);
