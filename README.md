@@ -2,6 +2,8 @@ Dimensioned
 =====
 [![Build Status](https://travis-ci.org/paholg/dimensioned.svg?branch=master)](https://travis-ci.org/paholg/dimensioned)
 
+***NOTE:*** If you do play with this, and you get internal compiler errors, it is almost certainly because you are doing something like `m*3` where `m` is of type `SI<Meter, f64>`. To fix it, simply change to `m*3.0`.
+
 A library for compile-time type checking of arbitrary unit systems.
 
 This library currently comes with just SI units, but you can easily make your own by
