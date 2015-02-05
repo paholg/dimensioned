@@ -29,6 +29,18 @@ impl Scalar for f32 {}
 
 pub struct Dim<T: Dimension, V>(pub V);
 
+pub trait Wrap<B> {
+    type Output;
+    fn wrap(&self, b: B) -> <Self as Wrap<B>>::Output;
+}
+impl<T, A, B> Wrap<B> for Dim<T, A>
+    where T: Dimension {
+        type Output = Dim<T, B>;
+        fn wrap(&self, b: B) -> Dim<T, B> {
+            Dim(b)
+        }
+}
+
 // trait PowI {
 //     type Output;
 // }
@@ -160,6 +172,10 @@ impl<T, V> Deref for Dim<T, V> {
 impl<T, V> DerefMut for Dim<T, V> {
     fn deref_mut<'a>(&'a mut self) -> &'a mut V { &mut self.0 }
 }
+
+// fn wrap(a: Dimensioned<T, Va>, b: Vb) -> Dimensioned<T, Vb> {
+//     Dim(b)
+// }
 
 //------------------------------------------------------------------------------
 // Traits from core::cmp

@@ -1,7 +1,7 @@
 extern crate dimensioned;
 
 use dimensioned::si::*;
-use dimensioned::Dim;
+use dimensioned::{Dim, Wrap};
 use std::ops::*;
 use std::fmt;
 use std::num::Float;
@@ -66,8 +66,10 @@ fn main() {
     let displace = end - start;
     let time = s*26.0;
     let vel = displace/time;
-    // Due to Deref, I can treat vel like it's a Vector2d even though it isn't!
-    let speed = vel.norm();
+    // Dim has Deref, but doesn't know about norm(), so vel.norm() returns f64 *not*
+    // Dim<Meter, f64>, which is what we desire. This is the use for vel.wrap() -- it
+    // "wraps" the argument in the same dimensions as vel
+    let speed = vel.wrap(vel.norm());
     println!("
 A physicist was standing at {}.
 Then she walked to {}, for a displacement of {}.
