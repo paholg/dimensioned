@@ -1,6 +1,6 @@
 extern crate dimensioned;
 
-use dimensioned::ms::*;
+use dimensioned::si::*;
 use dimensioned::{Dim, Inject};
 use std::ops::*;
 use std::fmt;

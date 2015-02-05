@@ -23,9 +23,13 @@ class Units:
         uboth = ", ".join(u1_list + u2_list)
         u1 = ", ".join(u1_list)
         u2 = ", ".join(u2_list)
+        # ----------------------------------------------------------------------
+        # File top
         text = """
 // This is a generated file. It was created using unitsmaker.py.
+#![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
+
 use peano::*;
 use dimensioned::*;
 
@@ -33,7 +37,8 @@ pub struct {name}<{ulong}>;
 impl<{ulong}> Dimension for {name}<{ushort}> {{}}
 
 """.format(**locals())
-
+        # ----------------------------------------------------------------------
+        # Operators
         for op in ["Add", "Sub", "Mul"]:
             u1_long = ", ".join([u1+": PInt + {}Peano<{}>".format(op, u2) for (u1, u2) in zip(u1_list, u2_list) ])
             u2_long = ", ".join([u+": PInt" for u in u2_list])
@@ -45,6 +50,34 @@ where {u1_long}, {u2_long}
   type Output = {name}<{outs}>;
 }}
 """.format(**locals())
+        # ----------------------------------------------------------------------
+        # ToString
+        text += """
+impl<{ushort}> DimToString for {name}<{ushort}>
+  where {ulong} {{
+    fn to_string() -> String {{
+""".format(**locals())
+        allowed_root = self.allowed_root
+        for (unit, prn) in zip(self.units, self.print_as):
+            text += """
+      let {prn}_str = match <{unit} as ToInt>::to_int() {{
+            0 => ("", "".to_string()),
+            {allowed_root} => ("{prn}", "".to_string()),
+            n => ("{prn}^", (n/{allowed_root}).to_string())
+          }};""".format(**locals())
+
+        text += """
+      format!(\""""
+        for i in range(len(self.units)):
+            text += "{}{}"
+        text += "\", "
+        text += ", ".join(["{0}_str.0, {0}_str.1".format(p) for p in self.print_as])
+        text +=""")
+  }
+}
+"""
+        # ----------------------------------------------------------------------
+        # Type aliases
         root_num = "Zero"
         for i in range(self.allowed_root):
             root_num = "Succ<" + root_num + ">"
@@ -62,6 +95,8 @@ where {u1_long}, {u2_long}
             type_sig = ", ".join(type_sig)
             text += "pub type {u} = {name}<{type_sig}>;\n".format(**locals())
 
+        # ----------------------------------------------------------------------
+        # Constants
         vtype = self.vtype
         one = self.one
         text += "\n"
@@ -69,6 +104,8 @@ where {u1_long}, {u2_long}
         for (c, u) in zip(self.constants, self.units):
             text += "pub static {c}: Dim<{u}, {vtype}> = Dim({one});\n".format(**locals())
 
+        # ----------------------------------------------------------------------
+        # Save file!
         f = open(self.filename, "w")
         f.write(text)
         f.close()
