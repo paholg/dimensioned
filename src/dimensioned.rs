@@ -41,20 +41,6 @@ pub struct Dim<T: Dimension, V>(pub V);
 impl<T: Dimension, V: Copy> Copy for Dim<T, V> {}
 
 
-pub trait Inject<F> {
-    type Output;
-    fn inject(self, f: F) -> Self::Output;
-}
-
-impl<T: Dimension, F, A, B> Inject<F> for Dim<T, A>
-    where F: Fn(A) -> B {
-        type Output = Dim<T, B>;
-        fn inject(self, f: F) -> Dim<T, B> {
-            Dim( f(self.0) )
-        }
-    }
-
-
 
 //------------------------------------------------------------------------------
 // Clone
@@ -167,6 +153,13 @@ define_binary_op!(Shl, shl);
 define_binary_op!(Shr, shr);
 define_binary_op!(Sub, sub);
 
+impl<T, V> Deref for Dim<T, V> {
+    type Target = V;
+    fn deref<'a>(&'a self) -> &'a V { &self.0 }
+}
+impl<T, V> DerefMut for Dim<T, V> {
+    fn deref_mut<'a>(&'a mut self) -> &'a mut V { &mut self.0 }
+}
 
 //------------------------------------------------------------------------------
 // Traits from core::cmp

@@ -1,7 +1,7 @@
 extern crate dimensioned;
 
 use dimensioned::si::*;
-use dimensioned::{Dim, Inject};
+use dimensioned::Dim;
 use std::ops::*;
 use std::fmt;
 use std::num::Float;
@@ -66,7 +66,8 @@ fn main() {
     let displace = end - start;
     let time = s*26.0;
     let vel = displace/time;
-    let speed = vel.inject(Vector2d::norm);
+    // Due to Deref, I can treat vel like it's a Vector2d even though it isn't!
+    let speed = vel.norm();
     println!("
 A physicist was standing at {}.
 Then she walked to {}, for a displacement of {}.
