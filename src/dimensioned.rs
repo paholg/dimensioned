@@ -1,6 +1,8 @@
 use std::ops::*;
 use std::num::{ToPrimitive, NumCast, Float};
-use core::cmp::*;
+use std::cmp::*;
+//use std::string::String;
+use std::fmt;
 
 pub trait Dim {}
 pub trait Dimensionless: Dim {}
@@ -17,7 +19,9 @@ pub trait MulDim<RHS = Self>: Dim {
 pub trait DivDim<RHS = Self>: Dim {
     type Output;
 }
-
+pub trait DimToString: Dim {
+    fn to_string() -> String;
+}
 
 pub trait Scalar {}
 impl Scalar for f64 {}
@@ -31,10 +35,24 @@ pub struct Dimensioned<T: Dim, V>(pub V);
 // impl<T, V> PowI for Dimensioned<T, V>
 //     where T: MulDim, V: Float {
 //         type Output = Dimensioned<>
-//             fn powi(self, n: i32) -> 
+//             fn powi(self, n: i32) ->
 //     }
 
 impl<T: Dim, V: Copy> Copy for Dimensioned<T, V> {}
+
+
+pub trait Inject<F> {
+    type Output;
+    fn inject(self, f: F) -> Self::Output;
+}
+
+impl<T: Dim, F, A, B> Inject<F> for Dimensioned<T, A>
+    where F: Fn(A) -> B {
+        type Output = Dimensioned<T, B>;
+        fn inject(self, f: F) -> Dimensioned<T, B> {
+            Dimensioned( f(self.0) )
+        }
+    }
 
 
 
@@ -50,6 +68,14 @@ impl<T, V> Clone for Dimensioned<T, V> where T: Dim, V: Clone {
     }
 }
 
+//------------------------------------------------------------------------------
+// Traits from std::fmt
+//------------------------------------------------------------------------------
+impl<T, V> fmt::Display for Dimensioned<T, V> where T: DimToString, V: fmt::Display {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "{} {}", self.0, <T as DimToString>::to_string())
+    }
+}
 //------------------------------------------------------------------------------
 // Traits from std::ops
 //------------------------------------------------------------------------------

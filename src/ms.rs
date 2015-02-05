@@ -1,14 +1,13 @@
 #![allow(non_upper_case_globals)]
 use peano::*;
 use dimensioned::*;
-use std::fmt;
 //use std::num::rational::Ratio;
 
 /// Units with just meters and seconds as a test case
 pub struct MS<Meter: PInt, Second: PInt>;
-impl<M, S> fmt::Display for MS<M, S>
+impl<M, S> DimToString for MS<M, S>
     where M: PInt, S: PInt {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn to_string() -> String {
             let mstr = match <M as ToInt>::to_int() {
                 0 => ("", "".to_string()),
                 1 => ("m", "".to_string()),
@@ -24,7 +23,7 @@ impl<M, S> fmt::Display for MS<M, S>
             //     1 => "s",
             //     n => concat!("s^", Ratio::new(n,1).reduced().to_str_radix(10).as_slice() )
             // };
-            write!(f, "{}{}{}{}", mstr.0, mstr.1, sstr.0, sstr.1)
+            format!("{}{}{}{}", mstr.0, mstr.1, sstr.0, sstr.1)
         }
     }
 

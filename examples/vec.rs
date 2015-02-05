@@ -1,7 +1,7 @@
 extern crate dimensioned;
 
-use dimensioned::si::*;
-use dimensioned::Dimensioned;
+use dimensioned::ms::*;
+use dimensioned::{Dimensioned, Inject};
 use std::ops::*;
 use std::fmt;
 use std::num::Float;
@@ -19,9 +19,9 @@ impl Vector2d {
     /// Standard cross product.
     pub fn cross(&self, v: Vector2d) -> f64 { self.wedge(v) }
     /// Returns the squared norm.
-    pub fn norm2(&self) -> f64 { self.x*self.x + self.y*self.y }
+    pub fn norm2(self) -> f64 { self.x*self.x + self.y*self.y }
     /// Returns the norm.
-    pub fn norm(&self) -> f64 { self.norm2().sqrt() }
+    pub fn norm(self) -> f64 { self.norm2().sqrt() }
     /// Returns a normalized 2d vector parallel to self.
     pub fn normalized(&self) -> Vector2d {
         let n = self.norm();
@@ -49,7 +49,6 @@ impl Mul<f64> for Vector2d {
     }
 }
 
-
 impl Div<f64> for Vector2d {
     type Output = Vector2d;
     fn div(self, scalar: f64) -> Vector2d { Vector2d{x: self.x/scalar, y: self.y/scalar} }
@@ -62,8 +61,15 @@ trait Scalar {}
 
 
 fn main() {
-    let pos: Dimensioned<Meter, Vector2d> = Dimensioned(Vector2d{x: 1.3, y: 2.5});
-    let time = s*3.0;
-    let vel = pos/time;
-    let speed: Dimensioned<Meter, f64> = Dimensioned((vel.0).norm());
+    let start: Dimensioned<Meter, Vector2d> = Dimensioned(Vector2d{x: -13.0, y: 33.0});
+    let end: Dimensioned<Meter, Vector2d> = Dimensioned(Vector2d{x: 26.0, y: -19.0});
+    let displace = end - start;
+    let time = s*26.0;
+    let vel = displace/time;
+    let speed = vel.inject(Vector2d::norm);
+    println!("
+A physicist was standing at {}.
+Then she walked to {}, for a displacement of {}.
+The walk took her {}, so she must have had a velocity of {}.
+That's a speed of {}!", start, end, displace, time, vel, speed);
 }
