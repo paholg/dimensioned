@@ -136,6 +136,25 @@ impl<T, RHS> MulPeano<RHS> for Pred<T>
         type Output = <<T as MulPeano<RHS>>::Output as SubPeano<RHS>>::Output;
 }
 
+// /// Note that, while we define division, we are operating in a ring, so a type error
+// /// will be thrown unless the numerator is divisible by the denominator
+// pub trait DivPeano<RHS = Self> {
+//     type Output;
+// }
+// /// Dividing zero by things (e.g. 0 / 7)
+// impl<RHS: NonZero> DivPeano<RHS> for Zero {
+//     type Output = Zero;
+// }
+
+// // fixme: This causes a stack overflow if numbers aren't divisible --- disabling for now
+// /// Dividing a positive integer by a positive integer (e.g. 4 / 2)
+// impl<T, RHS> DivPeano<RHS> for T
+//     where T: Pos + DivPeano<RHS>, RHS: Pos {
+//         type Output = <One as AddPeano<<<T as SubPeano<RHS>>::Output as DivPeano<RHS>>::Output>>::Output;
+// }
+
+
+
 pub trait ToInt {
     fn to_int() -> i32;
 }
@@ -153,6 +172,7 @@ impl<T:NonPos + ToInt> ToInt for Pred<T> {
 fn test_peano() {
     type Two = Succ<One>;
     type Three = Succ<Two>;
+    type Four = Succ<Three>;
 
     type NegOne = Pred<Zero>;
     type NegTwo = Pred<NegOne>;
@@ -247,4 +267,15 @@ fn test_peano() {
     assert_eq!( -6, <<NegTwo as MulPeano<Three>>::Output as ToInt>::to_int() );
     // -2 * -3 == 6
     assert_eq!( 6, <<NegTwo as MulPeano<NegThree>>::Output as ToInt>::to_int() );
+
+    // // Testing Division
+    // // 0 / 2 == 0
+    // assert_eq!( 0, <<Zero as DivPeano<Two>>::Output as ToInt>::to_int() );
+    // // 1 / 1 == 1
+    // assert_eq!( 1, <<One as DivPeano<One>>::Output as ToInt>::to_int() );
+    // // 4 / 2 == 2
+    // assert_eq!( 2, <<Four as DivPeano<Two>>::Output as ToInt>::to_int() );
+    // // 3 / 2 == Type error
+    // assert_eq!( 2, <<Three as DivPeano<Two>>::Output as ToInt>::to_int() );
+
 }
