@@ -9,8 +9,11 @@
 # Features to implement
 - Peano Division :: Keep them a ring, so it won't be closed, but this will allow things
                     like Gaussian units
-- Unit system creator :: Probably a python script, to make it easy to make your own unit
-     system
+- Printing :: Each unit system should have to_str() which is then used by Dimensioned
+              for its own to_str() and for formatting
 - Dimensioned :: Implement powi() and sqrt() and maybe cuberoot()
                  Figure out if I want to implement any more traits for this.
+
+# Questions
+- Name change :: Dimensioned -> Dim, and then Dim to something else???
 

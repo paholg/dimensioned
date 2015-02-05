@@ -78,7 +78,7 @@ def main():
     si = Units()
     si.name = "SI"
     si.filename = "src/si.rs"
-    si.units = ["Length", "Mass", "Time", "Current", "Temp", "Intensity", "Quantity"]
+    si.units = ["Meter", "Kilogram", "Second", "Amp", "Kelvin", "Candela", "Mole"]
     si.constants = ["m", "kg", "s", "A", "K", "cd", "mol"]
     si.print_as = si.constants
     si.make_units()

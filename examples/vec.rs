@@ -1,7 +1,7 @@
 extern crate dimensioned;
 
-use dimensioned::Scalar;
 use dimensioned::si::*;
+use dimensioned::Dimensioned;
 use std::ops::*;
 use std::fmt;
 use std::num::Float;
@@ -42,10 +42,10 @@ impl Neg for Vector2d {
     fn neg(self) -> Vector2d { Vector2d{x: -self.x, y: -self.y} }
 }
 
-impl<T> Mul<T> for Vector2d {
-    type Output = <Vector2d as Mul<T>>::Output;
-    fn mul(self, scalar: T) -> <Vector2d as Mul<T>>::Output {
-        Vector2d{x: scalar*self.x, y: scalar*self.y}
+impl Mul<f64> for Vector2d {
+    type Output = Vector2d;
+    fn mul(self, rhs: f64) -> Vector2d {
+        Vector2d{x: rhs*self.x, y: rhs*self.y}
     }
 }
 
@@ -58,8 +58,12 @@ impl fmt::Display for Vector2d {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "({}, {})", self.x, self.y) }
 }
 
-impl Scalar for Vector2d {}
+trait Scalar {}
+
 
 fn main() {
-    let pos = Vector2d{x: 1.3, y: 2.5}*m;
+    let pos: Dimensioned<Meter, Vector2d> = Dimensioned(Vector2d{x: 1.3, y: 2.5});
+    let time = s*3.0;
+    let vel = pos/time;
+    let speed: Dimensioned<Meter, f64> = Dimensioned((vel.0).norm());
 }
