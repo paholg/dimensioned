@@ -27,8 +27,10 @@ impl<T: NonPos> Neg for Pred<T> {}
 
 pub trait PInt: Peano + AddPeano + SubPeano + MulPeano + Negate + ToInt {}
 impl PInt for Zero {}
-impl PInt for One {}
-impl PInt for Pred<Zero> {}
+impl<T: NonNeg + PInt> PInt for Succ<T>
+    where Succ<T>: AddPeano + SubPeano + MulPeano + Negate + ToInt {}
+impl<T: NonPos + PInt> PInt for Pred<T>
+    where Pred<T>: AddPeano + SubPeano + MulPeano + Negate + ToInt {}
 
 impl Copy for Zero {}
 
@@ -152,7 +154,12 @@ impl<T, RHS> MulPeano<RHS> for Pred<T>
 //     where T: Pos + DivPeano<RHS>, RHS: Pos {
 //         type Output = <One as AddPeano<<<T as SubPeano<RHS>>::Output as DivPeano<RHS>>::Output>>::Output;
 // }
-
+pub trait KeepPeano<RHS = Self> {
+    type Output;
+}
+impl<T> KeepPeano<T> for T where T: Peano {
+    type Output = T;
+}
 
 
 pub trait ToInt {
