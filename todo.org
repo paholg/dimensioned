@@ -10,11 +10,7 @@
 - Peano Division :: Keep them a ring, so it won't be closed, but this will allow things
                     like Gaussian units. <Current attempt doesn't terminate when invalid
                     divisions are asked for (e.g. 5/3)>
-- Printing :: Generalize print formatting. (Also add to python script)
 - Dimensioned :: Implement powi() and sqrt() and maybe cuberoot().  Figure out if I want
                  to implement any more traits for this.
-- Extraction :: Apply a function to the value inside a Dimensional without having to
-                rewrap it. Ideally without using a macro. <Partially implemented with
-                inject(), I think a wrap() function could be more general though>
 
 # Questions
