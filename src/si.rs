@@ -10,6 +10,12 @@ pub struct SI<Meter: PInt, Kilogram: PInt, Second: PInt, Amp: PInt, Kelvin: PInt
 impl<Meter: PInt, Kilogram: PInt, Second: PInt, Amp: PInt, Kelvin: PInt, Candela: PInt, Mole: PInt> Dimension for SI<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole> {}
 
 
+impl<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1, Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2> KeepDim<SI<Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2>> for SI<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1>
+where Meter1: PInt + KeepPeano<Meter2>, Kilogram1: PInt + KeepPeano<Kilogram2>, Second1: PInt + KeepPeano<Second2>, Amp1: PInt + KeepPeano<Amp2>, Kelvin1: PInt + KeepPeano<Kelvin2>, Candela1: PInt + KeepPeano<Candela2>, Mole1: PInt + KeepPeano<Mole2>, Meter2: PInt, Kilogram2: PInt, Second2: PInt, Amp2: PInt, Kelvin2: PInt, Candela2: PInt, Mole2: PInt
+{
+  type Output = SI<<Meter1 as KeepPeano<Meter2>>::Output, <Kilogram1 as KeepPeano<Kilogram2>>::Output, <Second1 as KeepPeano<Second2>>::Output, <Amp1 as KeepPeano<Amp2>>::Output, <Kelvin1 as KeepPeano<Kelvin2>>::Output, <Candela1 as KeepPeano<Candela2>>::Output, <Mole1 as KeepPeano<Mole2>>::Output>;
+}
+
 impl<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1, Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2> AddDim<SI<Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2>> for SI<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1>
 where Meter1: PInt + AddPeano<Meter2>, Kilogram1: PInt + AddPeano<Kilogram2>, Second1: PInt + AddPeano<Second2>, Amp1: PInt + AddPeano<Amp2>, Kelvin1: PInt + AddPeano<Kelvin2>, Candela1: PInt + AddPeano<Candela2>, Mole1: PInt + AddPeano<Mole2>, Meter2: PInt, Kilogram2: PInt, Second2: PInt, Amp2: PInt, Kelvin2: PInt, Candela2: PInt, Mole2: PInt
 {

@@ -19,6 +19,9 @@ pub trait MulDim<RHS = Self>: Dimension {
 pub trait DivDim<RHS = Self>: Dimension {
     type Output;
 }
+pub trait KeepDim<RHS = Self>: Dimension {
+    type Output;
+}
 pub trait DimToString: Dimension {
     fn to_string() -> String;
 }
@@ -129,53 +132,44 @@ impl<T, V, RHS> Div<RHS> for Dim<T, V>
 
 
 // Unary operators:
-macro_rules! define_unary_op {
-    ($Trait:ident, $fun:ident) => (
+#[macro_export]
+#[macro_use(dim_unary)]
+macro_rules! dim_unary {
+    ($Trait:ident, $op: ident, $($fun:ident),*) => (
         impl<T, V> $Trait for Dim<T, V>
-            where T: Dimension, V: $Trait {
-                type Output = Dim<T, <V as $Trait>::Output>;
-                fn $fun(self) -> Dim<T, <V as $Trait>::Output> {
+            where T: $op<T>, V: $Trait, <T as $op<T>>::Output: Dimension {
+                type Output = Dim<<T as $op<T>>::Output, <V as $Trait>::Output>;
+                $(fn $fun(self) -> Dim<<T as $op<T>>::Output, <V as $Trait>::Output> {
                     Dim( (self.0).$fun() )
-                }
+                })*
             }
         )
 }
-define_unary_op!(Neg, neg);
-define_unary_op!(Not, not);
+dim_unary!(Neg, KeepDim, neg);
+dim_unary!(Not, KeepDim, not);
 
-
-// Binary operators that require type unchanged:
-macro_rules! define_binary_op {
-    ($Trait:ident, $fun:ident) => (
-        impl<T, Vl, Vr> $Trait<Dim<T, Vr>> for Dim<T, Vl>
-            where T: Dimension, Vl: $Trait<Vr> {
-                type Output = Dim<T, <Vl as $Trait<Vr>>::Output>;
-                fn $fun(self, rhs: Dim<T, Vr>) -> Dim<T, <Vl as $Trait<Vr>>::Output> {
+// Binary operators:
+#[macro_export]
+#[macro_use(dim_binary)]
+macro_rules! dim_binary {
+    ($Trait:ident, $op: ident, $($fun:ident),*) => (
+        impl<Tl, Vl, Tr, Vr> $Trait<Dim<Tr, Vr>> for Dim<Tl, Vl>
+            where Tl: $op<Tr>, Tr: Dimension, Vl: $Trait<Vr>, <Tl as $op<Tr>>::Output: Dimension {
+                type Output = Dim<<Tl as $op<Tr>>::Output, <Vl as $Trait<Vr>>::Output>;
+                $(fn $fun(self, rhs: Dim<Tr, Vr>) -> Dim<<Tl as $op<Tr>>::Output, <Vl as $Trait<Vr>>::Output> {
                     Dim( (self.0).$fun(rhs.0) )
-                }
+                })*
             }
         )
 }
-define_binary_op!(Add, add);
-define_binary_op!(BitAnd, bitand);
-define_binary_op!(BitOr, bitor);
-define_binary_op!(BitXor, bitxor);
-define_binary_op!(Rem, rem);
-define_binary_op!(Shl, shl);
-define_binary_op!(Shr, shr);
-define_binary_op!(Sub, sub);
-
-impl<T, V> Deref for Dim<T, V> {
-    type Target = V;
-    fn deref<'a>(&'a self) -> &'a V { &self.0 }
-}
-impl<T, V> DerefMut for Dim<T, V> {
-    fn deref_mut<'a>(&'a mut self) -> &'a mut V { &mut self.0 }
-}
-
-// fn wrap(a: Dimensioned<T, Va>, b: Vb) -> Dimensioned<T, Vb> {
-//     Dim(b)
-// }
+dim_binary!(Add, KeepDim, add);
+dim_binary!(BitAnd, KeepDim, bitand);
+dim_binary!(BitOr, KeepDim, bitor);
+dim_binary!(BitXor, KeepDim, bitxor);
+dim_binary!(Rem, KeepDim, rem);
+dim_binary!(Shl, KeepDim, shl);
+dim_binary!(Shr, KeepDim, shr);
+dim_binary!(Sub, KeepDim, sub);
 
 //------------------------------------------------------------------------------
 // Traits from core::cmp
@@ -226,7 +220,7 @@ impl<T, V> Ord for Dim<T, V> where T: Dimension, V: Ord {
 //         }
 //     }
 
-macro_rules! define_cast_fun {
+macro_rules! dim_cast_fun {
     ($fun:ident, $prim:ident) => (
         fn $fun(&self) -> Option<$prim> {
             (self.0).$fun()
@@ -236,18 +230,18 @@ macro_rules! define_cast_fun {
 //------------------------------------------------------------------------------
 // ToPrimitive
 impl<T, V> ToPrimitive for Dim<T, V> where T: Dimensionless, V: ToPrimitive {
-    define_cast_fun!(to_i64, i64);
-    define_cast_fun!(to_u64, u64);
-    define_cast_fun!(to_int, isize);
-    define_cast_fun!(to_i8, i8);
-    define_cast_fun!(to_i16, i16);
-    define_cast_fun!(to_i32, i32);
-    define_cast_fun!(to_uint, usize);
-    define_cast_fun!(to_u8, u8);
-    define_cast_fun!(to_u16, u16);
-    define_cast_fun!(to_u32, u32);
-    define_cast_fun!(to_f32, f32);
-    define_cast_fun!(to_f64, f64);
+    dim_cast_fun!(to_i64, i64);
+    dim_cast_fun!(to_u64, u64);
+    dim_cast_fun!(to_int, isize);
+    dim_cast_fun!(to_i8, i8);
+    dim_cast_fun!(to_i16, i16);
+    dim_cast_fun!(to_i32, i32);
+    dim_cast_fun!(to_uint, usize);
+    dim_cast_fun!(to_u8, u8);
+    dim_cast_fun!(to_u16, u16);
+    dim_cast_fun!(to_u32, u32);
+    dim_cast_fun!(to_f32, f32);
+    dim_cast_fun!(to_f64, f64);
 }
 
 //------------------------------------------------------------------------------
@@ -263,7 +257,7 @@ impl<T, V> NumCast for Dim<T, V> where T: Dimensionless, V: NumCast {
 
 //------------------------------------------------------------------------------
 // Float
-macro_rules! define_unary_float {
+macro_rules! dim_unary_float {
     ($fun:ident, $returns:ty) => (
         fn $fun(self) -> $returns { Dim( (self.0).$fun()) }
         )
@@ -271,55 +265,55 @@ macro_rules! define_unary_float {
 
 // impl<T, V> Float for Dim<T, V>
 //     where T: Dimensionless, V: Float {
-//         define_unary_float!(nan, Self);
-//         define_unary_float!(infinity, Self);
-//         define_unary_float!(neg_infinity, Self);
-//         define_unary_float!(zero, Self);
-//         define_unary_float!(neg_zero, Self);
-//         define_unary_float!(one, Self);
-//         define_unary_float!(epsilon, Self);
-//         define_unary_float!(min_value, Self);
-//         define_unary_float!(max_value, Self);
-//         define_unary_float!(is_nan, bool);
-//         define_unary_float!(is_infinite, bool);
-//         define_unary_float!(is_finite, bool);
-//         define_unary_float!(is_normal, bool);
-//         // define_unary_float!(classify, FpCategory);
-//         define_unary_float!(integer_decode, (u64, i16, i8));
-//         define_unary_float!(floor, Self);
-//         define_unary_float!(ceil, Self);
-//         define_unary_float!(round, Self);
-//         define_unary_float!(trunc, Self);
-//         define_unary_float!(fract, Self);
-//         define_unary_float!(abs, Self);
-//         define_unary_float!(signum, Self);
-//         define_unary_float!(is_positive, bool);
-//         define_unary_float!(is_negative, bool);
-//         define_unary_float!(recip, Self);
-//         define_unary_float!(sqrt, Self);
-//         define_unary_float!(rsqrt, Self);
-//         define_unary_float!(exp, Self);
-//         define_unary_float!(exp2, Self);
-//         define_unary_float!(ln, Self);
-//         define_unary_float!(log, Self);
-//         define_unary_float!(log2, Self);
-//         define_unary_float!(log10, Self);
-//         define_unary_float!(to_degrees, Self);
-//         define_unary_float!(to_radians, Self);
-//         define_unary_float!(cbrt, Self);
-//         define_unary_float!(sin, Self);
-//         define_unary_float!(cos, Self);
-//         define_unary_float!(tan, Self);
-//         define_unary_float!(asin, Self);
-//         define_unary_float!(acos, Self);
-//         define_unary_float!(atan, Self);
-//         define_unary_float!(sin_cos, (Self, Self));
-//         define_unary_float!(exp_m1, Self);
-//         define_unary_float!(ln_1p, Self);
-//         define_unary_float!(sinh, Self);
-//         define_unary_float!(cosh, Self);
-//         define_unary_float!(tanh, Self);
-//         define_unary_float!(asinh, Self);
-//         define_unary_float!(acosh, Self);
-//         define_unary_float!(atanh, Self);
+//         dim_unary_float!(nan, Self);
+//         dim_unary_float!(infinity, Self);
+//         dim_unary_float!(neg_infinity, Self);
+//         dim_unary_float!(zero, Self);
+//         dim_unary_float!(neg_zero, Self);
+//         dim_unary_float!(one, Self);
+//         dim_unary_float!(epsilon, Self);
+//         dim_unary_float!(min_value, Self);
+//         dim_unary_float!(max_value, Self);
+//         dim_unary_float!(is_nan, bool);
+//         dim_unary_float!(is_infinite, bool);
+//         dim_unary_float!(is_finite, bool);
+//         dim_unary_float!(is_normal, bool);
+//         // dim_unary_float!(classify, FpCategory);
+//         dim_unary_float!(integer_decode, (u64, i16, i8));
+//         dim_unary_float!(floor, Self);
+//         dim_unary_float!(ceil, Self);
+//         dim_unary_float!(round, Self);
+//         dim_unary_float!(trunc, Self);
+//         dim_unary_float!(fract, Self);
+//         dim_unary_float!(abs, Self);
+//         dim_unary_float!(signum, Self);
+//         dim_unary_float!(is_positive, bool);
+//         dim_unary_float!(is_negative, bool);
+//         dim_unary_float!(recip, Self);
+//         dim_unary_float!(sqrt, Self);
+//         dim_unary_float!(rsqrt, Self);
+//         dim_unary_float!(exp, Self);
+//         dim_unary_float!(exp2, Self);
+//         dim_unary_float!(ln, Self);
+//         dim_unary_float!(log, Self);
+//         dim_unary_float!(log2, Self);
+//         dim_unary_float!(log10, Self);
+//         dim_unary_float!(to_degrees, Self);
+//         dim_unary_float!(to_radians, Self);
+//         dim_unary_float!(cbrt, Self);
+//         dim_unary_float!(sin, Self);
+//         dim_unary_float!(cos, Self);
+//         dim_unary_float!(tan, Self);
+//         dim_unary_float!(asin, Self);
+//         dim_unary_float!(acos, Self);
+//         dim_unary_float!(atan, Self);
+//         dim_unary_float!(sin_cos, (Self, Self));
+//         dim_unary_float!(exp_m1, Self);
+//         dim_unary_float!(ln_1p, Self);
+//         dim_unary_float!(sinh, Self);
+//         dim_unary_float!(cosh, Self);
+//         dim_unary_float!(tanh, Self);
+//         dim_unary_float!(asinh, Self);
+//         dim_unary_float!(acosh, Self);
+//         dim_unary_float!(atanh, Self);
 //     }

@@ -39,7 +39,7 @@ impl<{ulong}> Dimension for {name}<{ushort}> {{}}
 """.format(**locals())
         # ----------------------------------------------------------------------
         # Operators
-        for op in ["Add", "Sub", "Mul"]:
+        for op in ["Keep", "Add", "Sub", "Mul"]:
             u1_long = ", ".join([u1+": PInt + {}Peano<{}>".format(op, u2) for (u1, u2) in zip(u1_list, u2_list) ])
             u2_long = ", ".join([u+": PInt" for u in u2_list])
             outs = ", ".join(["<{} as {}Peano<{}>>::Output".format(u1, op, u2) for (u1, u2) in zip(u1_list, u2_list)])
