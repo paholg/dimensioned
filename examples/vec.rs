@@ -1,7 +1,7 @@
 extern crate dimensioned;
 
 use dimensioned::ms::*;
-use dimensioned::{Dimensioned, Inject};
+use dimensioned::{Dim, Inject};
 use std::ops::*;
 use std::fmt;
 use std::num::Float;
@@ -61,8 +61,8 @@ trait Scalar {}
 
 
 fn main() {
-    let start: Dimensioned<Meter, Vector2d> = Dimensioned(Vector2d{x: -13.0, y: 33.0});
-    let end: Dimensioned<Meter, Vector2d> = Dimensioned(Vector2d{x: 26.0, y: -19.0});
+    let start: Dim<Meter, Vector2d> = Dim(Vector2d{x: -13.0, y: 33.0});
+    let end: Dim<Meter, Vector2d> = Dim(Vector2d{x: 26.0, y: -19.0});
     let displace = end - start;
     let time = s*26.0;
     let vel = displace/time;

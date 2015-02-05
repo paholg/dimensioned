@@ -4,22 +4,22 @@ use std::cmp::*;
 //use std::string::String;
 use std::fmt;
 
-pub trait Dim {}
-pub trait Dimensionless: Dim {}
+pub trait Dimension {}
+pub trait Dimensionless: Dimension {}
 
-pub trait AddDim<RHS = Self>: Dim {
+pub trait AddDim<RHS = Self>: Dimension {
     type Output;
 }
-pub trait SubDim<RHS = Self>: Dim {
+pub trait SubDim<RHS = Self>: Dimension {
     type Output;
 }
-pub trait MulDim<RHS = Self>: Dim {
+pub trait MulDim<RHS = Self>: Dimension {
     type Output;
 }
-pub trait DivDim<RHS = Self>: Dim {
+pub trait DivDim<RHS = Self>: Dimension {
     type Output;
 }
-pub trait DimToString: Dim {
+pub trait DimToString: Dimension {
     fn to_string() -> String;
 }
 
@@ -27,18 +27,18 @@ pub trait Scalar {}
 impl Scalar for f64 {}
 impl Scalar for f32 {}
 
-pub struct Dimensioned<T: Dim, V>(pub V);
+pub struct Dim<T: Dimension, V>(pub V);
 
 // trait PowI {
 //     type Output;
 // }
-// impl<T, V> PowI for Dimensioned<T, V>
+// impl<T, V> PowI for Dim<T, V>
 //     where T: MulDim, V: Float {
-//         type Output = Dimensioned<>
+//         type Output = Dim<>
 //             fn powi(self, n: i32) ->
 //     }
 
-impl<T: Dim, V: Copy> Copy for Dimensioned<T, V> {}
+impl<T: Dimension, V: Copy> Copy for Dim<T, V> {}
 
 
 pub trait Inject<F> {
@@ -46,11 +46,11 @@ pub trait Inject<F> {
     fn inject(self, f: F) -> Self::Output;
 }
 
-impl<T: Dim, F, A, B> Inject<F> for Dimensioned<T, A>
+impl<T: Dimension, F, A, B> Inject<F> for Dim<T, A>
     where F: Fn(A) -> B {
-        type Output = Dimensioned<T, B>;
-        fn inject(self, f: F) -> Dimensioned<T, B> {
-            Dimensioned( f(self.0) )
+        type Output = Dim<T, B>;
+        fn inject(self, f: F) -> Dim<T, B> {
+            Dim( f(self.0) )
         }
     }
 
@@ -59,9 +59,9 @@ impl<T: Dim, F, A, B> Inject<F> for Dimensioned<T, A>
 //------------------------------------------------------------------------------
 // Clone
 //------------------------------------------------------------------------------
-impl<T, V> Clone for Dimensioned<T, V> where T: Dim, V: Clone {
+impl<T, V> Clone for Dim<T, V> where T: Dimension, V: Clone {
     fn clone(&self) -> Self {
-        Dimensioned((self.0).clone())
+        Dim((self.0).clone())
     }
     fn clone_from(&mut self, source: &Self) {
         (self.0).clone_from(&source.0);
@@ -71,7 +71,7 @@ impl<T, V> Clone for Dimensioned<T, V> where T: Dim, V: Clone {
 //------------------------------------------------------------------------------
 // Traits from std::fmt
 //------------------------------------------------------------------------------
-impl<T, V> fmt::Display for Dimensioned<T, V> where T: DimToString, V: fmt::Display {
+impl<T, V> fmt::Display for Dim<T, V> where T: DimToString, V: fmt::Display {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(f, "{} {}", self.0, <T as DimToString>::to_string())
     }
@@ -81,48 +81,48 @@ impl<T, V> fmt::Display for Dimensioned<T, V> where T: DimToString, V: fmt::Disp
 //------------------------------------------------------------------------------
 
 /// Multiplying! Dimensions must be able to add.
-impl<Tl, Tr, Vl, Vr> Mul<Dimensioned<Tr, Vr>> for Dimensioned<Tl, Vl>
-    where Tl: Dim + AddDim<Tr>, Tr: Dim, Vl: Mul<Vr>, <Tl as AddDim<Tr>>::Output: Dim {
-        type Output = Dimensioned<<Tl as AddDim<Tr>>::Output, <Vl as Mul<Vr>>::Output>;
-        fn mul(self, rhs: Dimensioned<Tr, Vr>) -> Dimensioned<<Tl as AddDim<Tr>>::Output, <Vl as Mul<Vr>>::Output> {
-            Dimensioned(self.0 * rhs.0)
+impl<Tl, Tr, Vl, Vr> Mul<Dim<Tr, Vr>> for Dim<Tl, Vl>
+    where Tl: Dimension + AddDim<Tr>, Tr: Dimension, Vl: Mul<Vr>, <Tl as AddDim<Tr>>::Output: Dimension {
+        type Output = Dim<<Tl as AddDim<Tr>>::Output, <Vl as Mul<Vr>>::Output>;
+        fn mul(self, rhs: Dim<Tr, Vr>) -> Dim<<Tl as AddDim<Tr>>::Output, <Vl as Mul<Vr>>::Output> {
+            Dim(self.0 * rhs.0)
         }
     }
 
 /// Scalar multiplication (with scalar on RHS)!
-impl<T, V, RHS> Mul<RHS> for Dimensioned<T, V>
-    where T: Dim, V: Mul<RHS>, RHS: Scalar {
-        type Output = Dimensioned<T, <V as Mul<RHS>>::Output>;
-        fn mul(self, rhs: RHS) -> Dimensioned<T, <V as Mul<RHS>>::Output> {
-            Dimensioned(self.0 * rhs)
+impl<T, V, RHS> Mul<RHS> for Dim<T, V>
+    where T: Dimension, V: Mul<RHS>, RHS: Scalar {
+        type Output = Dim<T, <V as Mul<RHS>>::Output>;
+        fn mul(self, rhs: RHS) -> Dim<T, <V as Mul<RHS>>::Output> {
+            Dim(self.0 * rhs)
         }
     }
 
 // fixme: Waiting on Rust changes I believe
 // /// Scalar multiplication (with scalar on LHS)!
-// impl<T, V, Num> Mul<Dimensioned<T, V>> for Num
-//     where T: Dim, Num: Mul<V> {
-//         type Output = Dimensioned<T, <Num as Mul<V>>::Output>;
-//         fn mul(self, rhs: Dimensioned<T, V>) -> Dimensioned<T, <Num as Mul<V>>::Output> {
-//             Dimensioned( self * rhs.0 )
+// impl<T, V, Num> Mul<Dim<T, V>> for Num
+//     where T: Dimension, Num: Mul<V> {
+//         type Output = Dim<T, <Num as Mul<V>>::Output>;
+//         fn mul(self, rhs: Dim<T, V>) -> Dim<T, <Num as Mul<V>>::Output> {
+//             Dim( self * rhs.0 )
 //         }
 //     }
 
 /// Dividing! Dimensions must be able to subtract.
-impl<Tl, Tr, Vl, Vr> Div<Dimensioned<Tr, Vr>> for Dimensioned<Tl, Vl>
-    where Tl: Dim + SubDim<Tr>, Tr: Dim, Vl: Div<Vr>, <Tl as SubDim<Tr>>::Output: Dim {
-        type Output = Dimensioned<<Tl as SubDim<Tr>>::Output, <Vl as Div<Vr>>::Output>;
-        fn div(self, rhs: Dimensioned<Tr, Vr>) -> Dimensioned<<Tl as SubDim<Tr>>::Output, <Vl as Div<Vr>>::Output> {
-            Dimensioned(self.0 / rhs.0)
+impl<Tl, Tr, Vl, Vr> Div<Dim<Tr, Vr>> for Dim<Tl, Vl>
+    where Tl: Dimension + SubDim<Tr>, Tr: Dimension, Vl: Div<Vr>, <Tl as SubDim<Tr>>::Output: Dimension {
+        type Output = Dim<<Tl as SubDim<Tr>>::Output, <Vl as Div<Vr>>::Output>;
+        fn div(self, rhs: Dim<Tr, Vr>) -> Dim<<Tl as SubDim<Tr>>::Output, <Vl as Div<Vr>>::Output> {
+            Dim(self.0 / rhs.0)
         }
     }
 
 /// Scalar division (with scalar on RHS)!
-impl<T, V, RHS> Div<RHS> for Dimensioned<T, V>
-    where T: Dim, V: Div<RHS>, RHS: Scalar {
-        type Output = Dimensioned<T, <V as Div<RHS>>::Output>;
-        fn div(self, rhs: RHS) -> Dimensioned<T, <V as Div<RHS>>::Output> {
-            Dimensioned(self.0 / rhs)
+impl<T, V, RHS> Div<RHS> for Dim<T, V>
+    where T: Dimension, V: Div<RHS>, RHS: Scalar {
+        type Output = Dim<T, <V as Div<RHS>>::Output>;
+        fn div(self, rhs: RHS) -> Dim<T, <V as Div<RHS>>::Output> {
+            Dim(self.0 / rhs)
         }
     }
 
@@ -133,11 +133,11 @@ impl<T, V, RHS> Div<RHS> for Dimensioned<T, V>
 // Unary operators:
 macro_rules! define_unary_op {
     ($Trait:ident, $fun:ident) => (
-        impl<T, V> $Trait for Dimensioned<T, V>
-            where T: Dim, V: $Trait {
-                type Output = Dimensioned<T, <V as $Trait>::Output>;
-                fn $fun(self) -> Dimensioned<T, <V as $Trait>::Output> {
-                    Dimensioned( (self.0).$fun() )
+        impl<T, V> $Trait for Dim<T, V>
+            where T: Dimension, V: $Trait {
+                type Output = Dim<T, <V as $Trait>::Output>;
+                fn $fun(self) -> Dim<T, <V as $Trait>::Output> {
+                    Dim( (self.0).$fun() )
                 }
             }
         )
@@ -149,11 +149,11 @@ define_unary_op!(Not, not);
 // Binary operators that require type unchanged:
 macro_rules! define_binary_op {
     ($Trait:ident, $fun:ident) => (
-        impl<T, Vl, Vr> $Trait<Dimensioned<T, Vr>> for Dimensioned<T, Vl>
-            where T: Dim, Vl: $Trait<Vr> {
-                type Output = Dimensioned<T, <Vl as $Trait<Vr>>::Output>;
-                fn $fun(self, rhs: Dimensioned<T, Vr>) -> Dimensioned<T, <Vl as $Trait<Vr>>::Output> {
-                    Dimensioned( (self.0).$fun(rhs.0) )
+        impl<T, Vl, Vr> $Trait<Dim<T, Vr>> for Dim<T, Vl>
+            where T: Dimension, Vl: $Trait<Vr> {
+                type Output = Dim<T, <Vl as $Trait<Vr>>::Output>;
+                fn $fun(self, rhs: Dim<T, Vr>) -> Dim<T, <Vl as $Trait<Vr>>::Output> {
+                    Dim( (self.0).$fun(rhs.0) )
                 }
             }
         )
@@ -171,34 +171,34 @@ define_binary_op!(Sub, sub);
 //------------------------------------------------------------------------------
 // Traits from core::cmp
 //------------------------------------------------------------------------------
-impl<T, Vl, Vr> PartialEq<Dimensioned<T, Vr>> for Dimensioned<T, Vl>
-    where T: Dim, Vl: PartialEq<Vr> {
-        fn eq(&self, rhs: &Dimensioned<T, Vr>) -> bool { self.0 == rhs.0 }
-        fn ne(&self, rhs: &Dimensioned<T, Vr>) -> bool { self.0 != rhs.0 }
+impl<T, Vl, Vr> PartialEq<Dim<T, Vr>> for Dim<T, Vl>
+    where T: Dimension, Vl: PartialEq<Vr> {
+        fn eq(&self, rhs: &Dim<T, Vr>) -> bool { self.0 == rhs.0 }
+        fn ne(&self, rhs: &Dim<T, Vr>) -> bool { self.0 != rhs.0 }
     }
-impl<T, V> Eq for Dimensioned<T, V> where T: Dim, V: Eq { }
-impl<T, Vl, Vr> PartialOrd<Dimensioned<T, Vr>> for Dimensioned<T, Vl>
-    where T: Dim, Vl: PartialOrd<Vr> {
-        fn partial_cmp(&self, rhs: &Dimensioned<T, Vr>) -> Option<Ordering> { (self.0).partial_cmp(&rhs.0) }
+impl<T, V> Eq for Dim<T, V> where T: Dimension, V: Eq { }
+impl<T, Vl, Vr> PartialOrd<Dim<T, Vr>> for Dim<T, Vl>
+    where T: Dimension, Vl: PartialOrd<Vr> {
+        fn partial_cmp(&self, rhs: &Dim<T, Vr>) -> Option<Ordering> { (self.0).partial_cmp(&rhs.0) }
 
-        fn lt(&self, rhs: &Dimensioned<T, Vr>) -> bool { self.0 <  rhs.0 }
-        fn le(&self, rhs: &Dimensioned<T, Vr>) -> bool { self.0 <= rhs.0 }
-        fn gt(&self, rhs: &Dimensioned<T, Vr>) -> bool { self.0 >  rhs.0 }
-        fn ge(&self, rhs: &Dimensioned<T, Vr>) -> bool { self.0 >= rhs.0 }
+        fn lt(&self, rhs: &Dim<T, Vr>) -> bool { self.0 <  rhs.0 }
+        fn le(&self, rhs: &Dim<T, Vr>) -> bool { self.0 <= rhs.0 }
+        fn gt(&self, rhs: &Dim<T, Vr>) -> bool { self.0 >  rhs.0 }
+        fn ge(&self, rhs: &Dim<T, Vr>) -> bool { self.0 >= rhs.0 }
     }
-impl<T, V> Ord for Dimensioned<T, V> where T: Dim, V: Ord {
-    fn cmp(&self, rhs: &Dimensioned<T, V>) -> Ordering { (self.0).cmp(&rhs.0) }
+impl<T, V> Ord for Dim<T, V> where T: Dimension, V: Ord {
+    fn cmp(&self, rhs: &Dim<T, V>) -> Ordering { (self.0).cmp(&rhs.0) }
 }
 
 
 
 
 // fixme: figure this out
-// impl<'a, T, V, I> Index<I> for Dimensioned<T, V>
-//     where T: Dim, V: Index<I> + 'a, <V as Index<I>>::Output: Sized {
-//         type Output = Dimensioned<T, &'a <V as Index<I>>::Output>;
-//         fn index<'b>(&'b self, _index: &I) -> &'b Dimensioned<T, &'a <V as Index<I>>::Output> {
-//             &Dimensioned((self.0).index(_index))
+// impl<'a, T, V, I> Index<I> for Dim<T, V>
+//     where T: Dimension, V: Index<I> + 'a, <V as Index<I>>::Output: Sized {
+//         type Output = Dim<T, &'a <V as Index<I>>::Output>;
+//         fn index<'b>(&'b self, _index: &I) -> &'b Dim<T, &'a <V as Index<I>>::Output> {
+//             &Dim((self.0).index(_index))
 //         }
 //     }
 
@@ -209,11 +209,11 @@ impl<T, V> Ord for Dimensioned<T, V> where T: Dim, V: Ord {
 //------------------------------------------------------------------------------
 // Dimensionless multiplication and division
 // fixme
-// impl<T, V> Mul for Dimensioned<T, V>
+// impl<T, V> Mul for Dim<T, V>
 //     where T: Dimensionless, V: Mul {
-//         type Output = Dimensioned<T, <V as Mul>::Output>;
-//         fn mul(self, rhs: Self) -> Dimensioned<T, <V as Mul>::Output> {
-//             Dimensioned(self.0 * rhs.0)
+//         type Output = Dim<T, <V as Mul>::Output>;
+//         fn mul(self, rhs: Self) -> Dim<T, <V as Mul>::Output> {
+//             Dim(self.0 * rhs.0)
 //         }
 //     }
 
@@ -226,7 +226,7 @@ macro_rules! define_cast_fun {
 }
 //------------------------------------------------------------------------------
 // ToPrimitive
-impl<T, V> ToPrimitive for Dimensioned<T, V> where T: Dimensionless, V: ToPrimitive {
+impl<T, V> ToPrimitive for Dim<T, V> where T: Dimensionless, V: ToPrimitive {
     define_cast_fun!(to_i64, i64);
     define_cast_fun!(to_u64, u64);
     define_cast_fun!(to_int, isize);
@@ -243,10 +243,10 @@ impl<T, V> ToPrimitive for Dimensioned<T, V> where T: Dimensionless, V: ToPrimit
 
 //------------------------------------------------------------------------------
 // NumCast
-impl<T, V> NumCast for Dimensioned<T, V> where T: Dimensionless, V: NumCast {
+impl<T, V> NumCast for Dim<T, V> where T: Dimensionless, V: NumCast {
     fn from<N>(n: N) -> Option<Self> where N: ToPrimitive {
         match NumCast::from(n) {
-            Some(v) => Some(Dimensioned(v)),
+            Some(v) => Some(Dim(v)),
             None => None
         }
     }
@@ -256,11 +256,11 @@ impl<T, V> NumCast for Dimensioned<T, V> where T: Dimensionless, V: NumCast {
 // Float
 macro_rules! define_unary_float {
     ($fun:ident, $returns:ty) => (
-        fn $fun(self) -> $returns { Dimensioned( (self.0).$fun()) }
+        fn $fun(self) -> $returns { Dim( (self.0).$fun()) }
         )
 }
 
-// impl<T, V> Float for Dimensioned<T, V>
+// impl<T, V> Float for Dim<T, V>
 //     where T: Dimensionless, V: Float {
 //         define_unary_float!(nan, Self);
 //         define_unary_float!(infinity, Self);

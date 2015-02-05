@@ -18,5 +18,3 @@
                 inject(), I think a wrap() function could be more general though>
 
 # Questions
-- Name change :: Dimensioned -> Dim, and then Dim to something else???
-

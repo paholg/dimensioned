@@ -30,7 +30,7 @@ use peano::*;
 use dimensioned::*;
 
 pub struct {name}<{ulong}>;
-impl<{ulong}> Dim for {name}<{ushort}> {{}}
+impl<{ulong}> Dimension for {name}<{ushort}> {{}}
 
 """.format(**locals())
 
@@ -65,9 +65,9 @@ where {u1_long}, {u2_long}
         vtype = self.vtype
         one = self.one
         text += "\n"
-        text += "pub static {}: Dimensioned<Unitless, {}> = Dimensioned({});\n".format(self.unitless, vtype, one)
+        text += "pub static {}: Dim<Unitless, {}> = Dim({});\n".format(self.unitless, vtype, one)
         for (c, u) in zip(self.constants, self.units):
-            text += "pub static {c}: Dimensioned<{u}, {vtype}> = Dimensioned({one});\n".format(**locals())
+            text += "pub static {c}: Dim<{u}, {vtype}> = Dim({one});\n".format(**locals())
 
         f = open(self.filename, "w")
         f.write(text)

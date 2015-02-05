@@ -12,7 +12,11 @@ cargo build
 ```
 
 
-For an example of its use, see examples/vec.rs. Note that the Vector2d class doesn't
-know anything about dimensions!
+For an example of its use, see examples/vec.rs. Note that Vector2d doesn't know anything
+about dimensions!
 
-Run the example with ``` cargo run --example vec ```
+Run the example with
+
+```
+cargo run --example vec
+```
