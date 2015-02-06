@@ -2,7 +2,7 @@
 extern crate dimensioned;
 
 use dimensioned::si::*;
-use dimensioned::{Dim, Dimension, Wrap, KeepDim, AddDim, SubDim, MulDim};
+use dimensioned::{Dim, Dimension, Wrap, KeepDim, AddDim, SubDim};
 use std::ops::*;
 use std::fmt;
 use std::num::Float;

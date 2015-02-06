@@ -2,7 +2,7 @@ Dimensioned
 =====
 [![Build Status](https://travis-ci.org/paholg/dimensioned.svg?branch=master)](https://travis-ci.org/paholg/dimensioned)
 
-***NOTE:*** If you do play with this, and you get internal compiler errors, it is almost certainly because you are doing something like `m*3` where `m` is of type `SI<Meter, f64>`. To fix it, simply change to `m*3.0`. This is a Rust bug.
+***NOTE:*** If you do play with this, and you get internal compiler errors, it is almost certainly because you are doing something like `m*3` where `m` is of type `Dim<Meter, f64>`. To fix it, simply change to `m*3.0`. This is a Rust bug.
 
 A library for compile-time type checking of arbitrary unit systems.
 
@@ -32,7 +32,7 @@ fn main() {
     let time = s*26.0;
     let vel = displace/time;
     // Because we put norm() in a trait and implemented it for both Vector2d and Dim,
-    // calling vel.norm() works as we want it to (returning Dim<Meter, ff64>). This is
+    // calling vel.norm() works as we want it to (returning Dim<Meter, f64>). This is
     // the recommended way of accessing values inside a Dim.
     let speed = vel.norm();
     // Had we been unable or unwilling to implement norm() inside a trait, we could have

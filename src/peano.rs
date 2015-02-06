@@ -3,6 +3,7 @@ pub struct Succ<T: NonNeg>;
 pub struct Pred<T: NonPos>;
 
 pub type One = Succ<Zero>;
+pub type NegOne = Pred<Zero>;
 
 pub trait Peano {}
 pub trait NonZero: Peano {}
@@ -138,22 +139,51 @@ impl<T, RHS> MulPeano<RHS> for Pred<T>
         type Output = <<T as MulPeano<RHS>>::Output as SubPeano<RHS>>::Output;
 }
 
-// /// Note that, while we define division, we are operating in a ring, so a type error
-// /// will be thrown unless the numerator is divisible by the denominator
-// pub trait DivPeano<RHS = Self> {
-//     type Output;
-// }
-// /// Dividing zero by things (e.g. 0 / 7)
-// impl<RHS: NonZero> DivPeano<RHS> for Zero {
-//     type Output = Zero;
-// }
 
-// // fixme: This causes a stack overflow if numbers aren't divisible --- disabling for now
-// /// Dividing a positive integer by a positive integer (e.g. 4 / 2)
-// impl<T, RHS> DivPeano<RHS> for T
-//     where T: Pos + DivPeano<RHS>, RHS: Pos {
-//         type Output = <One as AddPeano<<<T as SubPeano<RHS>>::Output as DivPeano<RHS>>::Output>>::Output;
-// }
+/// Note that, while we define division, we are operating in a ring, so an error
+/// will be thrown unless the numerator is divisible by the denominator
+trait DivPeano<RHS = Self> {
+    type Output;
+}
+impl<RHS> DivPeano<RHS> for Zero
+    where RHS: NonZero {
+    type Output = Zero;
+}
+impl<T, RHS> DivPeano<RHS> for Succ<T>
+    where Succ<T>: DivPeanoPriv<RHS> {
+    type Output = <Succ<T> as DivPeanoPriv<RHS>>::Output;
+}
+impl<T, RHS> DivPeano<RHS> for Pred<T>
+    where T: NonPos + Negate, RHS: Negate, Succ<<T as Negate>::Output>: DivPeanoPriv<<RHS as Negate>::Output>    {
+    type Output = <<Pred<T> as Negate>::Output as DivPeanoPriv<<RHS as Negate>::Output>>::Output;
+}
+
+// DivPeanoPriv only supports positive numerators. That way, it will terminate with an
+// error if you ever try to divide non-divisible things. We can divide things like -4 /
+// 2 by first negating both numerator and denominator, which is what DivPeano does.
+trait DivPeanoPriv<RHS = Self> {
+    type Output;
+}
+
+impl<RHS: NonZero> DivPeanoPriv<RHS> for Zero {
+    type Output = Zero;
+}
+
+//Dividing a positive integer by a positive integer (e.g. 4 / 2)
+impl<T, D> DivPeanoPriv<Succ<D>> for Succ<T>
+    where T: NonNeg, Succ<T>: DivPeanoPriv<Succ<D>> + SubPeano<Succ<D>>, D: NonNeg {
+        type Output = <One as AddPeano<<<Succ<T> as SubPeano<Succ<D>>>::Output as DivPeanoPriv<Succ<D>>>::Output>>::Output;
+    }
+
+// Dividing a positive integer by a negative integer (e.g. 4 / -2)
+impl<T, D> DivPeanoPriv<Pred<D>> for Succ<T>
+    where T: NonNeg, Succ<T>: DivPeanoPriv<Pred<D>> + AddPeano<Pred<D>>, D: NonPos {
+        type Output = <NegOne as AddPeano<<<Succ<T> as AddPeano<Pred<D>>>::Output as DivPeanoPriv<Pred<D>>>::Output>>::Output;
+    }
+
+
+
+
 pub trait KeepPeano<RHS = Self> {
     type Output;
 }
@@ -184,6 +214,7 @@ fn test_peano() {
     type NegOne = Pred<Zero>;
     type NegTwo = Pred<NegOne>;
     type NegThree = Pred<NegTwo>;
+    type NegFour = Pred<NegThree>;
 
 
     // Testing equality
@@ -275,14 +306,31 @@ fn test_peano() {
     // -2 * -3 == 6
     assert_eq!( 6, <<NegTwo as MulPeano<NegThree>>::Output as ToInt>::to_int() );
 
-    // // Testing Division
-    // // 0 / 2 == 0
-    // assert_eq!( 0, <<Zero as DivPeano<Two>>::Output as ToInt>::to_int() );
-    // // 1 / 1 == 1
-    // assert_eq!( 1, <<One as DivPeano<One>>::Output as ToInt>::to_int() );
-    // // 4 / 2 == 2
-    // assert_eq!( 2, <<Four as DivPeano<Two>>::Output as ToInt>::to_int() );
-    // // 3 / 2 == Type error
-    // assert_eq!( 2, <<Three as DivPeano<Two>>::Output as ToInt>::to_int() );
+    // Testing Division
+    // 0 / 2 == 0
+    assert_eq!( 0, <<Zero as DivPeano<Two>>::Output as ToInt>::to_int() );
+    // 1 / 1 == 1
+    assert_eq!( 1, <<One as DivPeano<One>>::Output as ToInt>::to_int() );
+    // 4 / 2 == 2
+    assert_eq!( 2, <<Four as DivPeano<Two>>::Output as ToInt>::to_int() );
+    // 4 / -2 == -2
+    assert_eq!( -2, <<Four as DivPeano<NegTwo>>::Output as ToInt>::to_int() );
+    // -4 / 2 == -2
+    assert_eq!( -2, <<NegFour as DivPeano<Two>>::Output as ToInt>::to_int() );
+    // -4 / -2 == 2
+    assert_eq!( 2, <<NegFour as DivPeano<NegTwo>>::Output as ToInt>::to_int() );
 
+    // Uncomment for erroneous divisions!
+    // // 3 / 2
+    // <<Three as DivPeano<Two>>::Output as ToInt>::to_int();
+    // // -3 / 2
+    // <<NegThree as DivPeano<Two>>::Output as ToInt>::to_int();
+    // // 3 / -2
+    // <<Three as DivPeano<NegTwo>>::Output as ToInt>::to_int();
+    // // -3 / -2
+    // <<NegThree as DivPeano<NegTwo>>::Output as ToInt>::to_int();
+    // // 2 / 0
+    // <<Two as DivPeano<Zero>>::Output as ToInt>::to_int();
+    // // -2 / 0
+    // <<NegTwo as DivPeano<Zero>>::Output as ToInt>::to_int();
 }
