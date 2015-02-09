@@ -4,6 +4,8 @@ use std::cmp::*;
 //use std::string::String;
 use std::fmt;
 
+pub use peano::*;
+
 pub trait Dimension {}
 pub trait Dimensionless: Dimension {}
 
@@ -13,10 +15,10 @@ pub trait AddDim<RHS = Self>: Dimension {
 pub trait SubDim<RHS = Self>: Dimension {
     type Output;
 }
-pub trait MulDim<RHS = Self>: Dimension {
+pub trait MulDim<RHS>: Dimension {
     type Output;
 }
-pub trait DivDim<RHS = Self>: Dimension {
+pub trait DivDim<RHS>: Dimension {
     type Output;
 }
 pub trait KeepDim<RHS = Self>: Dimension {
@@ -44,14 +46,55 @@ impl<T, A, B> Wrap<B> for Dim<T, A>
         }
 }
 
-// trait PowI {
+
+pub trait Sqrt {
+    type Output;
+    fn sqrt(self) -> <Self as Sqrt>::Output;
+}
+impl<T, V> Sqrt for Dim<T, V>
+    where T:  DivDim<Two>, V: Float, <T as DivDim<Two>>::Output: Dimension {
+        type Output = Dim<<T as DivDim<Two>>::Output, V>;
+        fn sqrt(self) -> <Self as Sqrt>::Output { Dim( (self.0).sqrt()) }
+    }
+
+// pub trait PowI<RHS> {
 //     type Output;
+//     fn powi(self) -> <Self as PowI<RHS>>::Output;
 // }
-// impl<T, V> PowI for Dim<T, V>
-//     where T: MulDim, V: Float {
-//         type Output = Dim<>
-//             fn powi(self, n: i32) ->
+// impl<T, V, RHS> PowI<RHS> for Dim<T, V>
+//     where T: MulDim<RHS>, V: Float, RHS: PInt, <T as MulDim<RHS>>::Output: Dimension {
+//         type Output = Dim<<T as MulDim<RHS>>::Output, V>;
+//         fn powi(self) -> <Self as PowI<RHS>>::Output {
+//             Dim( (self.0).powi( <RHS as ToInt>::to_int() ) )
+//         }
 //     }
+
+
+pub trait Sqr {
+    type Output;
+    fn sqr(self) -> <Self as Sqr>::Output;
+}
+impl<T, V> Sqr for Dim<T, V>
+    where T: AddDim<T>, V: Copy + Mul, <T as AddDim<T>>::Output: Dimension {
+        type Output = Dim<<T as AddDim<T>>::Output, <V as Mul<V>>::Output>;
+        fn sqr(self) -> <Self as Sqr>::Output {
+            Dim( (self.0)*(self.0) )
+        }
+    }
+
+// pub trait PowI<Exp> {
+//     type Output;
+//     fn powi(self, n: i32) -> <Self as PowI<Exp>>::Output;
+// }
+// impl<T, V, Exp> PowI<Exp> for Dim<T, V>
+//     where T: MulDim<Exp>, V: Float, Exp: PInt, <T as MulDim<Exp>>::Output: Dimension {
+//         type Output = Dim<<T as MulDim<Exp>>::Output, V>;
+//         fn powi(self) -> <Self as PowI<Exp>>::Output {
+//             Dim( (self.0).powi( <Exp as ToInt>::to_int() ) )
+//         }
+// }
+
+
 
 impl<T: Dimension, V: Copy> Copy for Dim<T, V> {}
 

@@ -10,7 +10,12 @@ class Units:
         self.vtype = "f64" # type to define constants for
         self.one = "1.0" # value to set constants to
         self.unitless = "one" # name for the dimensionless constant 1
-        self.allowed_root = 1
+        self.allowed_root = 1 # allowed roots to take. Useful for Gaussian units and the
+                              # like. If allowed_root == 2, then you can take sqrt() of
+                              # units, etc.
+        self.extra_constants = [] # list of tuples (NAME, EXPR) where NAME is the name
+                                  # to give the constant and EXPR the expression (in
+                                  # Rust) to assign it to. <THESE ARE NOT YET IMPLEMENTED>
     def make_units(self):
         if len(self.units) != len(self.print_as) or len(self.units) != len(self.constants):
             print("The lists of units, print_as, and constants must all be the same length.")
@@ -30,7 +35,7 @@ class Units:
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
 
-use peano::*;
+//use peano::*;
 use dimensioned::*;
 
 pub struct {name}<{ulong}>;
@@ -39,13 +44,25 @@ impl<{ulong}> Dimension for {name}<{ushort}> {{}}
 """.format(**locals())
         # ----------------------------------------------------------------------
         # Operators
-        for op in ["Keep", "Add", "Sub", "Mul"]:
+        for op in ["Keep", "Add", "Sub"]:
             u1_long = ", ".join([u1+": PInt + {}Peano<{}>".format(op, u2) for (u1, u2) in zip(u1_list, u2_list) ])
             u2_long = ", ".join([u+": PInt" for u in u2_list])
             outs = ", ".join(["<{} as {}Peano<{}>>::Output".format(u1, op, u2) for (u1, u2) in zip(u1_list, u2_list)])
             text += """
 impl<{uboth}> {op}Dim<{name}<{u2}>> for {name}<{u1}>
 where {u1_long}, {u2_long}
+{{
+  type Output = {name}<{outs}>;
+}}
+""".format(**locals())
+        # ----------------------------------------------------------------------
+        # Operators part two (Mul and Div)
+        for op in ["Mul", "Div"]:
+            ulonghere = ", ".join([u+": PInt + {}Peano<RHS>".format(op) for u in self.units])
+            outs = ", ".join(["<{} as {}Peano<RHS>>::Output".format(u, op) for u in self.units])
+            text += """
+impl<{ushort}, RHS> {op}Dim<RHS> for {name}<{ushort}>
+where {ulonghere}, RHS: PInt
 {{
   type Output = {name}<{outs}>;
 }}
@@ -103,6 +120,16 @@ impl<{ushort}> DimToString for {name}<{ushort}>
         text += "pub static {}: Dim<Unitless, {}> = Dim({});\n".format(self.unitless, vtype, one)
         for (c, u) in zip(self.constants, self.units):
             text += "pub static {c}: Dim<{u}, {vtype}> = Dim({one});\n".format(**locals())
+        # # ----------------------------------------------------------------------
+        # # Extra Constants
+        # text += "\npub trait {name}Extra {{\n".format(**locals())
+        # for (n, e) in self.extra_constants:
+        #     text += "  fn {n}(self) -> Self;\n".format(**locals())
+        # text += "}\n\n"
+        # text += "impl {name}Extra for {vtype} {{\n".format(**locals())
+        # for (n, e) in self.extra_constants:
+        #     text += "  fn {n}(self) -> Self {{ {e}*self }}\n".format(**locals())
+        # text += "}\n\n"
 
         # ----------------------------------------------------------------------
         # Save file!
@@ -116,9 +143,65 @@ def main():
     si.name = "SI"
     si.filename = "src/si.rs"
     si.units = ["Meter", "Kilogram", "Second", "Amp", "Kelvin", "Candela", "Mole"]
-    si.constants = ["m", "kg", "s", "A", "K", "cd", "mol"]
-    si.print_as = si.constants
+    si.constants = ["meter", "kilogram", "second", "amp", "kelvin", "candela", "mole"]
+    si.print_as = ["m", "kg", "s", "A", "K", "cd", "mol"]
+
+    # not these don't do anything yet
+    si.extra_constants = [
+        ("hertz", "one/second"),
+        ("newton", "kilogram*meter/second/second"),
+        ("pascal", "kilogram/meter/second/second"),
+        ("joule", "kilogram*meter*meter/second/second"),
+        ("watt", "kilogram*meter*meter/second/second/second"),
+        ("coulomb", "second*amp"),
+        ("volt", "kilogram*meter*meter/second/second/second/amp"),
+        ("farad", "amp*amp*second*second*second*second/kilogram/meter/meter"),
+        ("ohm", "kilogram*meter*meter/second/second/second/amp/amp/amp"),
+        ("siemens", "amp*amp*second*second*second/kilogram/meter/meter"),
+        ("weber", "kilogram*meter*meter/second/second/amp"),
+        ("tesla", "kilogram/second/second/amp"),
+        ("henry", "kilogram*meter*meter/second/second/amp/amp"),
+        ("lumen", "candela"),
+        ("lux", "candela/meter/meter"),
+        ("becquerel", "one/second"),
+        ("gray", "meter*meter/second/second"),
+        ("sievert", "meter*meter/second/second"),
+        ("katal", "mole/second")
+    ]
     si.make_units()
+
+    cgs = Units()
+    cgs.name = "CGS"
+    cgs.filename = "src/cgs.rs"
+    cgs.units = ["Centimeter", "Gram", "Second"]
+    cgs.constants = ["centimeter", "gram", "second"]
+    cgs.print_as = ["cm", "g", "s"]
+
+    # fixme: incomplete
+    cgs.extra_constants = [
+        ("galileo", "centimeter/second/second"),
+        ("dyne", "centimeter*gram/second/second"),
+        ("barye", "gram/centimeter/second/second"),
+        ("erg", "centimeter*centimeter/gram/second/second"),
+        ("poise", "gram/centimeter/second"),
+        ("stokes", "centimeter*centimeter/second"),
+        ("kayser", "one/centimeter"),
+        ("statcoulomb", "(centimeter*centimeter*centimeter*gram/second/second).sqrt()"),
+        ("statohm", "second/centimeter"),
+        ("statmho", "centimeter/second"),
+        ("statfarad", "centimeter")
+    ]
+    cgs.allowed_root = 2
+    cgs.make_units()
+
+    u = Units()
+    u.name = "U"
+    u.filename = "src/u.rs"
+    u.units = ["Unit"]
+    u.constants = ["unit"]
+    u.print_as = ["u"]
+    u.make_units()
+
 
 
 if __name__ == "__main__":

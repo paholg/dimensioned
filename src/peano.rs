@@ -2,15 +2,32 @@ pub struct Zero;
 pub struct Succ<T: NonNeg>;
 pub struct Pred<T: NonPos>;
 
-pub type One = Succ<Zero>;
-pub type NegOne = Pred<Zero>;
+pub type One    = Succ<Zero>;
+pub type Two    = Succ<One>;
+pub type Three  = Succ<Two>;
+pub type Four   = Succ<Three>;
+pub type Five   = Succ<Four>;
+pub type Six    = Succ<Five>;
+pub type Seven  = Succ<Six>;
+pub type Eight  = Succ<Seven>;
+pub type Nine   = Succ<Eight>;
+pub type Ten    = Succ<Nine>;
+
+pub type NegOne    = Pred<Zero>;
+pub type NegTwo    = Pred<NegOne>;
+pub type NegThree  = Pred<NegTwo>;
+pub type NegFour   = Pred<NegThree>;
+pub type NegFive   = Pred<NegFour>;
+pub type NegSix    = Pred<NegFive>;
+pub type NegSeven  = Pred<NegSix>;
+pub type NegEight  = Pred<NegSeven>;
+pub type NegNine   = Pred<NegEight>;
+pub type NegTen    = Pred<NegNine>;
 
 pub trait Peano {}
 pub trait NonZero: Peano {}
 pub trait NonNeg: Peano {}
 pub trait NonPos: Peano {}
-pub trait Pos: Peano + NonZero + NonNeg {}
-pub trait Neg: Peano + NonZero + NonPos {}
 
 impl Peano for Zero {}
 impl NonNeg for Zero {}
@@ -19,12 +36,10 @@ impl NonPos for Zero {}
 impl<T: NonNeg> Peano for Succ<T> {}
 impl<T: NonNeg> NonNeg for Succ<T> {}
 impl<T: NonNeg> NonZero for Succ<T> {}
-impl<T: NonNeg> Pos for Succ<T> {}
 
 impl<T: NonPos> Peano for Pred<T> {}
 impl<T: NonPos> NonPos for Pred<T> {}
 impl<T: NonPos> NonZero for Pred<T> {}
-impl<T: NonPos> Neg for Pred<T> {}
 
 pub trait PInt: Peano + AddPeano + SubPeano + MulPeano + Negate + ToInt {}
 impl PInt for Zero {}
@@ -142,7 +157,7 @@ impl<T, RHS> MulPeano<RHS> for Pred<T>
 
 /// Note that, while we define division, we are operating in a ring, so an error
 /// will be thrown unless the numerator is divisible by the denominator
-trait DivPeano<RHS = Self> {
+pub trait DivPeano<RHS = Self> {
     type Output;
 }
 impl<RHS> DivPeano<RHS> for Zero
@@ -203,134 +218,4 @@ impl<T:NonNeg + ToInt> ToInt for Succ<T> {
 }
 impl<T:NonPos + ToInt> ToInt for Pred<T> {
     fn to_int() -> i32 { -1 + <T as ToInt>::to_int() }
-}
-
-#[test]
-fn test_peano() {
-    type Two = Succ<One>;
-    type Three = Succ<Two>;
-    type Four = Succ<Three>;
-
-    type NegOne = Pred<Zero>;
-    type NegTwo = Pred<NegOne>;
-    type NegThree = Pred<NegTwo>;
-    type NegFour = Pred<NegThree>;
-
-
-    // Testing equality
-    // 0 == 0
-    assert_eq!( 0, <Zero as ToInt>::to_int() );
-    // 2 == 2
-    assert_eq!( 2, <Two as ToInt>::to_int() );
-    // -2 == -2
-    assert_eq!( -2, <NegTwo as ToInt>::to_int() );
-
-
-    // Testing addition
-    // 0 + 0 == 0
-    assert_eq!( 0, <<Zero as AddPeano<Zero>>::Output as ToInt>::to_int() );
-    // 0 + 3 == 3
-    assert_eq!( 3, <<Zero as AddPeano<Three>>::Output as ToInt>::to_int() );
-    // 0 + -3 == -3
-    assert_eq!( -3, <<Zero as AddPeano<NegThree>>::Output as ToInt>::to_int() );
-
-    // 2 + 0 == 2
-    assert_eq!( 2, <<Two as AddPeano<Zero>>::Output as ToInt>::to_int() );
-    // 2 + 3 == 5
-    assert_eq!( 5, <<Two as AddPeano<Three>>::Output as ToInt>::to_int() );
-    // 2 + -3 == -1
-    assert_eq!( -1, <<Two as AddPeano<NegThree>>::Output as ToInt>::to_int() );
-    // 3 + -2 == 1
-    assert_eq!( 1, <<Three as AddPeano<NegTwo>>::Output as ToInt>::to_int() );
-
-    // -2 + 0 == 2
-    assert_eq!( -2, <<NegTwo as AddPeano<Zero>>::Output as ToInt>::to_int() );
-    // -2 + -3 == -5
-    assert_eq!( -5, <<NegTwo as AddPeano<NegThree>>::Output as ToInt>::to_int() );
-    // -2 + 3 == 1
-    assert_eq!( 1, <<NegTwo as AddPeano<Three>>::Output as ToInt>::to_int() );
-    // -3 + 2 == -1
-    assert_eq!( -1, <<NegThree as AddPeano<Two>>::Output as ToInt>::to_int() );
-
-
-    // Testing Negation
-    // -3 == -(3)
-    assert_eq!( -3, <<Three as Negate>::Output as ToInt>::to_int() );
-    // 3 == -(-3)
-    assert_eq!( 3, <<NegThree as Negate>::Output as ToInt>::to_int() );
-    // 0 == -0
-    assert_eq!( 0, <<Zero as Negate>::Output as ToInt>::to_int() );
-
-
-    // Testing Subtraction
-    // 0 - 0 == 0
-    assert_eq!( 0, <<Zero as SubPeano<Zero>>::Output as ToInt>::to_int() );
-    // 0 - 3 == -3
-    assert_eq!( -3, <<Zero as SubPeano<Three>>::Output as ToInt>::to_int() );
-    // 0 - -3 == 3
-    assert_eq!( 3, <<Zero as SubPeano<NegThree>>::Output as ToInt>::to_int() );
-
-    // 2 - 0 == 2
-    assert_eq!( 2, <<Two as SubPeano<Zero>>::Output as ToInt>::to_int() );
-    // 2 - 3 == -1
-    assert_eq!( -1, <<Two as SubPeano<Three>>::Output as ToInt>::to_int() );
-    // 2 - -3 == 5
-    assert_eq!( 5, <<Two as SubPeano<NegThree>>::Output as ToInt>::to_int() );
-    // 3 - -2 == 5
-    assert_eq!( 5, <<Three as SubPeano<NegTwo>>::Output as ToInt>::to_int() );
-
-    // -2 - 0 == -2
-    assert_eq!( -2, <<NegTwo as SubPeano<Zero>>::Output as ToInt>::to_int() );
-    // -2 - -3 == 1
-    assert_eq!( 1, <<NegTwo as SubPeano<NegThree>>::Output as ToInt>::to_int() );
-    // -2 - 3 == -5
-    assert_eq!( -5, <<NegTwo as SubPeano<Three>>::Output as ToInt>::to_int() );
-    // -3 - 2 == -5
-    assert_eq!( -5, <<NegThree as SubPeano<Two>>::Output as ToInt>::to_int() );
-
-
-    // Testing Multiplication
-    // 0 * 0 == 0
-    assert_eq!( 0, <<Zero as MulPeano<Zero>>::Output as ToInt>::to_int() );
-    // 0 * 2 == 0
-    assert_eq!( 0, <<Zero as MulPeano<Two>>::Output as ToInt>::to_int() );
-    // 2 * 0 == 0
-    assert_eq!( 0, <<Two as MulPeano<Zero>>::Output as ToInt>::to_int() );
-
-    // 2 * 3 == 6
-    assert_eq!( 6, <<Two as MulPeano<Three>>::Output as ToInt>::to_int() );
-    // 2 * -3 == -6
-    assert_eq!( -6, <<Two as MulPeano<NegThree>>::Output as ToInt>::to_int() );
-    // -2 * 3 == -6
-    assert_eq!( -6, <<NegTwo as MulPeano<Three>>::Output as ToInt>::to_int() );
-    // -2 * -3 == 6
-    assert_eq!( 6, <<NegTwo as MulPeano<NegThree>>::Output as ToInt>::to_int() );
-
-    // Testing Division
-    // 0 / 2 == 0
-    assert_eq!( 0, <<Zero as DivPeano<Two>>::Output as ToInt>::to_int() );
-    // 1 / 1 == 1
-    assert_eq!( 1, <<One as DivPeano<One>>::Output as ToInt>::to_int() );
-    // 4 / 2 == 2
-    assert_eq!( 2, <<Four as DivPeano<Two>>::Output as ToInt>::to_int() );
-    // 4 / -2 == -2
-    assert_eq!( -2, <<Four as DivPeano<NegTwo>>::Output as ToInt>::to_int() );
-    // -4 / 2 == -2
-    assert_eq!( -2, <<NegFour as DivPeano<Two>>::Output as ToInt>::to_int() );
-    // -4 / -2 == 2
-    assert_eq!( 2, <<NegFour as DivPeano<NegTwo>>::Output as ToInt>::to_int() );
-
-    // Uncomment for erroneous divisions!
-    // // 3 / 2
-    // <<Three as DivPeano<Two>>::Output as ToInt>::to_int();
-    // // -3 / 2
-    // <<NegThree as DivPeano<Two>>::Output as ToInt>::to_int();
-    // // 3 / -2
-    // <<Three as DivPeano<NegTwo>>::Output as ToInt>::to_int();
-    // // -3 / -2
-    // <<NegThree as DivPeano<NegTwo>>::Output as ToInt>::to_int();
-    // // 2 / 0
-    // <<Two as DivPeano<Zero>>::Output as ToInt>::to_int();
-    // // -2 / 0
-    // <<NegTwo as DivPeano<Zero>>::Output as ToInt>::to_int();
 }

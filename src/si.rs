@@ -3,7 +3,7 @@
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
 
-use peano::*;
+//use peano::*;
 use dimensioned::*;
 
 pub struct SI<Meter: PInt, Kilogram: PInt, Second: PInt, Amp: PInt, Kelvin: PInt, Candela: PInt, Mole: PInt>;
@@ -28,10 +28,16 @@ where Meter1: PInt + SubPeano<Meter2>, Kilogram1: PInt + SubPeano<Kilogram2>, Se
   type Output = SI<<Meter1 as SubPeano<Meter2>>::Output, <Kilogram1 as SubPeano<Kilogram2>>::Output, <Second1 as SubPeano<Second2>>::Output, <Amp1 as SubPeano<Amp2>>::Output, <Kelvin1 as SubPeano<Kelvin2>>::Output, <Candela1 as SubPeano<Candela2>>::Output, <Mole1 as SubPeano<Mole2>>::Output>;
 }
 
-impl<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1, Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2> MulDim<SI<Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2>> for SI<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1>
-where Meter1: PInt + MulPeano<Meter2>, Kilogram1: PInt + MulPeano<Kilogram2>, Second1: PInt + MulPeano<Second2>, Amp1: PInt + MulPeano<Amp2>, Kelvin1: PInt + MulPeano<Kelvin2>, Candela1: PInt + MulPeano<Candela2>, Mole1: PInt + MulPeano<Mole2>, Meter2: PInt, Kilogram2: PInt, Second2: PInt, Amp2: PInt, Kelvin2: PInt, Candela2: PInt, Mole2: PInt
+impl<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole, RHS> MulDim<RHS> for SI<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole>
+where Meter: PInt + MulPeano<RHS>, Kilogram: PInt + MulPeano<RHS>, Second: PInt + MulPeano<RHS>, Amp: PInt + MulPeano<RHS>, Kelvin: PInt + MulPeano<RHS>, Candela: PInt + MulPeano<RHS>, Mole: PInt + MulPeano<RHS>, RHS: PInt
 {
-  type Output = SI<<Meter1 as MulPeano<Meter2>>::Output, <Kilogram1 as MulPeano<Kilogram2>>::Output, <Second1 as MulPeano<Second2>>::Output, <Amp1 as MulPeano<Amp2>>::Output, <Kelvin1 as MulPeano<Kelvin2>>::Output, <Candela1 as MulPeano<Candela2>>::Output, <Mole1 as MulPeano<Mole2>>::Output>;
+  type Output = SI<<Meter as MulPeano<RHS>>::Output, <Kilogram as MulPeano<RHS>>::Output, <Second as MulPeano<RHS>>::Output, <Amp as MulPeano<RHS>>::Output, <Kelvin as MulPeano<RHS>>::Output, <Candela as MulPeano<RHS>>::Output, <Mole as MulPeano<RHS>>::Output>;
+}
+
+impl<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole, RHS> DivDim<RHS> for SI<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole>
+where Meter: PInt + DivPeano<RHS>, Kilogram: PInt + DivPeano<RHS>, Second: PInt + DivPeano<RHS>, Amp: PInt + DivPeano<RHS>, Kelvin: PInt + DivPeano<RHS>, Candela: PInt + DivPeano<RHS>, Mole: PInt + DivPeano<RHS>, RHS: PInt
+{
+  type Output = SI<<Meter as DivPeano<RHS>>::Output, <Kilogram as DivPeano<RHS>>::Output, <Second as DivPeano<RHS>>::Output, <Amp as DivPeano<RHS>>::Output, <Kelvin as DivPeano<RHS>>::Output, <Candela as DivPeano<RHS>>::Output, <Mole as DivPeano<RHS>>::Output>;
 }
 
 impl<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole> DimToString for SI<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole>
@@ -87,10 +93,10 @@ pub type Candela = SI<Zero, Zero, Zero, Zero, Zero, Succ<Zero>, Zero>;
 pub type Mole = SI<Zero, Zero, Zero, Zero, Zero, Zero, Succ<Zero>>;
 
 pub static one: Dim<Unitless, f64> = Dim(1.0);
-pub static m: Dim<Meter, f64> = Dim(1.0);
-pub static kg: Dim<Kilogram, f64> = Dim(1.0);
-pub static s: Dim<Second, f64> = Dim(1.0);
-pub static A: Dim<Amp, f64> = Dim(1.0);
-pub static K: Dim<Kelvin, f64> = Dim(1.0);
-pub static cd: Dim<Candela, f64> = Dim(1.0);
-pub static mol: Dim<Mole, f64> = Dim(1.0);
+pub static meter: Dim<Meter, f64> = Dim(1.0);
+pub static kilogram: Dim<Kilogram, f64> = Dim(1.0);
+pub static second: Dim<Second, f64> = Dim(1.0);
+pub static amp: Dim<Amp, f64> = Dim(1.0);
+pub static kelvin: Dim<Kelvin, f64> = Dim(1.0);
+pub static candela: Dim<Candela, f64> = Dim(1.0);
+pub static mole: Dim<Mole, f64> = Dim(1.0);
