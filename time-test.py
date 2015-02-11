@@ -16,7 +16,7 @@ posttext = """;\n
     println!("y: {}", y);
 }"""
 
-n = range(1, 9)
+n = range(1, 20)
 time = zeros(len(n))
 
 for i in n:
@@ -40,4 +40,4 @@ xticks(n)
 xlabel("Unit Exponent")
 ylabel("Time (s)")
 tight_layout()
-savefig("time-test.svg")
+savefig("time-test2.svg")

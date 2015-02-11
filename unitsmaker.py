@@ -22,7 +22,7 @@ class Units:
             exit(1)
         name = self.name
         ushort = ", ".join(self.units)
-        ulong = ", ".join([u + ": PInt" for u in self.units])
+        ulong = ", ".join([u + ": Peano" for u in self.units])
         u1_list = [u + "1" for u in self.units]
         u2_list = [u + "2" for u in self.units]
         uboth = ", ".join(u1_list + u2_list)
@@ -45,8 +45,8 @@ impl<{ulong}> Dimension for {name}<{ushort}> {{}}
         # ----------------------------------------------------------------------
         # Operators
         for op in ["Keep", "Add", "Sub"]:
-            u1_long = ", ".join([u1+": PInt + {}Peano<{}>".format(op, u2) for (u1, u2) in zip(u1_list, u2_list) ])
-            u2_long = ", ".join([u+": PInt" for u in u2_list])
+            u1_long = ", ".join([u1+": Peano + {}Peano<{}>".format(op, u2) for (u1, u2) in zip(u1_list, u2_list) ])
+            u2_long = ", ".join([u+": Peano" for u in u2_list])
             outs = ", ".join(["<{} as {}Peano<{}>>::Output".format(u1, op, u2) for (u1, u2) in zip(u1_list, u2_list)])
             text += """
 impl<{uboth}> {op}Dim<{name}<{u2}>> for {name}<{u1}>
@@ -58,20 +58,21 @@ where {u1_long}, {u2_long}
         # ----------------------------------------------------------------------
         # Operators part two (Mul and Div)
         for op in ["Mul", "Div"]:
-            ulonghere = ", ".join([u+": PInt + {}Peano<RHS>".format(op) for u in self.units])
+            ulonghere = ", ".join([u+": Peano + {}Peano<RHS>".format(op) for u in self.units])
             outs = ", ".join(["<{} as {}Peano<RHS>>::Output".format(u, op) for u in self.units])
             text += """
 impl<{ushort}, RHS> {op}Dim<RHS> for {name}<{ushort}>
-where {ulonghere}, RHS: PInt
+where {ulonghere}, RHS: Peano
 {{
   type Output = {name}<{outs}>;
 }}
 """.format(**locals())
         # ----------------------------------------------------------------------
         # ToString
+        utoint = ", ".join([u + ": ToInt" for u in self.units])
         text += """
 impl<{ushort}> DimToString for {name}<{ushort}>
-  where {ulong} {{
+  where {utoint} {{
     fn to_string() -> String {{
 """.format(**locals())
         allowed_root = self.allowed_root

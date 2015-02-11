@@ -6,42 +6,42 @@
 //use peano::*;
 use dimensioned::*;
 
-pub struct U<Unit: PInt>;
-impl<Unit: PInt> Dimension for U<Unit> {}
+pub struct U<Unit: Peano>;
+impl<Unit: Peano> Dimension for U<Unit> {}
 
 
 impl<Unit1, Unit2> KeepDim<U<Unit2>> for U<Unit1>
-where Unit1: PInt + KeepPeano<Unit2>, Unit2: PInt
+where Unit1: Peano + KeepPeano<Unit2>, Unit2: Peano
 {
   type Output = U<<Unit1 as KeepPeano<Unit2>>::Output>;
 }
 
 impl<Unit1, Unit2> AddDim<U<Unit2>> for U<Unit1>
-where Unit1: PInt + AddPeano<Unit2>, Unit2: PInt
+where Unit1: Peano + AddPeano<Unit2>, Unit2: Peano
 {
   type Output = U<<Unit1 as AddPeano<Unit2>>::Output>;
 }
 
 impl<Unit1, Unit2> SubDim<U<Unit2>> for U<Unit1>
-where Unit1: PInt + SubPeano<Unit2>, Unit2: PInt
+where Unit1: Peano + SubPeano<Unit2>, Unit2: Peano
 {
   type Output = U<<Unit1 as SubPeano<Unit2>>::Output>;
 }
 
 impl<Unit, RHS> MulDim<RHS> for U<Unit>
-where Unit: PInt + MulPeano<RHS>, RHS: PInt
+where Unit: Peano + MulPeano<RHS>, RHS: Peano
 {
   type Output = U<<Unit as MulPeano<RHS>>::Output>;
 }
 
 impl<Unit, RHS> DivDim<RHS> for U<Unit>
-where Unit: PInt + DivPeano<RHS>, RHS: PInt
+where Unit: Peano + DivPeano<RHS>, RHS: Peano
 {
   type Output = U<<Unit as DivPeano<RHS>>::Output>;
 }
 
 impl<Unit> DimToString for U<Unit>
-  where Unit: PInt {
+  where Unit: ToInt {
     fn to_string() -> String {
 
       let u_str = match <Unit as ToInt>::to_int() {

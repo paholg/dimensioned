@@ -6,42 +6,42 @@
 //use peano::*;
 use dimensioned::*;
 
-pub struct SI<Meter: PInt, Kilogram: PInt, Second: PInt, Amp: PInt, Kelvin: PInt, Candela: PInt, Mole: PInt>;
-impl<Meter: PInt, Kilogram: PInt, Second: PInt, Amp: PInt, Kelvin: PInt, Candela: PInt, Mole: PInt> Dimension for SI<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole> {}
+pub struct SI<Meter: Peano, Kilogram: Peano, Second: Peano, Amp: Peano, Kelvin: Peano, Candela: Peano, Mole: Peano>;
+impl<Meter: Peano, Kilogram: Peano, Second: Peano, Amp: Peano, Kelvin: Peano, Candela: Peano, Mole: Peano> Dimension for SI<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole> {}
 
 
 impl<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1, Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2> KeepDim<SI<Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2>> for SI<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1>
-where Meter1: PInt + KeepPeano<Meter2>, Kilogram1: PInt + KeepPeano<Kilogram2>, Second1: PInt + KeepPeano<Second2>, Amp1: PInt + KeepPeano<Amp2>, Kelvin1: PInt + KeepPeano<Kelvin2>, Candela1: PInt + KeepPeano<Candela2>, Mole1: PInt + KeepPeano<Mole2>, Meter2: PInt, Kilogram2: PInt, Second2: PInt, Amp2: PInt, Kelvin2: PInt, Candela2: PInt, Mole2: PInt
+where Meter1: Peano + KeepPeano<Meter2>, Kilogram1: Peano + KeepPeano<Kilogram2>, Second1: Peano + KeepPeano<Second2>, Amp1: Peano + KeepPeano<Amp2>, Kelvin1: Peano + KeepPeano<Kelvin2>, Candela1: Peano + KeepPeano<Candela2>, Mole1: Peano + KeepPeano<Mole2>, Meter2: Peano, Kilogram2: Peano, Second2: Peano, Amp2: Peano, Kelvin2: Peano, Candela2: Peano, Mole2: Peano
 {
   type Output = SI<<Meter1 as KeepPeano<Meter2>>::Output, <Kilogram1 as KeepPeano<Kilogram2>>::Output, <Second1 as KeepPeano<Second2>>::Output, <Amp1 as KeepPeano<Amp2>>::Output, <Kelvin1 as KeepPeano<Kelvin2>>::Output, <Candela1 as KeepPeano<Candela2>>::Output, <Mole1 as KeepPeano<Mole2>>::Output>;
 }
 
 impl<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1, Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2> AddDim<SI<Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2>> for SI<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1>
-where Meter1: PInt + AddPeano<Meter2>, Kilogram1: PInt + AddPeano<Kilogram2>, Second1: PInt + AddPeano<Second2>, Amp1: PInt + AddPeano<Amp2>, Kelvin1: PInt + AddPeano<Kelvin2>, Candela1: PInt + AddPeano<Candela2>, Mole1: PInt + AddPeano<Mole2>, Meter2: PInt, Kilogram2: PInt, Second2: PInt, Amp2: PInt, Kelvin2: PInt, Candela2: PInt, Mole2: PInt
+where Meter1: Peano + AddPeano<Meter2>, Kilogram1: Peano + AddPeano<Kilogram2>, Second1: Peano + AddPeano<Second2>, Amp1: Peano + AddPeano<Amp2>, Kelvin1: Peano + AddPeano<Kelvin2>, Candela1: Peano + AddPeano<Candela2>, Mole1: Peano + AddPeano<Mole2>, Meter2: Peano, Kilogram2: Peano, Second2: Peano, Amp2: Peano, Kelvin2: Peano, Candela2: Peano, Mole2: Peano
 {
   type Output = SI<<Meter1 as AddPeano<Meter2>>::Output, <Kilogram1 as AddPeano<Kilogram2>>::Output, <Second1 as AddPeano<Second2>>::Output, <Amp1 as AddPeano<Amp2>>::Output, <Kelvin1 as AddPeano<Kelvin2>>::Output, <Candela1 as AddPeano<Candela2>>::Output, <Mole1 as AddPeano<Mole2>>::Output>;
 }
 
 impl<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1, Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2> SubDim<SI<Meter2, Kilogram2, Second2, Amp2, Kelvin2, Candela2, Mole2>> for SI<Meter1, Kilogram1, Second1, Amp1, Kelvin1, Candela1, Mole1>
-where Meter1: PInt + SubPeano<Meter2>, Kilogram1: PInt + SubPeano<Kilogram2>, Second1: PInt + SubPeano<Second2>, Amp1: PInt + SubPeano<Amp2>, Kelvin1: PInt + SubPeano<Kelvin2>, Candela1: PInt + SubPeano<Candela2>, Mole1: PInt + SubPeano<Mole2>, Meter2: PInt, Kilogram2: PInt, Second2: PInt, Amp2: PInt, Kelvin2: PInt, Candela2: PInt, Mole2: PInt
+where Meter1: Peano + SubPeano<Meter2>, Kilogram1: Peano + SubPeano<Kilogram2>, Second1: Peano + SubPeano<Second2>, Amp1: Peano + SubPeano<Amp2>, Kelvin1: Peano + SubPeano<Kelvin2>, Candela1: Peano + SubPeano<Candela2>, Mole1: Peano + SubPeano<Mole2>, Meter2: Peano, Kilogram2: Peano, Second2: Peano, Amp2: Peano, Kelvin2: Peano, Candela2: Peano, Mole2: Peano
 {
   type Output = SI<<Meter1 as SubPeano<Meter2>>::Output, <Kilogram1 as SubPeano<Kilogram2>>::Output, <Second1 as SubPeano<Second2>>::Output, <Amp1 as SubPeano<Amp2>>::Output, <Kelvin1 as SubPeano<Kelvin2>>::Output, <Candela1 as SubPeano<Candela2>>::Output, <Mole1 as SubPeano<Mole2>>::Output>;
 }
 
 impl<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole, RHS> MulDim<RHS> for SI<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole>
-where Meter: PInt + MulPeano<RHS>, Kilogram: PInt + MulPeano<RHS>, Second: PInt + MulPeano<RHS>, Amp: PInt + MulPeano<RHS>, Kelvin: PInt + MulPeano<RHS>, Candela: PInt + MulPeano<RHS>, Mole: PInt + MulPeano<RHS>, RHS: PInt
+where Meter: Peano + MulPeano<RHS>, Kilogram: Peano + MulPeano<RHS>, Second: Peano + MulPeano<RHS>, Amp: Peano + MulPeano<RHS>, Kelvin: Peano + MulPeano<RHS>, Candela: Peano + MulPeano<RHS>, Mole: Peano + MulPeano<RHS>, RHS: Peano
 {
   type Output = SI<<Meter as MulPeano<RHS>>::Output, <Kilogram as MulPeano<RHS>>::Output, <Second as MulPeano<RHS>>::Output, <Amp as MulPeano<RHS>>::Output, <Kelvin as MulPeano<RHS>>::Output, <Candela as MulPeano<RHS>>::Output, <Mole as MulPeano<RHS>>::Output>;
 }
 
 impl<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole, RHS> DivDim<RHS> for SI<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole>
-where Meter: PInt + DivPeano<RHS>, Kilogram: PInt + DivPeano<RHS>, Second: PInt + DivPeano<RHS>, Amp: PInt + DivPeano<RHS>, Kelvin: PInt + DivPeano<RHS>, Candela: PInt + DivPeano<RHS>, Mole: PInt + DivPeano<RHS>, RHS: PInt
+where Meter: Peano + DivPeano<RHS>, Kilogram: Peano + DivPeano<RHS>, Second: Peano + DivPeano<RHS>, Amp: Peano + DivPeano<RHS>, Kelvin: Peano + DivPeano<RHS>, Candela: Peano + DivPeano<RHS>, Mole: Peano + DivPeano<RHS>, RHS: Peano
 {
   type Output = SI<<Meter as DivPeano<RHS>>::Output, <Kilogram as DivPeano<RHS>>::Output, <Second as DivPeano<RHS>>::Output, <Amp as DivPeano<RHS>>::Output, <Kelvin as DivPeano<RHS>>::Output, <Candela as DivPeano<RHS>>::Output, <Mole as DivPeano<RHS>>::Output>;
 }
 
 impl<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole> DimToString for SI<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole>
-  where Meter: PInt, Kilogram: PInt, Second: PInt, Amp: PInt, Kelvin: PInt, Candela: PInt, Mole: PInt {
+  where Meter: ToInt, Kilogram: ToInt, Second: ToInt, Amp: ToInt, Kelvin: ToInt, Candela: ToInt, Mole: ToInt {
     fn to_string() -> String {
 
       let m_str = match <Meter as ToInt>::to_int() {
