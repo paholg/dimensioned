@@ -7,7 +7,7 @@
            already existing definitions.
 
 # Features to implement
-- Dimensioned :: Implement powi() and sqrt() and maybe cuberoot().  Figure out if I want
+- Dim :: Implement powi() and sqrt() and maybe cuberoot().  Figure out if I want
                  to implement any more traits for this.
 - Unitsmaker :: Look into changing this to a syntax extension. Also figure out an
                 elegant way to have derived units as constants.
@@ -16,6 +16,5 @@
 - powi() :: want to do this in a way that makes sense
 
 # Bugs
-- Muliplying :: Dimensional products seems to scale exponentially.
 
 # Questions
