@@ -20,7 +20,7 @@ n = range(1, 9)
 time = zeros(len(n))
 
 for i in n:
-    midtext = "*".join(["x"]*i)
+    midtext = "*".join(["x/x"]*i)
     f = open("examples/time_test.rs", "w")
     f.write(pretext + midtext + posttext)
     f.close()
