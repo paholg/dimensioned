@@ -124,7 +124,7 @@ fn main() {
     let x = unit;
 
     println!("x: {}", x );
-    println!("square? {}", x*x*x*x*x*x );
+    // println!("square? {}", x.pow2() );
 
     xhat.norm();
 }
