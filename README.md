@@ -2,6 +2,12 @@ Dimensioned
 =====
 [![Build Status](https://travis-ci.org/paholg/dimensioned.svg?branch=master)](https://travis-ci.org/paholg/dimensioned)
 
+To use, place in Cargo.toml:
+```
+[dependencies]
+  dimensioned = "*"
+```
+
 A library for compile-time type checking of arbitrary unit systems.
 
 This library currently comes with just SI units, but you can easily make your own by
