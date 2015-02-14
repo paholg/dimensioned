@@ -1,7 +1,6 @@
 use std::ops::*;
 use std::num::{ToPrimitive, NumCast, Float};
 use std::cmp::*;
-//use std::string::String;
 use std::fmt;
 
 pub use peano::*;
@@ -9,10 +8,10 @@ pub use peano::*;
 pub trait Dimension {}
 pub trait Dimensionless: Dimension {}
 
-pub trait AddDim<RHS = Self>: Dimension {
+pub trait AddDim<RHS>: Dimension {
     type Output;
 }
-pub trait SubDim<RHS = Self>: Dimension {
+pub trait SubDim<RHS>: Dimension {
     type Output;
 }
 pub trait MulDim<RHS>: Dimension {
@@ -21,7 +20,7 @@ pub trait MulDim<RHS>: Dimension {
 pub trait DivDim<RHS>: Dimension {
     type Output;
 }
-pub trait KeepDim<RHS = Self>: Dimension {
+pub trait KeepDim<RHS>: Dimension {
     type Output;
 }
 pub trait DimToString: Dimension {
@@ -32,18 +31,16 @@ pub trait Scalar {}
 impl Scalar for f64 {}
 impl Scalar for f32 {}
 
-pub struct Dim<T: Dimension, V>(pub V);
+pub struct Dim<D: Dimension, V>(pub V);
 
 pub trait Wrap<B> {
     type Output;
     fn wrap(&self, b: B) -> <Self as Wrap<B>>::Output;
 }
-impl<T, A, B> Wrap<B> for Dim<T, A>
-    where T: Dimension {
-        type Output = Dim<T, B>;
-        fn wrap(&self, b: B) -> Dim<T, B> {
-            Dim(b)
-        }
+impl<D, A, B> Wrap<B> for Dim<D, A>
+    where D: Dimension {
+        type Output = Dim<D, B>;
+        fn wrap(&self, b: B) -> Dim<D, B> { Dim(b) }
 }
 
 
@@ -51,36 +48,24 @@ pub trait Sqrt {
     type Output;
     fn sqrt(self) -> <Self as Sqrt>::Output;
 }
-impl<T, V> Sqrt for Dim<T, V>
-    where T:  DivDim<Two>, V: Float, <T as DivDim<Two>>::Output: Dimension {
-        type Output = Dim<<T as DivDim<Two>>::Output, V>;
+impl<D, V> Sqrt for Dim<D, V>
+    where D:  DivDim<Two>, V: Float, <D as DivDim<Two>>::Output: Dimension {
+        type Output = Dim<<D as DivDim<Two>>::Output, V>;
+
         fn sqrt(self) -> <Self as Sqrt>::Output { Dim( (self.0).sqrt()) }
-    }
-
-// pub trait PowI<RHS> {
-//     type Output;
-//     fn powi(self) -> <Self as PowI<RHS>>::Output;
-// }
-// impl<T, V, RHS> PowI<RHS> for Dim<T, V>
-//     where T: MulDim<RHS>, V: Float, RHS: PInt, <T as MulDim<RHS>>::Output: Dimension {
-//         type Output = Dim<<T as MulDim<RHS>>::Output, V>;
-//         fn powi(self) -> <Self as PowI<RHS>>::Output {
-//             Dim( (self.0).powi( <RHS as ToInt>::to_int() ) )
-//         }
-//     }
-
+}
 
 pub trait Sqr {
     type Output;
     fn sqr(self) -> <Self as Sqr>::Output;
 }
-impl<T, V> Sqr for Dim<T, V>
-    where T: AddDim<T>, V: Copy + Mul, <T as AddDim<T>>::Output: Dimension {
-        type Output = Dim<<T as AddDim<T>>::Output, <V as Mul<V>>::Output>;
-        fn sqr(self) -> <Self as Sqr>::Output {
-            Dim( (self.0)*(self.0) )
-        }
+impl<D, V> Sqr for Dim<D, V> where D: MulDim<Two>, V: Copy + Mul, <D as MulDim<Two>>::Output: Dimension {
+    type Output = Dim<<D as MulDim<Two>>::Output, <V as Mul<V>>::Output>;
+
+    fn sqr(self) -> <Self as Sqr>::Output {
+        Dim( (self.0)*(self.0) )
     }
+}
 
 // pub trait PowI<Exp> {
 //     type Output;
@@ -94,16 +79,12 @@ impl<T, V> Sqr for Dim<T, V>
 //         }
 // }
 
-
-
 impl<T: Dimension, V: Copy> Copy for Dim<T, V> {}
-
-
 
 //------------------------------------------------------------------------------
 // Clone
 //------------------------------------------------------------------------------
-impl<T, V> Clone for Dim<T, V> where T: Dimension, V: Clone {
+impl<D, V> Clone for Dim<D, V> where D: Dimension, V: Clone {
     fn clone(&self) -> Self {
         Dim((self.0).clone())
     }
@@ -128,10 +109,11 @@ impl<T, V> fmt::Display for Dim<T, V> where T: DimToString, V: fmt::Display {
 impl<Tl, Tr, Vl, Vr> Mul<Dim<Tr, Vr>> for Dim<Tl, Vl>
     where Tl: Dimension + AddDim<Tr>, Tr: Dimension, Vl: Mul<Vr>, <Tl as AddDim<Tr>>::Output: Dimension {
         type Output = Dim<<Tl as AddDim<Tr>>::Output, <Vl as Mul<Vr>>::Output>;
+
         fn mul(self, rhs: Dim<Tr, Vr>) -> Dim<<Tl as AddDim<Tr>>::Output, <Vl as Mul<Vr>>::Output> {
             Dim(self.0 * rhs.0)
         }
-    }
+}
 
 /// Scalar multiplication (with scalar on RHS)!
 impl<T, V, RHS> Mul<RHS> for Dim<T, V>

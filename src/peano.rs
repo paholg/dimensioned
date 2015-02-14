@@ -2,27 +2,27 @@ pub struct Zero;
 pub struct Succ<N: NonNeg>;
 pub struct Pred<N: NonPos>;
 
-pub type One    = Succ<Zero>;
-pub type Two    = Succ<One>;
-pub type Three  = Succ<Two>;
-pub type Four   = Succ<Three>;
-pub type Five   = Succ<Four>;
-pub type Six    = Succ<Five>;
-pub type Seven  = Succ<Six>;
-pub type Eight  = Succ<Seven>;
-pub type Nine   = Succ<Eight>;
-pub type Ten    = Succ<Nine>;
+pub type One = Succ<Zero>;
+pub type Two = Succ<One>;
+pub type Three = Succ<Two>;
+pub type Four = Succ<Three>;
+pub type Five = Succ<Four>;
+pub type Six = Succ<Five>;
+pub type Seven = Succ<Six>;
+pub type Eight = Succ<Seven>;
+pub type Nine = Succ<Eight>;
+pub type Ten = Succ<Nine>;
 
-pub type NegOne    = Pred<Zero>;
-pub type NegTwo    = Pred<NegOne>;
-pub type NegThree  = Pred<NegTwo>;
-pub type NegFour   = Pred<NegThree>;
-pub type NegFive   = Pred<NegFour>;
-pub type NegSix    = Pred<NegFive>;
-pub type NegSeven  = Pred<NegSix>;
-pub type NegEight  = Pred<NegSeven>;
-pub type NegNine   = Pred<NegEight>;
-pub type NegTen    = Pred<NegNine>;
+pub type NegOne = Pred<Zero>;
+pub type NegTwo = Pred<NegOne>;
+pub type NegThree = Pred<NegTwo>;
+pub type NegFour = Pred<NegThree>;
+pub type NegFive = Pred<NegFour>;
+pub type NegSix = Pred<NegFive>;
+pub type NegSeven = Pred<NegSix>;
+pub type NegEight = Pred<NegSeven>;
+pub type NegNine = Pred<NegEight>;
+pub type NegTen = Pred<NegNine>;
 
 pub trait Peano {}
 pub trait NonZero: Peano {}
