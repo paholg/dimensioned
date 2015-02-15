@@ -4,7 +4,7 @@ set -o errexit -o nounset
 
 rev=$(git rev-parse --short HEAD)
 
-cd stage/_site
+cd _site
 git init
 git config user.name "Paho Lurie-Gregg"
 git config user.email "paho@paholg.com"
@@ -13,7 +13,7 @@ git remote add upstream "https://$GH_TOKEN@github.com/paholg/dimensioned.git"
 git fetch upstream
 git reset upstream/gh-pages
 
-# echo "dimensioned.paholg.com" > CNAME
+echo "dimensioned.paholg.com" > CNAME
 
 touch .
 git add -A .
