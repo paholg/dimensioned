@@ -4,6 +4,7 @@ set -o errexit -o nounset
 
 rev=$(git rev-parse --short HEAD)
 
+mkdir _site
 cd _site
 git init
 git config user.name "Paho Lurie-Gregg"
