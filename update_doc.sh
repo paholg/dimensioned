@@ -11,7 +11,7 @@ git clone "https://$GH_TOKEN@github.com/paholg/paholg.github.io.git" site/
 
 rm -rf site/doc/dimensioned site/doc/src/dimensioned site/doc/implementors/dimensioned
 
-mv target/doc site/
+rsync -a target/doc site/
 
 cd site
 
