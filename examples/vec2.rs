@@ -33,12 +33,12 @@ impl<T: Dimension> VectorNorm for Dim<T, Vector2d> {
 }
 
 macro_rules! wrap_member {
-    ($Trait:ident, $DimOp:ident, $Self:ident, $Out:ident, $fun:ident(self, $($arg:ident),*) ) => (
+    ($Trait:ident, $DimOp:ident, $V:ident, $Out:ident, $fun:ident(self, $($arg:ident),*) ) => (
         pub trait $Trait {
             type Output;
             fn $fun(self $(, $arg)*) -> <Self as $Trait>::Output;
         }
-        impl<T: Dimension> $Trait for Dim<T, $Self> {
+        impl<T: Dimension> $Trait for Dim<T, $V> {
             type Output = Dim<>
         }
         )
@@ -49,13 +49,13 @@ macro_rules! wrap_member {
 //wrap_binary!(Trait, DimOp, Self, Output, flist)
 
 // macro_rules! wrap_binary {
-//     ($Trait:ident, $DimOp:ident, $Self:ident, $Out:ident, $($fun:ident),*) => (
+//     ($Trait:ident, $DimOp:ident, $V:ident, $Out:ident, $($fun:ident),*) => (
 //         pub trait $Trait<RHS = Self> {
 //             type Output;
 //             $(fn $fun(self, rhs: RHS) -> <Self as $Trait<RHS>>::Output;)*
 //         }
-//         impl<RHS> $Trait<RHS> for $Self {
-//             type Output = <$Self as $Trait<RHS>>::Output;
+//         impl<RHS> $Trait<RHS> for $V {
+//             type Output = <$V as $Trait<RHS>>::Output;
 //             $(fn $fun(self, rhs: RHS) -> <Self as $Trait<RHS>>::Output { self.fun(rhs) } )*
 //         }
 //         dim_binary!($Trait, $DimOp $(, $fun)*);
