@@ -35,6 +35,11 @@ impl Scalar for f64 {}
 impl Scalar for f32 {}
 
 pub struct Dim<D: Dimension, V>(pub V, pub PhantomData<D>);
+impl<D: Dimension, V> Dim<D, V> {
+    pub fn new(v: V) -> Dim<D, V> {
+        Dim(v, PhantomData)
+    }
+}
 impl<D: Dimension, V: Copy> Copy for Dim<D, V> {}
 
 pub trait Wrap<B> {
@@ -46,7 +51,6 @@ impl<D, A, B> Wrap<B> for Dim<D, A>
         type Output = Dim<D, B>;
         fn wrap(&self, b: B) -> Dim<D, B> { Dim(b, PhantomData) }
 }
-
 
 pub trait Sqrt {
     type Output;
