@@ -3,10 +3,11 @@
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
 
-//use peano::*;
 use dimensioned::*;
 
-pub struct U<Unit: Peano>;
+pub struct U<Unit: Peano>{
+  _markerUnit: PhantomData<Unit>,
+}
 impl<Unit: Peano> Dimension for U<Unit> {}
 
 
@@ -56,5 +57,5 @@ pub type Unitless = U<Zero>;
 impl Dimensionless for Unitless {}
 pub type Unit = U<Succ<Zero>>;
 
-pub static one: Dim<Unitless, f64> = Dim(1.0);
-pub static unit: Dim<Unit, f64> = Dim(1.0);
+pub const one_u: Dim<Unitless, f64> = Dim(1.0, PhantomData);
+pub const unit: Dim<Unit, f64> = Dim(1.0, PhantomData);

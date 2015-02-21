@@ -3,10 +3,11 @@
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
 
-//use peano::*;
 use dimensioned::*;
 
-pub struct SI<Meter: Peano, Kilogram: Peano, Second: Peano, Amp: Peano, Kelvin: Peano, Candela: Peano, Mole: Peano>;
+pub struct SI<Meter: Peano, Kilogram: Peano, Second: Peano, Amp: Peano, Kelvin: Peano, Candela: Peano, Mole: Peano>{
+  _markerMeter: PhantomData<Meter>,  _markerKilogram: PhantomData<Kilogram>,  _markerSecond: PhantomData<Second>,  _markerAmp: PhantomData<Amp>,  _markerKelvin: PhantomData<Kelvin>,  _markerCandela: PhantomData<Candela>,  _markerMole: PhantomData<Mole>,
+}
 impl<Meter: Peano, Kilogram: Peano, Second: Peano, Amp: Peano, Kelvin: Peano, Candela: Peano, Mole: Peano> Dimension for SI<Meter, Kilogram, Second, Amp, Kelvin, Candela, Mole> {}
 
 
@@ -92,11 +93,11 @@ pub type Kelvin = SI<Zero, Zero, Zero, Zero, Succ<Zero>, Zero, Zero>;
 pub type Candela = SI<Zero, Zero, Zero, Zero, Zero, Succ<Zero>, Zero>;
 pub type Mole = SI<Zero, Zero, Zero, Zero, Zero, Zero, Succ<Zero>>;
 
-pub static one: Dim<Unitless, f64> = Dim(1.0);
-pub static meter: Dim<Meter, f64> = Dim(1.0);
-pub static kilogram: Dim<Kilogram, f64> = Dim(1.0);
-pub static second: Dim<Second, f64> = Dim(1.0);
-pub static amp: Dim<Amp, f64> = Dim(1.0);
-pub static kelvin: Dim<Kelvin, f64> = Dim(1.0);
-pub static candela: Dim<Candela, f64> = Dim(1.0);
-pub static mole: Dim<Mole, f64> = Dim(1.0);
+pub const one_si: Dim<Unitless, f64> = Dim(1.0, PhantomData);
+pub const meter: Dim<Meter, f64> = Dim(1.0, PhantomData);
+pub const kilogram: Dim<Kilogram, f64> = Dim(1.0, PhantomData);
+pub const second: Dim<Second, f64> = Dim(1.0, PhantomData);
+pub const amp: Dim<Amp, f64> = Dim(1.0, PhantomData);
+pub const kelvin: Dim<Kelvin, f64> = Dim(1.0, PhantomData);
+pub const candela: Dim<Candela, f64> = Dim(1.0, PhantomData);
+pub const mole: Dim<Mole, f64> = Dim(1.0, PhantomData);

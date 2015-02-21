@@ -9,7 +9,7 @@ class Units:
         self.constants = [] # Corresponding list of constants to define
         self.vtype = "f64" # type to define constants for
         self.one = "1.0" # value to set constants to
-        self.unitless = "one" # name for the dimensionless constant 1
+        self.unitless = "" # name for the dimensionless constant 1
         self.allowed_root = 1 # allowed roots to take. Useful for Gaussian units and the
                               # like. If allowed_root == 2, then you can take sqrt() of
                               # units, etc.
@@ -35,10 +35,14 @@ class Units:
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
 
-//use peano::*;
 use dimensioned::*;
 
-pub struct {name}<{ulong}>;
+pub struct {name}<{ulong}>{{
+""".format(**locals())
+        for unit in self.units:
+            text += "  _marker{unit}: PhantomData<{unit}>,".format(**locals())
+        text +="""
+}}
 impl<{ulong}> Dimension for {name}<{ushort}> {{}}
 
 """.format(**locals())
@@ -118,9 +122,9 @@ impl<{ushort}> DimToString for {name}<{ushort}>
         vtype = self.vtype
         one = self.one
         text += "\n"
-        text += "pub static {}: Dim<Unitless, {}> = Dim({});\n".format(self.unitless, vtype, one)
+        text += "pub const {}: Dim<Unitless, {}> = Dim({}, PhantomData);\n".format(self.unitless, vtype, one)
         for (c, u) in zip(self.constants, self.units):
-            text += "pub static {c}: Dim<{u}, {vtype}> = Dim({one});\n".format(**locals())
+            text += "pub const {c}: Dim<{u}, {vtype}> = Dim({one}, PhantomData);\n".format(**locals())
         # # ----------------------------------------------------------------------
         # # Extra Constants
         # text += "\npub trait {name}Extra {{\n".format(**locals())
@@ -143,6 +147,7 @@ def main():
     si = Units()
     si.name = "SI"
     si.filename = "src/si.rs"
+    si.unitless = "one_si"
     si.units = ["Meter", "Kilogram", "Second", "Amp", "Kelvin", "Candela", "Mole"]
     si.constants = ["meter", "kilogram", "second", "amp", "kelvin", "candela", "mole"]
     si.print_as = ["m", "kg", "s", "A", "K", "cd", "mol"]
@@ -174,6 +179,7 @@ def main():
     cgs = Units()
     cgs.name = "CGS"
     cgs.filename = "src/cgs.rs"
+    cgs.unitless = "one_cgs"
     cgs.units = ["Centimeter", "Gram", "Second"]
     cgs.constants = ["centimeter", "gram", "second"]
     cgs.print_as = ["cm", "g", "s"]
@@ -198,6 +204,7 @@ def main():
     u = Units()
     u.name = "U"
     u.filename = "src/u.rs"
+    u.unitless = "one_u"
     u.units = ["Unit"]
     u.constants = ["unit"]
     u.print_as = ["u"]

@@ -1,9 +1,11 @@
 [package]
 
 name = "dimensioned"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["Paho Lurie-Gregg <paho@paholg.com>"]
 description = "Compile-time type checking of arbitrary unit systems."
+homepage = "http://paholg.com/dimensioned"
+documentation = "http://paholg.com/doc/dimensioned"
 repository = "https://github.com/paholg/dimensioned"
 readme = "README.md"
-license = "MIT"
+license = "MIT/Apache-2.0"

@@ -1,38 +1,40 @@
+pub use peano::*;
+pub use std::marker::PhantomData;
+
+use std::marker::{PhantomFn, MarkerTrait};
 use std::ops::*;
 use std::num::{ToPrimitive, NumCast, Float};
 use std::cmp::*;
 use std::fmt;
 
-pub use peano::*;
-
-pub trait Dimension {}
+pub trait Dimension: MarkerTrait {}
 
 pub trait Dimensionless: Dimension {}
 
-pub trait AddDim<RHS>: Dimension {
+pub trait AddDim<RHS>: Dimension + PhantomFn<RHS> {
     type Output;
 }
-pub trait SubDim<RHS>: Dimension {
+pub trait SubDim<RHS>: Dimension + PhantomFn<RHS> {
     type Output;
 }
-pub trait MulDim<RHS>: Dimension {
+pub trait MulDim<RHS>: Dimension + PhantomFn<RHS> {
     type Output;
 }
-pub trait DivDim<RHS>: Dimension {
+pub trait DivDim<RHS>: Dimension + PhantomFn<RHS> {
     type Output;
 }
-pub trait KeepDim<RHS>: Dimension {
+pub trait KeepDim<RHS>: Dimension + PhantomFn<RHS> {
     type Output;
 }
 pub trait DimToString: Dimension {
     fn to_string() -> String;
 }
 
-pub trait Scalar {}
+pub trait Scalar: MarkerTrait {}
 impl Scalar for f64 {}
 impl Scalar for f32 {}
 
-pub struct Dim<D: Dimension, V>(pub V);
+pub struct Dim<D: Dimension, V>(pub V, pub PhantomData<D>);
 impl<D: Dimension, V: Copy> Copy for Dim<D, V> {}
 
 pub trait Wrap<B> {
@@ -42,7 +44,7 @@ pub trait Wrap<B> {
 impl<D, A, B> Wrap<B> for Dim<D, A>
     where D: Dimension {
         type Output = Dim<D, B>;
-        fn wrap(&self, b: B) -> Dim<D, B> { Dim(b) }
+        fn wrap(&self, b: B) -> Dim<D, B> { Dim(b, PhantomData) }
 }
 
 
@@ -54,7 +56,7 @@ impl<D, V> Sqrt for Dim<D, V>
     where D:  DivDim<Two>, V: Float, <D as DivDim<Two>>::Output: Dimension {
         type Output = Dim<<D as DivDim<Two>>::Output, V>;
 
-        fn sqrt(self) -> <Self as Sqrt>::Output { Dim( (self.0).sqrt()) }
+        fn sqrt(self) -> <Self as Sqrt>::Output { Dim( (self.0).sqrt(), PhantomData) }
 }
 
 pub trait Sqr {
@@ -65,7 +67,7 @@ impl<D, V> Sqr for Dim<D, V> where D: MulDim<Two>, V: Copy + Mul, <D as MulDim<T
     type Output = Dim<<D as MulDim<Two>>::Output, <V as Mul<V>>::Output>;
 
     fn sqr(self) -> <Self as Sqr>::Output {
-        Dim( (self.0)*(self.0) )
+        Dim( (self.0)*(self.0), PhantomData )
     }
 }
 
@@ -115,7 +117,7 @@ impl<D, V> Sqr for Dim<D, V> where D: MulDim<Two>, V: Copy + Mul, <D as MulDim<T
 //------------------------------------------------------------------------------
 impl<D, V> Clone for Dim<D, V> where D: Dimension, V: Clone {
     fn clone(&self) -> Self {
-        Dim((self.0).clone())
+        Dim((self.0).clone(), PhantomData)
     }
     fn clone_from(&mut self, source: &Self) {
         (self.0).clone_from(&source.0);
@@ -140,7 +142,7 @@ impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
         type Output = Dim<<Dl as AddDim<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
 
         fn mul(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as AddDim<Dr>>::Output, <Vl as Mul<Vr>>::Output> {
-            Dim(self.0 * rhs.0)
+            Dim(self.0 * rhs.0, PhantomData)
         }
 }
 
@@ -149,7 +151,7 @@ impl<D, V, RHS> Mul<RHS> for Dim<D, V>
     where D: Dimension, V: Mul<RHS>, RHS: Scalar {
         type Output = Dim<D, <V as Mul<RHS>>::Output>;
         fn mul(self, rhs: RHS) -> Dim<D, <V as Mul<RHS>>::Output> {
-            Dim(self.0 * rhs)
+            Dim(self.0 * rhs, PhantomData)
         }
     }
 
@@ -168,7 +170,7 @@ impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
     where Dl: Dimension + SubDim<Dr>, Dr: Dimension, Vl: Div<Vr>, <Dl as SubDim<Dr>>::Output: Dimension {
         type Output = Dim<<Dl as SubDim<Dr>>::Output, <Vl as Div<Vr>>::Output>;
         fn div(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as SubDim<Dr>>::Output, <Vl as Div<Vr>>::Output> {
-            Dim(self.0 / rhs.0)
+            Dim(self.0 / rhs.0, PhantomData)
         }
     }
 
@@ -177,7 +179,7 @@ impl<D, V, RHS> Div<RHS> for Dim<D, V>
     where D: Dimension, V: Div<RHS>, RHS: Scalar {
         type Output = Dim<D, <V as Div<RHS>>::Output>;
         fn div(self, rhs: RHS) -> Dim<D, <V as Div<RHS>>::Output> {
-            Dim(self.0 / rhs)
+            Dim(self.0 / rhs, PhantomData)
         }
     }
 
@@ -194,7 +196,7 @@ macro_rules! dim_unary {
             where D: $op<D>, V: $Trait, <D as $op<D>>::Output: Dimension {
                 type Output = Dim<<D as $op<D>>::Output, <V as $Trait>::Output>;
                 $(fn $fun(self) -> Dim<<D as $op<D>>::Output, <V as $Trait>::Output> {
-                    Dim( (self.0).$fun() )
+                    Dim( (self.0).$fun(), PhantomData )
                 })*
             }
         )
@@ -211,7 +213,7 @@ macro_rules! dim_binary {
             where Dl: $op<Dr>, Dr: Dimension, Vl: $Trait<Vr>, <Dl as $op<Dr>>::Output: Dimension {
                 type Output = Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output>;
                 $(fn $fun(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output> {
-                    Dim( (self.0).$fun(rhs.0) )
+                    Dim( (self.0).$fun(rhs.0), PhantomData )
                 })*
             }
         )
@@ -303,7 +305,7 @@ impl<D, V> ToPrimitive for Dim<D, V> where D: Dimensionless, V: ToPrimitive {
 impl<D, V> NumCast for Dim<D, V> where D: Dimensionless, V: NumCast {
     fn from<N>(n: N) -> Option<Self> where N: ToPrimitive {
         match NumCast::from(n) {
-            Some(v) => Some(Dim(v)),
+            Some(v) => Some(Dim(v, PhantomData)),
             None => None
         }
     }
@@ -313,7 +315,7 @@ impl<D, V> NumCast for Dim<D, V> where D: Dimensionless, V: NumCast {
 // Float
 macro_rules! dim_unary_float {
     ($fun:ident, $returns:ty) => (
-        fn $fun(self) -> $returns { Dim( (self.0).$fun()) }
+        fn $fun(self) -> $returns { Dim( (self.0).$fun(), PhantomData) }
         )
 }
 

@@ -96,8 +96,8 @@ impl fmt::Display for Vector2d {
 
 
 fn main() {
-    let xhat: Dim<Unitless, Vector2d> = Dim(Vector2d{x: 1.0, y: 0.0});
-    let yhat: Dim<Unitless, Vector2d> = Dim(Vector2d{x: 0.0, y: 1.0});
+    let xhat: Dim<Unitless, Vector2d> = Dim(Vector2d{x: 1.0, y: 0.0}, PhantomData);
+    let yhat: Dim<Unitless, Vector2d> = Dim(Vector2d{x: 0.0, y: 1.0}, PhantomData);
 
     let start = -xhat*13.0*meter + yhat*33.0*meter;
     let end = xhat*26.0*meter - yhat*19.0*meter;

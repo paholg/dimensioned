@@ -1,6 +1,12 @@
+use std::marker::{PhantomData, PhantomFn, MarkerTrait};
+
 pub struct Zero;
-pub struct Succ<N: NonNeg>;
-pub struct Pred<N: NonPos>;
+pub struct Succ<N: NonNeg> {
+    _marker: PhantomData<N>
+}
+pub struct Pred<N: NonPos> {
+    _marker: PhantomData<N>
+}
 
 pub type One = Succ<Zero>;
 pub type Two = Succ<One>;
@@ -24,7 +30,7 @@ pub type NegEight = Pred<NegSeven>;
 pub type NegNine = Pred<NegEight>;
 pub type NegTen = Pred<NegNine>;
 
-pub trait Peano {}
+pub trait Peano: MarkerTrait {}
 pub trait NonZero: Peano {}
 pub trait NonNeg: Peano {}
 pub trait NonPos: Peano {}
@@ -43,7 +49,7 @@ impl<N: NonPos> NonZero for Pred<N> {}
 
 impl Copy for Zero {}
 
-pub trait AddPeano<RHS>: Peano {
+pub trait AddPeano<RHS>: Peano + PhantomFn<RHS> {
     type Output;
 }
 
@@ -78,7 +84,7 @@ impl<LHS: NonPos + AddPeano<RHS>, RHS: NonNeg> AddPeano<Succ<RHS>> for Pred<LHS>
     type Output = <LHS as AddPeano<RHS>>::Output;
 }
 
-pub trait Negate {
+pub trait Negate: MarkerTrait {
     type Output;
 }
 impl Negate for Zero {
@@ -93,7 +99,7 @@ impl<N: NonPos + Negate> Negate for Pred<N> {
 
 
 
-pub trait SubPeano<RHS>: Peano {
+pub trait SubPeano<RHS>: Peano + PhantomFn<RHS> {
     type Output;
 }
 
@@ -130,7 +136,7 @@ impl<LHS: NonPos + SubPeano<RHS>, RHS: NonPos> SubPeano<Pred<RHS>> for Pred<LHS>
 
 
 
-pub trait MulPeano<RHS>: Peano {
+pub trait MulPeano<RHS>: Peano + PhantomFn<RHS>{
     type Output;
 }
 
@@ -154,7 +160,7 @@ impl<LHS, RHS> MulPeano<RHS> for Pred<LHS>
 
 /// Note that, while we define division, we are operating in a ring, so an error
 /// will be thrown unless the numerator is divisible by the denominator
-pub trait DivPeano<RHS>: Peano {
+pub trait DivPeano<RHS>: Peano + PhantomFn<RHS> {
     type Output;
 }
 impl<RHS> DivPeano<RHS> for Zero
@@ -173,7 +179,7 @@ impl<LHS, RHS> DivPeano<RHS> for Pred<LHS>
 // DivPeanoPriv only supports positive numerators. That way, it will terminate with an
 // error if you ever try to divide non-divisible things. We can divide things like -4 /
 // 2 by first negating both numerator and denominator, which is what DivPeano does.
-trait DivPeanoPriv<RHS>: Peano {
+trait DivPeanoPriv<RHS>: Peano + PhantomFn<RHS> {
     type Output;
 }
 impl<RHS: NonZero> DivPeanoPriv<RHS> for Zero {
@@ -195,7 +201,7 @@ impl<LHS, RHS> DivPeanoPriv<Pred<RHS>> for Succ<LHS>
 
 
 
-pub trait KeepPeano<N>: Peano {
+pub trait KeepPeano<RHS>: Peano + PhantomFn<RHS> {
     type Output;
 }
 /// Output = N iff both operands are type N

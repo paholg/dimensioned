@@ -3,10 +3,11 @@
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
 
-//use peano::*;
 use dimensioned::*;
 
-pub struct CGS<Centimeter: Peano, Gram: Peano, Second: Peano>;
+pub struct CGS<Centimeter: Peano, Gram: Peano, Second: Peano>{
+  _markerCentimeter: PhantomData<Centimeter>,  _markerGram: PhantomData<Gram>,  _markerSecond: PhantomData<Second>,
+}
 impl<Centimeter: Peano, Gram: Peano, Second: Peano> Dimension for CGS<Centimeter, Gram, Second> {}
 
 
@@ -68,7 +69,7 @@ pub type Centimeter = CGS<Succ<Succ<Zero>>, Zero, Zero>;
 pub type Gram = CGS<Zero, Succ<Succ<Zero>>, Zero>;
 pub type Second = CGS<Zero, Zero, Succ<Succ<Zero>>>;
 
-pub static one: Dim<Unitless, f64> = Dim(1.0);
-pub static centimeter: Dim<Centimeter, f64> = Dim(1.0);
-pub static gram: Dim<Gram, f64> = Dim(1.0);
-pub static second: Dim<Second, f64> = Dim(1.0);
+pub const one_cgs: Dim<Unitless, f64> = Dim(1.0, PhantomData);
+pub const centimeter: Dim<Centimeter, f64> = Dim(1.0, PhantomData);
+pub const gram: Dim<Gram, f64> = Dim(1.0, PhantomData);
+pub const second: Dim<Second, f64> = Dim(1.0, PhantomData);
