@@ -1,14 +1,11 @@
 #[macro_use]
 extern crate dimensioned;
-// use dimensioned::{Dim, Wrap, Dimension};
 use dimensioned::dimensioned::*;
-//use dimensioned::*;
 use dimensioned::u::*;
 use std::ops::*;
 use std::fmt;
-use std::num::Float;
-//use peano::*;
 
+#[derive(Copy, Clone)]
 pub struct Vector2d {
     pub x: f64,
     pub y: f64,
@@ -17,7 +14,9 @@ pub struct Vector2d {
 impl Vector2d {
     fn norm(self) -> f64 { self.norm2().sqrt() }
     fn norm2(self) -> f64 { self.dot(self) }
+    #[allow(dead_code)]
     fn normalize(self) -> Vector2d { self / self.norm() }
+    #[allow(dead_code)]
     fn cross(self, rhs: Vector2d) -> f64 { self.x*rhs.y - self.y*rhs.x }
     fn dot(self, rhs: Vector2d) -> f64 { self.x*rhs.x + self.y*rhs.y }
 }
@@ -83,9 +82,6 @@ macro_rules! wrap_member {
 
 
 
-
-
-impl Copy for Vector2d {}
 impl Add for Vector2d {
     type Output = Vector2d;
     fn add(self, v: Vector2d) -> Vector2d { Vector2d{x: self.x + v.x, y: self.y + v.y} }
@@ -117,7 +113,7 @@ impl fmt::Display for Vector2d {
 
 fn main() {
     let xhat: Dim<Unitless, Vector2d> = Dim::new(Vector2d{x: 1.0, y: 0.0});
-    let yhat: Dim<Unitless, Vector2d> = Dim::new(Vector2d{x: 1.0, y: 0.0});
+    // let yhat: Dim<Unitless, Vector2d> = Dim::new(Vector2d{x: 1.0, y: 0.0});
 
     let v = Vector2d{x: 1.1, y: 1.1};
     v.norm();

@@ -1,36 +1,38 @@
 pub use peano::*;
 pub use std::marker::PhantomData;
 
-use std::marker::{PhantomFn, MarkerTrait};
+// use std::marker::{PhantomFn, MarkerTrait};
 use std::ops::*;
-use std::num::{ToPrimitive, NumCast, Float};
+use std::num::{ToPrimitive, NumCast};
 use std::cmp::*;
 use std::fmt;
 
-pub trait Dimension: MarkerTrait {}
+use num::Float;
+
+pub trait Dimension {}
 
 pub trait Dimensionless: Dimension {}
 
-pub trait AddDim<RHS>: Dimension + PhantomFn<RHS> {
+pub trait AddDim<RHS>: Dimension {
     type Output;
 }
-pub trait SubDim<RHS>: Dimension + PhantomFn<RHS> {
+pub trait SubDim<RHS>: Dimension {
     type Output;
 }
-pub trait MulDim<RHS>: Dimension + PhantomFn<RHS> {
+pub trait MulDim<RHS>: Dimension {
     type Output;
 }
-pub trait DivDim<RHS>: Dimension + PhantomFn<RHS> {
+pub trait DivDim<RHS>: Dimension {
     type Output;
 }
-pub trait KeepDim<RHS>: Dimension + PhantomFn<RHS> {
+pub trait KeepDim<RHS>: Dimension {
     type Output;
 }
 pub trait DimToString: Dimension {
     fn to_string() -> String;
 }
 
-pub trait Scalar: MarkerTrait {}
+pub trait Scalar {}
 impl Scalar for f64 {}
 impl Scalar for f32 {}
 
@@ -292,11 +294,11 @@ macro_rules! dim_cast_fun {
 impl<D, V> ToPrimitive for Dim<D, V> where D: Dimensionless, V: ToPrimitive {
     dim_cast_fun!(to_i64, i64);
     dim_cast_fun!(to_u64, u64);
-    dim_cast_fun!(to_int, isize);
+    dim_cast_fun!(to_isize, isize);
     dim_cast_fun!(to_i8, i8);
     dim_cast_fun!(to_i16, i16);
     dim_cast_fun!(to_i32, i32);
-    dim_cast_fun!(to_uint, usize);
+    dim_cast_fun!(to_usize, usize);
     dim_cast_fun!(to_u8, u8);
     dim_cast_fun!(to_u16, u16);
     dim_cast_fun!(to_u32, u32);

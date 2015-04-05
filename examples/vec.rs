@@ -3,11 +3,10 @@ extern crate dimensioned;
 
 use dimensioned::dimensioned::*;
 use dimensioned::si::*;
-// use dimensioned::{Dim, Dimension, Wrap, KeepDim, AddDim, SubDim};
 use std::ops::*;
 use std::fmt;
-use std::num::Float;
 
+#[derive(Copy, Clone)]
 pub struct Vector2d {
     pub x: f64,
     pub y: f64,
@@ -65,7 +64,6 @@ dim_unary!(VectorNorm2, AddDim, norm2);
 dim_unary!(VectorNormalize, SubDim, normalize);
 dim_binary!(VectorProd, AddDim, cross, dot);
 
-impl Copy for Vector2d {}
 impl Add for Vector2d {
     type Output = Vector2d;
     fn add(self, v: Vector2d) -> Vector2d { Vector2d{x: self.x + v.x, y: self.y + v.y} }
