@@ -3,7 +3,7 @@ pub use std::marker::PhantomData;
 
 // use std::marker::{PhantomFn, MarkerTrait};
 use std::ops::*;
-use std::num::{ToPrimitive, NumCast};
+use num::traits::{ToPrimitive, NumCast};
 use std::cmp::*;
 use std::fmt;
 
