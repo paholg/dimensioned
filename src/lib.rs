@@ -1,6 +1,3 @@
-//#![feature(core)]
-#![feature(unboxed_closures)]
-
 extern crate num;
 
 pub use dimensioned::*;
