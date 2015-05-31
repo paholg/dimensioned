@@ -2,11 +2,9 @@ pub use peano::*;
 pub use std::marker::PhantomData;
 
 use std::ops::*;
-use num::traits::{ToPrimitive, NumCast};
+use num::traits::{ToPrimitive, NumCast, Float};
 use std::cmp::*;
 use std::fmt;
-
-use num::Float;
 
 pub trait Dimension {}
 
@@ -317,12 +315,21 @@ impl<D, V> NumCast for Dim<D, V> where D: Dimensionless, V: NumCast {
 }
 
 //------------------------------------------------------------------------------
+// Num
+// impl<D, V> Num for Dim<D, V>
+//     where D: Dimensionless + KeepDim<D>, V: Float, <D as KeepDim<D>>::Output: Dimensionless {
+//         type FromStrRadixErr = Dim<D, <V as Num>::FromStrRadixErr>;
+//         fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
+//             Dim( <V as Num>::from_str_radix(str, radix));
+//         }
+//     }
+//------------------------------------------------------------------------------
 // Float
-macro_rules! dim_unary_float {
-    ($fun:ident, $returns:ty) => (
-        fn $fun(self) -> $returns { Dim( (self.0).$fun(), PhantomData) }
-        )
-}
+// macro_rules! dim_unary_float {
+//     ($fun:ident, $returns:ty) => (
+//         fn $fun(self) -> $returns { Dim( (self.0).$fun(), PhantomData) }
+//         )
+// }
 
 // impl<D, V> Float for Dim<D, V>
 //     where D: Dimensionless + KeepDim<D>, V: Float, <D as KeepDim<D>>::Output: Dimensionless {
@@ -330,18 +337,15 @@ macro_rules! dim_unary_float {
 //         dim_unary_float!(nan, Self);
 //         dim_unary_float!(infinity, Self);
 //         dim_unary_float!(neg_infinity, Self);
-//         dim_unary_float!(zero, Self);
 //         dim_unary_float!(neg_zero, Self);
-//         dim_unary_float!(one, Self);
-//         dim_unary_float!(epsilon, Self);
 //         dim_unary_float!(min_value, Self);
+//         //dim_unary_float!(min_positive_value, Self);
 //         dim_unary_float!(max_value, Self);
 //         dim_unary_float!(is_nan, bool);
 //         dim_unary_float!(is_infinite, bool);
 //         dim_unary_float!(is_finite, bool);
 //         dim_unary_float!(is_normal, bool);
 //         // dim_unary_float!(classify, FpCategory);
-//         dim_unary_float!(integer_decode, (u64, i16, i8));
 //         dim_unary_float!(floor, Self);
 //         dim_unary_float!(ceil, Self);
 //         dim_unary_float!(round, Self);
@@ -349,26 +353,32 @@ macro_rules! dim_unary_float {
 //         dim_unary_float!(fract, Self);
 //         dim_unary_float!(abs, Self);
 //         dim_unary_float!(signum, Self);
-//         dim_unary_float!(is_positive, bool);
-//         dim_unary_float!(is_negative, bool);
+//         dim_unary_float!(is_sign_positive, bool);
+//         dim_unary_float!(is_sign_negative, bool);
+//         // dim_unary_float!(mul_add, bool); BINARY
+
 //         dim_unary_float!(recip, Self);
+//         // powi
+//         // powf
 //         dim_unary_float!(sqrt, Self);
-//         dim_unary_float!(rsqrt, Self);
 //         dim_unary_float!(exp, Self);
 //         dim_unary_float!(exp2, Self);
 //         dim_unary_float!(ln, Self);
 //         dim_unary_float!(log, Self);
 //         dim_unary_float!(log2, Self);
 //         dim_unary_float!(log10, Self);
-//         dim_unary_float!(to_degrees, Self);
-//         dim_unary_float!(to_radians, Self);
+//         dim_unary_float!(max, Self);
+//         dim_unary_float!(min, Self);
+//         // abs_sub
 //         dim_unary_float!(cbrt, Self);
+//         dim_unary_float!(hypot, Self);
 //         dim_unary_float!(sin, Self);
 //         dim_unary_float!(cos, Self);
 //         dim_unary_float!(tan, Self);
 //         dim_unary_float!(asin, Self);
 //         dim_unary_float!(acos, Self);
 //         dim_unary_float!(atan, Self);
+//         dim_unary_float!(atan2, Self);
 //         dim_unary_float!(sin_cos, (Self, Self));
 //         dim_unary_float!(exp_m1, Self);
 //         dim_unary_float!(ln_1p, Self);
@@ -378,4 +388,6 @@ macro_rules! dim_unary_float {
 //         dim_unary_float!(asinh, Self);
 //         dim_unary_float!(acosh, Self);
 //         dim_unary_float!(atanh, Self);
+//         dim_unary_float!(integer_decode, (u64, i16, i8));
+
 //     }

@@ -2,9 +2,23 @@
 extern crate dimensioned;
 
 use dimensioned::dimensioned::*;
-use dimensioned::si::*;
 use std::ops::*;
 use std::fmt;
+
+make_units! {
+    SI, One;
+    base {
+        Meter, meter, m;
+        Kilogram, kilogram, kg;
+        Second, second, s;
+        Ampere, ampere, A;
+        Kelvin, kelvin, K;
+        Candela, candela, cd;
+        Mole, mole, mol;
+    }
+    derived {
+    }
+}
 
 #[derive(Copy, Clone)]
 pub struct Vector2d {

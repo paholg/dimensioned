@@ -1,4 +1,4 @@
-# "Skipped" things
+# "Skipped" things (i.e. next on list)
 - LHS Scalars :: waiting on Rust changes (I'm pretty sure) to have scalars on LHS for
                  multiplication / division
 - Index/IndexMut :: Lifetime stuff that I need to figure out
@@ -8,13 +8,12 @@
 
 # Features to implement
 - Dim :: Figure out if I want to implement any more traits for this.
-- Unitsmaker :: Look into changing this to a syntax extension. Also figure out an
-                elegant way to have derived units as constants.
+- Derived Units :: Get macro working for these.
 - Macros :: Find a better way of writing macros to wrap arbitrary functions, or some other method.
-
-- powi() :: want to do this in a way that makes sense
+- powi() :: Want to do this in a way that makes sense. Probably impossible.
 - roots :: add others besides sqrt()?
 
 # Bugs
+- make_units! macro :: errors for single unit systems.
 
 # Questions
