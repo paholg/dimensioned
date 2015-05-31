@@ -1,6 +1,6 @@
 Dimensioned =====
-[![crates.io](https://img.shields.io/crates/v/units.svg)](https://crates.io/crates/units)
 
+[![crates.io](https://img.shields.io/crates/v/units.svg)](https://crates.io/crates/units)
 [![Build Status](https://travis-ci.org/paholg/dimensioned.svg?branch=master)](https://travis-ci.org/paholg/dimensioned)
 
 
@@ -41,7 +41,9 @@ The first line inside the macro, `SI, One;` is the name of your unit system foll
 the highest allowed root that you want in Peano number form. Generally, you want this to
 be `One`, but for CGS units, for example, the square root of base units is allowed, so
 it should be `Two`. The numbers `One` through `Ten` are defined in the library; if for
-some reason you need something higher, it can be defined as `type Eleven = Succ<Ten>;`.
+some reason you need something higher, you can use the syntax
+
+```type Eleven = Succ<Ten>;```
 
 Then, the block `base {}` designates the base units of the system. They are given in the
 form `Type, constant, print_form;` so that the first line, `Meter, meter, m;` will
