@@ -58,8 +58,8 @@ macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:id
     $(#[allow(non_upper_case_globals)] pub const $constant: Dim<$Type, f64> = Dim(1.0, PhantomData);)*
 
         // $(
-        //   _make_derived_type!($Derived, $e);
-        //   // pub const $derived_constant = Dim<$Derived, f64> = Dim(1.0, PhantomData);
+        //   __make_derived_type!($Derived, $e);
+        //   pub const $derived_constant: Dim<$Derived, f64> = Dim(1.0, PhantomData);
         //   )*
         );
 }
@@ -122,13 +122,16 @@ macro_rules! __make_types {
 // }
 
 
-
+// #[macro_export]
 // macro_rules! __make_derived_type {
-//     ($D: ident, $e: expr) => ();
+//     ($D: ident, $e: expr) => (
+//         pub type $D = __convert_expression!($e);
+//         );
 // }
 
+// #[macro_export]
 // macro_rules! __convert_expression {
-//     ($a: ident * $b: expr) => ($a as AddDim<__convert_expression!{$b}>>::Output);
-//     ($a: ident / $b: expr) => ($a as SubDim<__convert_expression!{$b}>>::Output);
+//     ($a: ident * $b: expr) => ($a as AddDim<__convert_expression!($b)>>::Output);
+//     ($a: ident / $b: expr) => ($a as SubDim<__convert_expression!($b)>>::Output);
 //     ($a: ident) => ($a);
 // }
