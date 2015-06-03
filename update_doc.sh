@@ -16,5 +16,5 @@ rsync -a target/doc site/
 cd site
 
 git add -A .
-git commit -m "Update doc at ${rev}"
+git commit -m "Update doc at ${rev} of dimensioned"
 git push
