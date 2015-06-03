@@ -1,6 +1,7 @@
 
 #[macro_export]
 macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:ident, $constant:ident, $print_as:ident;)* } derived {$($Derived:ident($derived_constant: ident) = $e: expr;    )*} ) => (
+    #[derive(Copy, Clone)]
     pub struct $System<$($Type: Peano),*> {
         $($constant: PhantomData<$Type>),*
     }
@@ -31,21 +32,25 @@ macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:id
         $($Type: Peano + DivPeano<RHS>),*, RHS: Peano {
             type Output = $System<$(<$Type as DivPeano<RHS>>::Output),*>;
         }
+    impl<$($Type),*> NegDim for $System<$($Type),*> where
+        $($Type: Peano + Negate),* {
+            type Output = $System<$(<$Type as Negate>::Output),*>;
+        }
 
     impl<$($Type),*> DimToString for $System<$($Type),*>
         where $($Type: ToInt),* {
             fn to_string() -> String {
-                let mut s = String::new();
+                let mut _string = String::new();
                 $(
                     let temp = match <$Type as ToInt>::to_int() {
                         0 => ("", "".to_string()),
                         1 => (stringify!($print_as), "*".to_string()),
-                        n => (stringify!($print_as), format!("^{}*", n/<$allowed_root as ToInt>::to_int()))
+                        _power => (stringify!($print_as), format!("^{}*", _power/<$allowed_root as ToInt>::to_int()))
                     };
-                    s = format!("{}{}{}", s, temp.0, temp.1);
-                    )*
-                    s.pop();
-                s
+                    _string = format!("{}{}{}", _string, temp.0, temp.1);
+                )*
+                _string.pop();
+                _string
             }
         }
 

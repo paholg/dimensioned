@@ -2,7 +2,7 @@ pub use peano::*;
 pub use std::marker::PhantomData;
 
 use std::ops::*;
-use num::traits::{ToPrimitive, NumCast, Float};
+use num::traits::{FromPrimitive, ToPrimitive, NumCast, Float};
 use std::cmp::*;
 use std::fmt;
 
@@ -25,21 +25,26 @@ pub trait DivDim<RHS>: Dimension {
 pub trait KeepDim<RHS>: Dimension {
     type Output;
 }
+pub trait NegDim: Dimension {
+    type Output;
+}
+
 pub trait DimToString: Dimension {
     fn to_string() -> String;
 }
 
-pub trait Scalar {}
-impl Scalar for f64 {}
-impl Scalar for f32 {}
+pub trait NotDim {}
+impl NotDim for f64 {}
+impl NotDim for f32 {}
 
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Dim<D: Dimension, V>(pub V, pub PhantomData<D>);
+
 impl<D: Dimension, V> Dim<D, V> {
     pub fn new(v: V) -> Dim<D, V> {
         Dim(v, PhantomData)
     }
 }
-impl<D: Dimension, V: Copy> Copy for Dim<D, V> {}
 
 pub trait Wrap<B> {
     type Output;
@@ -116,18 +121,6 @@ impl<D, V> Sqr for Dim<D, V> where D: MulDim<Two>, V: Copy + Mul, <D as MulDim<T
 
 
 //------------------------------------------------------------------------------
-// Clone
-//------------------------------------------------------------------------------
-impl<D, V> Clone for Dim<D, V> where D: Dimension, V: Clone {
-    fn clone(&self) -> Self {
-        Dim((self.0).clone(), PhantomData)
-    }
-    fn clone_from(&mut self, source: &Self) {
-        (self.0).clone_from(&source.0);
-    }
-}
-
-//------------------------------------------------------------------------------
 // Traits from std::fmt
 //------------------------------------------------------------------------------
 impl<D, V> fmt::Display for Dim<D, V> where D: DimToString, V: fmt::Display {
@@ -151,7 +144,7 @@ impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
 
 /// Scalar multiplication (with scalar on RHS)!
 impl<D, V, RHS> Mul<RHS> for Dim<D, V>
-    where D: Dimension, V: Mul<RHS>, RHS: Scalar {
+    where D: Dimension, V: Mul<RHS>, RHS: NotDim {
         type Output = Dim<D, <V as Mul<RHS>>::Output>;
         fn mul(self, rhs: RHS) -> Dim<D, <V as Mul<RHS>>::Output> {
             Dim(self.0 * rhs, PhantomData)
@@ -159,14 +152,22 @@ impl<D, V, RHS> Mul<RHS> for Dim<D, V>
     }
 
 // fixme: Waiting on Rust changes I believe
-// /// Scalar multiplication (with scalar on LHS)!
-// impl<D, V, Num> Mul<Dim<D, V>> for Num
-//     where D: Dimension, Num: Mul<V> {
-//         type Output = Dim<D, <Num as Mul<V>>::Output>;
-//         fn mul(self, rhs: Dim<D, V>) -> Dim<D, <Num as Mul<V>>::Output> {
-//             Dim( self * rhs.0 )
-//         }
-//     }
+/// Scalar multiplication (with scalar on LHS)!
+#[macro_export]
+macro_rules! dim_lhs_mult {
+    ($t: ty) => (
+        impl<D> Mul<Dim<D, $t>> for $t
+            where D: Dimension {
+                type Output = Dim<D, <$t as Mul>::Output>;
+                fn mul(self, rhs: Dim<D, $t>) -> Self::Output {
+                    Dim( self * rhs.0, PhantomData )
+                }
+            }
+        );
+}
+dim_lhs_mult!(f64);
+dim_lhs_mult!(f32);
+
 
 /// Dividing! Dimensions must be able to subtract.
 impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
@@ -179,15 +180,28 @@ impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
 
 /// Scalar division (with scalar on RHS)!
 impl<D, V, RHS> Div<RHS> for Dim<D, V>
-    where D: Dimension, V: Div<RHS>, RHS: Scalar {
+    where D: Dimension, V: Div<RHS>, RHS: NotDim {
         type Output = Dim<D, <V as Div<RHS>>::Output>;
         fn div(self, rhs: RHS) -> Dim<D, <V as Div<RHS>>::Output> {
             Dim(self.0 / rhs, PhantomData)
         }
     }
 
-// fixme: waiting on Rust changes
-// /// Scalar division (with scalar on LHS)!
+/// Scalar division (with scalar on LHS)!
+#[macro_export]
+macro_rules! dim_lhs_div {
+    ($t: ty) => (
+        impl<D> Div<Dim<D, $t>> for $t
+            where D: Dimension + NegDim, <D as NegDim>::Output: Dimension {
+                type Output = Dim<<D as NegDim>::Output, <$t as Div>::Output>;
+                fn div(self, rhs: Dim<D, $t>) -> Self::Output {
+                    Dim( self / rhs.0, PhantomData )
+                }
+            }
+        );
+}
+dim_lhs_div!(f64);
+dim_lhs_div!(f32);
 
 
 // Unary operators:
@@ -230,31 +244,6 @@ dim_binary!(Shl, KeepDim, shl);
 dim_binary!(Shr, KeepDim, shr);
 dim_binary!(Sub, KeepDim, sub);
 
-//------------------------------------------------------------------------------
-// Traits from core::cmp
-//------------------------------------------------------------------------------
-impl<D, Vl, Vr> PartialEq<Dim<D, Vr>> for Dim<D, Vl>
-    where D: Dimension, Vl: PartialEq<Vr> {
-        fn eq(&self, rhs: &Dim<D, Vr>) -> bool { self.0 == rhs.0 }
-        fn ne(&self, rhs: &Dim<D, Vr>) -> bool { self.0 != rhs.0 }
-    }
-impl<D, V> Eq for Dim<D, V> where D: Dimension, V: Eq { }
-impl<D, Vl, Vr> PartialOrd<Dim<D, Vr>> for Dim<D, Vl>
-    where D: Dimension, Vl: PartialOrd<Vr> {
-        fn partial_cmp(&self, rhs: &Dim<D, Vr>) -> Option<Ordering> { (self.0).partial_cmp(&rhs.0) }
-
-        fn lt(&self, rhs: &Dim<D, Vr>) -> bool { self.0 <  rhs.0 }
-        fn le(&self, rhs: &Dim<D, Vr>) -> bool { self.0 <= rhs.0 }
-        fn gt(&self, rhs: &Dim<D, Vr>) -> bool { self.0 >  rhs.0 }
-        fn ge(&self, rhs: &Dim<D, Vr>) -> bool { self.0 >= rhs.0 }
-    }
-impl<D, V> Ord for Dim<D, V> where D: Dimension, V: Ord {
-    fn cmp(&self, rhs: &Dim<D, V>) -> Ordering { (self.0).cmp(&rhs.0) }
-}
-
-
-
-
 // fixme: figure this out
 // impl<'a, D, V, I> Index<I> for Dim<D, V>
 //     where D: Dimension, V: Index<I> + 'a, <V as Index<I>>::Output: Sized {
@@ -265,47 +254,56 @@ impl<D, V> Ord for Dim<D, V> where D: Dimension, V: Ord {
 //     }
 
 //------------------------------------------------------------------------------
-// DIMENSIONLESS THINGS HERE
-//------------------------------------------------------------------------------
+// Casting
+macro_rules! cast_from {
+    ($fun:ident, $prim:ident) => (
+        fn $fun(n: $prim) -> Option<Self> {
+            match FromPrimitive::$fun(n) {
+                Some(v) => Some( Dim(v, PhantomData) ),
+                None => None
+            }
+        }
+        );
+}
 
-//------------------------------------------------------------------------------
-// Dimensionless multiplication and division
-// fixme
-// impl<D, V> Mul for Dim<D, V>
-//     where D: Dimensionless<D = NoDim>, V: Mul {
-//         type Output = Dim<D, <V as Mul>::Output>;
-//         fn mul(self, rhs: Self) -> Dim<D, <V as Mul>::Output> {
-//             Dim(self.0 * rhs.0)
-//         }
-//     }
+impl<D, V> FromPrimitive for Dim<D, V> where D: Dimension, V: FromPrimitive {
+    cast_from!(from_i64, i64);
+    cast_from!(from_u64, u64);
+    cast_from!(from_isize, isize);
+    cast_from!(from_i8, i8);
+    cast_from!(from_i16, i16);
+    cast_from!(from_i32, i32);
+    cast_from!(from_usize, usize);
+    cast_from!(from_u8, u8);
+    cast_from!(from_u32, u32);
+    cast_from!(from_f32, f32);
+    cast_from!(from_f64, f64);
+}
 
-macro_rules! dim_cast_fun {
+macro_rules! cast_to {
     ($fun:ident, $prim:ident) => (
         fn $fun(&self) -> Option<$prim> {
             (self.0).$fun()
         }
-        )
-}
-//------------------------------------------------------------------------------
-// ToPrimitive
-impl<D, V> ToPrimitive for Dim<D, V> where D: Dimensionless, V: ToPrimitive {
-    dim_cast_fun!(to_i64, i64);
-    dim_cast_fun!(to_u64, u64);
-    dim_cast_fun!(to_isize, isize);
-    dim_cast_fun!(to_i8, i8);
-    dim_cast_fun!(to_i16, i16);
-    dim_cast_fun!(to_i32, i32);
-    dim_cast_fun!(to_usize, usize);
-    dim_cast_fun!(to_u8, u8);
-    dim_cast_fun!(to_u16, u16);
-    dim_cast_fun!(to_u32, u32);
-    dim_cast_fun!(to_f32, f32);
-    dim_cast_fun!(to_f64, f64);
+        );
 }
 
-//------------------------------------------------------------------------------
-// NumCast
-impl<D, V> NumCast for Dim<D, V> where D: Dimensionless, V: NumCast {
+impl<D, V> ToPrimitive for Dim<D, V> where D: Dimension, V: ToPrimitive {
+    cast_to!(to_i64, i64);
+    cast_to!(to_u64, u64);
+    cast_to!(to_isize, isize);
+    cast_to!(to_i8, i8);
+    cast_to!(to_i16, i16);
+    cast_to!(to_i32, i32);
+    cast_to!(to_usize, usize);
+    cast_to!(to_u8, u8);
+    cast_to!(to_u16, u16);
+    cast_to!(to_u32, u32);
+    cast_to!(to_f32, f32);
+    cast_to!(to_f64, f64);
+}
+
+impl<D, V> NumCast for Dim<D, V> where D: Dimension, V: NumCast {
     fn from<N>(n: N) -> Option<Self> where N: ToPrimitive {
         match NumCast::from(n) {
             Some(v) => Some(Dim(v, PhantomData)),
@@ -313,6 +311,20 @@ impl<D, V> NumCast for Dim<D, V> where D: Dimensionless, V: NumCast {
         }
     }
 }
+
+//------------------------------------------------------------------------------
+// DIMENSIONLESS THINGS HERE
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// Zero and One
+// impl<D, V> ::num::traits::Zero for Dim<D, V> where D: Dimension + KeepDim<D>, V: ::num::traits::Zero {
+//     fn zero() -> Self {
+//         Dim(V::num::traits::Zero::zero())
+//     }
+// }
+
 
 //------------------------------------------------------------------------------
 // Num

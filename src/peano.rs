@@ -1,9 +1,12 @@
 use std::marker::PhantomData;
 
+#[derive(Copy, Clone)]
 pub struct Zero;
+#[derive(Copy, Clone)]
 pub struct Succ<N: NonNeg> {
     _marker: PhantomData<N>
 }
+#[derive(Copy, Clone)]
 pub struct Pred<N: NonPos> {
     _marker: PhantomData<N>
 }

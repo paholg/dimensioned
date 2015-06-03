@@ -4,15 +4,16 @@ extern crate nalgebra;
 
 use dimensioned::dimensioned::*;
 
+use std::ops::{Add, Sub, Mul, Div};
 use nalgebra::Vec2;
 
 make_units! {
     SI, One;
     base {
-        Meter, meter, m;
-        Kilogram, kilogram, kg;
-        Second, second, s;
-        Ampere, ampere, A;
+        Meter, m, m;
+        Kilogram, kg, kg;
+        Second, s, s;
+        Ampere, amp, A;
         Kelvin, kelvin, K;
         Candela, candela, cd;
         Mole, mole, mol;
@@ -22,13 +23,34 @@ make_units! {
     }
 }
 
+// trait Boob {}
+
+// impl<D: Dimension, V> Boob for Dim<D, V> {}
+
+// impl<D: Boob> Div<Dim<D, f64>> for Vec2<f64> {
+//     type Output = Vec2<<f64 as Div<Dim<D, f64>>>::Output>;
+
+//     #[inline]
+//     fn div(self, right: Dim<D, f64>) -> Self::Output {
+//         Vec2::new(self.x / right, self.y / right)
+//     }
+// }
+
 
 fn main() {
-    let xhat: Dim<Unitless, Vec2<f64>> = Dim::new(Vec2{x: 1.0, y: 0.0});
-    let yhat: Dim<Unitless, Vec2<f64>> = Dim::new(Vec2{x: 1.0, y: 0.0});
+    let x = Vec2::new(1.0*m, 3.0*m);
 
-    xhat*meter;
+    let t = 5.0*s;
 
+    // let v = x / t;
+
+    // v / second;
+
+    // println!("dot: {}, norm2: {}", x.dot(y), x.norm2());
+    // let xhat = Vec2::new(1.0, 0.0)*meter;
+
+//     let xhat: Dim<Unitless, Vec2<f64>> = Dim::new(Vec2{x: 1.0, y: 0.0});
+//     let yhat: Dim<Unitless, Vec2<f64>> = Dim::new(Vec2{x: 1.0, y: 0.0});
 
 //     let start = -xhat*13.0*meter + yhat*33.0*meter;
 //     let end = xhat*26.0*meter - yhat*19.0*meter;
@@ -57,3 +79,47 @@ fn main() {
 // That is {} away from her. She decides to spin it, pushing with a force of {}.
 // That's a torque of {}!", center, r.norm(), force, r.cross(force));
 }
+
+#[derive(Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
+pub struct Vector2d<N> {
+    x: N,
+    y: N,
+}
+
+pub trait Dot<N = Self> {
+    type Output;
+    fn dot(self, rhs: N) -> Self::Output;
+}
+
+impl<N, M> Dot<Vector2d<N>> for Vector2d<M> where M: Mul<N>, <M as Mul<N>>::Output: Add {
+    type Output = <<M as Mul<N>>::Output as Add>::Output;
+    #[inline]
+    fn dot(self, rhs: Vector2d<N>) -> Self::Output { self.x*rhs.x + self.y*rhs.y }
+}
+
+pub trait Norm2 {
+    type Output;
+    fn norm2(self) -> Self::Output;
+}
+
+impl<N> Norm2 for Vector2d<N> where Vector2d<N>: Dot + Copy {
+    type Output = <Vector2d<N> as Dot>::Output;
+    #[inline]
+    fn norm2(self) -> Self::Output { self.dot(self) }
+}
+
+// pub trait Norm {
+//     type Output;
+//     fn norm(self) -> Self::Output;
+// }
+
+// impl<N> Norm for Vector2d<N> where N: Norm2 {
+//     type Output = <Vector2d<N> as Norm2>::Output;
+//     #[inline]
+//     fn norm(self) -> Self::Output { self.norm2().sqrt() }
+// }
+
+
+// impl<N: Mul<M>, M> Vector2d<N> {
+//     pub fn dot(self, rhs: Vector2d<M>) -> <N as Mul<M>>::Output { self.x*rhs.x }
+// }
