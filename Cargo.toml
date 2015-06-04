@@ -17,5 +17,5 @@ plugin = true
 [dependencies]
   num = "*"
 
-[dev-dependencies]
-  nalgebra = "*"
+# [dev-dependencies]
+#   nalgebra = "*"

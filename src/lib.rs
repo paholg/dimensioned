@@ -1,3 +1,4 @@
+#![feature(optin_builtin_traits)]
 // #![feature(plugin_registrar, rustc_private)]
 // extern crate syntax;
 // extern crate rustc;
@@ -24,10 +25,11 @@ extern crate num;
 
 pub use dimensioned::*;
 
-pub mod peano;
+mod peano;
 #[macro_use]
-pub mod dimensioned;
+mod dimensioned;
 #[macro_use]
-pub mod make_units;
+mod make_units;
+
 pub mod si;
 pub mod cgs;

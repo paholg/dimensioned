@@ -1,11 +1,13 @@
+#![feature(optin_builtin_traits)]
 #[macro_use]
 extern crate dimensioned;
-extern crate nalgebra;
+extern crate num;
 
-use dimensioned::dimensioned::*;
+use dimensioned::*;
 
+use num::traits::Float;
 use std::ops::{Add, Sub, Mul, Div};
-use nalgebra::Vec2;
+use std::fmt::{self, Display};
 
 make_units! {
     SI, One;
@@ -19,59 +21,32 @@ make_units! {
         Mole, mole, mol;
     }
     derived {
+        // Doesn't do anything yet
         Newton(newton) = Kilogram * Meter / Second / Second;
     }
 }
 
-// trait Boob {}
-
-// impl<D: Dimension, V> Boob for Dim<D, V> {}
-
-// impl<D: Boob> Div<Dim<D, f64>> for Vec2<f64> {
-//     type Output = Vec2<<f64 as Div<Dim<D, f64>>>::Output>;
-
-//     #[inline]
-//     fn div(self, right: Dim<D, f64>) -> Self::Output {
-//         Vec2::new(self.x / right, self.y / right)
-//     }
-// }
-
-
 fn main() {
-    let x = Vec2::new(1.0*m, 3.0*m);
+    let xhat = Vector2d::new(one, 0.0*one);
+    let yhat = Vector2d::new(0.0*one, one);
 
-    let t = 5.0*s;
+    let start = -13.0 * xhat * m + 33.0 * yhat * m;
+    let end = 26.0 * xhat * m - 19.0 * yhat * m;
 
-    // let v = x / t;
+    let displace = end - start;
+    let time = 26.0 * s;
+    let vel = displace/time;
 
-    // v / second;
+    // (m*m).sqrt();
 
-    // println!("dot: {}, norm2: {}", x.dot(y), x.norm2());
-    // let xhat = Vec2::new(1.0, 0.0)*meter;
-
-//     let xhat: Dim<Unitless, Vec2<f64>> = Dim::new(Vec2{x: 1.0, y: 0.0});
-//     let yhat: Dim<Unitless, Vec2<f64>> = Dim::new(Vec2{x: 1.0, y: 0.0});
-
-//     let start = -xhat*13.0*meter + yhat*33.0*meter;
-//     let end = xhat*26.0*meter - yhat*19.0*meter;
-
-//     let displace = end - start;
-//     let time = second*26.0;
-//     let vel = displace/time;
-//     // Because we put norm() in a trait and implemented it for both Vector2d and Dim,
-//     // calling vel.norm() works as we want it to (returning Dim<Meter, ff64>). This is
-//     // the recommended way of accessing values inside a Dim.
-//     let speed = vel.norm();
-//     // Had we been unable or unwilling to implement norm() inside a trait, we could have
-//     // achieved the same behavior using the wrap() function, as follows:
-//     let speed2 = vel.wrap((vel.0).norm());
+    //let speed = vel.norm2().sqrt();
 //     println!("
 // A physicist was standing at {}.
 // Then she walked to {}, for a displacement of {}.
 // The walk took her {}, so she must have had a velocity of {}.
-// That's a speed of {}! Again, that's {}!", start, end, displace, time, vel, speed, speed2);
+// That's a speed of {}!", start, end, displace, time, vel, speed);
 
-//     let center = xhat*meter*24.0 - yhat*meter*17.0;
+//     let center = 24.0 * m * xhat - 17.0 * m * yhat;
 //     let force = xhat*500.0*kilogram*meter/second/second;
 //     let r = end-center;
 //     println!("
@@ -80,10 +55,20 @@ fn main() {
 // That's a torque of {}!", center, r.norm(), force, r.cross(force));
 }
 
+pub trait Scalar {}
+impl Scalar for .. {}
+
 #[derive(Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Vector2d<N> {
     x: N,
     y: N,
+}
+
+impl<N> !Scalar for Vector2d<N> {}
+
+impl<N> Vector2d<N> {
+    #[inline]
+    fn new(x: N, y: N) -> Vector2d<N> { Vector2d{ x: x, y: y} }
 }
 
 pub trait Dot<N = Self> {
@@ -91,7 +76,7 @@ pub trait Dot<N = Self> {
     fn dot(self, rhs: N) -> Self::Output;
 }
 
-impl<N, M> Dot<Vector2d<N>> for Vector2d<M> where M: Mul<N>, <M as Mul<N>>::Output: Add {
+impl<M, N> Dot<Vector2d<N>> for Vector2d<M> where M: Mul<N>, <M as Mul<N>>::Output: Add {
     type Output = <<M as Mul<N>>::Output as Add>::Output;
     #[inline]
     fn dot(self, rhs: Vector2d<N>) -> Self::Output { self.x*rhs.x + self.y*rhs.y }
@@ -108,18 +93,63 @@ impl<N> Norm2 for Vector2d<N> where Vector2d<N>: Dot + Copy {
     fn norm2(self) -> Self::Output { self.dot(self) }
 }
 
-// pub trait Norm {
-//     type Output;
-//     fn norm(self) -> Self::Output;
-// }
+pub trait Norm {
+    type Output;
+    fn norm(self) -> Self::Output;
+}
 
-// impl<N> Norm for Vector2d<N> where N: Norm2 {
-//     type Output = <Vector2d<N> as Norm2>::Output;
-//     #[inline]
-//     fn norm(self) -> Self::Output { self.norm2().sqrt() }
-// }
+impl<N> Norm for Vector2d<N> where Vector2d<N>: Norm2, <Vector2d<N> as Norm2>::Output: Sqrt {
+    type Output = <<Vector2d<N> as Norm2>::Output as Sqrt>::Output;
+    #[inline]
+    fn norm(self) -> Self::Output { self.norm2().sqrt() }
+}
 
+pub trait Cross<N> {
+    type Output;
+    fn cross(self, rhs: N) -> Self::Output;
+}
 
-// impl<N: Mul<M>, M> Vector2d<N> {
-//     pub fn dot(self, rhs: Vector2d<M>) -> <N as Mul<M>>::Output { self.x*rhs.x }
-// }
+impl<M, N> Cross<Vector2d<N>> for Vector2d<M> where M: Mul<N>, <M as Mul<N>>::Output: Sub<<M as Mul<N>>::Output> {
+    type Output = <<M as Mul<N>>::Output as Sub<<M as Mul<N>>::Output>>::Output;
+    #[inline]
+    fn cross(self, rhs: Vector2d<N>) -> Self::Output { self.x*rhs.y - self.y*rhs.x }
+}
+
+impl<M, N> Add<Vector2d<N>> for Vector2d<M> where M: Add<N> {
+    type Output = Vector2d<<M as Add<N>>::Output>;
+    #[inline]
+    fn add(self, rhs: Vector2d<N>) -> Self::Output { Vector2d{ x: self.x + rhs.x, y: self.y + rhs.y } }
+}
+
+impl<M, N> Sub<Vector2d<N>> for Vector2d<M> where M: Sub<N> {
+    type Output = Vector2d<<M as Sub<N>>::Output>;
+    #[inline]
+    fn sub(self, rhs: Vector2d<N>) -> Self::Output { Vector2d{ x: self.x - rhs.x, y: self.y - rhs.y } }
+}
+
+/// Scalar multiplication
+impl<N, T> Mul<T> for Vector2d<N> where N: Mul<T>, T: Copy {
+    type Output = Vector2d<<N as Mul<T>>::Output>;
+    #[inline]
+    fn mul(self, rhs: T) -> Self::Output { Vector2d{ x: self.x * rhs, y: self.y * rhs } }
+}
+
+/// Scalar multiplication with the scalar on the left. As far as I know, there is not a generic way to do this.
+impl<N: Mul<f64>> Mul<Vector2d<N>> for f64 {
+    type Output = Vector2d<<N as Mul<f64>>::Output>;
+    #[inline]
+    fn mul(self, rhs: Vector2d<N>) -> Self::Output { rhs * self }
+}
+
+/// Scalar division
+impl<N, T> Div<T> for Vector2d<N> where N: Div<T>, T: Copy {
+    type Output = Vector2d<<N as Div<T>>::Output>;
+    #[inline]
+    fn div(self, rhs: T) -> Self::Output { Vector2d{ x: self.x / rhs, y: self.y / rhs } }
+}
+
+impl<N: Display> Display for Vector2d<N> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}

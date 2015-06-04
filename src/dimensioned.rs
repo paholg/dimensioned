@@ -33,10 +33,6 @@ pub trait DimToString: Dimension {
     fn to_string() -> String;
 }
 
-pub trait NotDim {}
-impl NotDim for f64 {}
-impl NotDim for f32 {}
-
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Dim<D: Dimension, V>(pub V, pub PhantomData<D>);
 
@@ -46,6 +42,10 @@ impl<D: Dimension, V> Dim<D, V> {
     }
 }
 
+pub trait NotDim {}
+impl NotDim for .. {}
+impl<D: Dimension, V> !NotDim for Dim<D, V> {}
+
 pub trait Wrap<B> {
     type Output;
     fn wrap(&self, b: B) -> <Self as Wrap<B>>::Output;
@@ -53,6 +53,7 @@ pub trait Wrap<B> {
 impl<D, A, B> Wrap<B> for Dim<D, A>
     where D: Dimension {
         type Output = Dim<D, B>;
+        #[inline]
         fn wrap(&self, b: B) -> Dim<D, B> { Dim(b, PhantomData) }
 }
 
@@ -60,11 +61,17 @@ pub trait Sqrt {
     type Output;
     fn sqrt(self) -> <Self as Sqrt>::Output;
 }
-impl<D, V> Sqrt for Dim<D, V>
-    where D:  DivDim<Two>, V: Float, <D as DivDim<Two>>::Output: Dimension {
-        type Output = Dim<<D as DivDim<Two>>::Output, V>;
 
-        fn sqrt(self) -> <Self as Sqrt>::Output { Dim( (self.0).sqrt(), PhantomData) }
+impl<T> Sqrt for T where T: Float {
+    type Output = T;
+    #[inline]
+    fn sqrt(self) -> Self::Output { self.sqrt() }
+}
+
+impl<D, V> Sqrt for Dim<D, V> where D:  DivDim<Two>, V: Float, <D as DivDim<Two>>::Output: Dimension {
+    type Output = Dim<<D as DivDim<Two>>::Output, V>;
+    #[inline]
+    fn sqrt(self) -> <Self as Sqrt>::Output { Dim( (self.0).sqrt(), PhantomData) }
 }
 
 pub trait Sqr {
@@ -74,6 +81,7 @@ pub trait Sqr {
 impl<D, V> Sqr for Dim<D, V> where D: MulDim<Two>, V: Copy + Mul, <D as MulDim<Two>>::Output: Dimension {
     type Output = Dim<<D as MulDim<Two>>::Output, <V as Mul<V>>::Output>;
 
+    #[inline]
     fn sqr(self) -> <Self as Sqr>::Output {
         Dim( (self.0)*(self.0), PhantomData )
     }
@@ -137,6 +145,7 @@ impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
     where Dl: Dimension + AddDim<Dr>, Dr: Dimension, Vl: Mul<Vr>, <Dl as AddDim<Dr>>::Output: Dimension {
         type Output = Dim<<Dl as AddDim<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
 
+        #[inline]
         fn mul(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as AddDim<Dr>>::Output, <Vl as Mul<Vr>>::Output> {
             Dim(self.0 * rhs.0, PhantomData)
         }
@@ -146,12 +155,13 @@ impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
 impl<D, V, RHS> Mul<RHS> for Dim<D, V>
     where D: Dimension, V: Mul<RHS>, RHS: NotDim {
         type Output = Dim<D, <V as Mul<RHS>>::Output>;
+        #[inline]
         fn mul(self, rhs: RHS) -> Dim<D, <V as Mul<RHS>>::Output> {
             Dim(self.0 * rhs, PhantomData)
         }
     }
 
-// fixme: Waiting on Rust changes I believe
+// fixme: make more generic if possible
 /// Scalar multiplication (with scalar on LHS)!
 #[macro_export]
 macro_rules! dim_lhs_mult {
@@ -159,6 +169,7 @@ macro_rules! dim_lhs_mult {
         impl<D> Mul<Dim<D, $t>> for $t
             where D: Dimension {
                 type Output = Dim<D, <$t as Mul>::Output>;
+                #[inline]
                 fn mul(self, rhs: Dim<D, $t>) -> Self::Output {
                     Dim( self * rhs.0, PhantomData )
                 }
@@ -173,6 +184,7 @@ dim_lhs_mult!(f32);
 impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
     where Dl: Dimension + SubDim<Dr>, Dr: Dimension, Vl: Div<Vr>, <Dl as SubDim<Dr>>::Output: Dimension {
         type Output = Dim<<Dl as SubDim<Dr>>::Output, <Vl as Div<Vr>>::Output>;
+        #[inline]
         fn div(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as SubDim<Dr>>::Output, <Vl as Div<Vr>>::Output> {
             Dim(self.0 / rhs.0, PhantomData)
         }
@@ -182,6 +194,7 @@ impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
 impl<D, V, RHS> Div<RHS> for Dim<D, V>
     where D: Dimension, V: Div<RHS>, RHS: NotDim {
         type Output = Dim<D, <V as Div<RHS>>::Output>;
+        #[inline]
         fn div(self, rhs: RHS) -> Dim<D, <V as Div<RHS>>::Output> {
             Dim(self.0 / rhs, PhantomData)
         }
@@ -194,6 +207,7 @@ macro_rules! dim_lhs_div {
         impl<D> Div<Dim<D, $t>> for $t
             where D: Dimension + NegDim, <D as NegDim>::Output: Dimension {
                 type Output = Dim<<D as NegDim>::Output, <$t as Div>::Output>;
+                #[inline]
                 fn div(self, rhs: Dim<D, $t>) -> Self::Output {
                     Dim( self / rhs.0, PhantomData )
                 }
@@ -212,6 +226,7 @@ macro_rules! dim_unary {
         impl<D, V> $Trait for Dim<D, V>
             where D: $op<D>, V: $Trait, <D as $op<D>>::Output: Dimension {
                 type Output = Dim<<D as $op<D>>::Output, <V as $Trait>::Output>;
+                #[inline]
                 $(fn $fun(self) -> Dim<<D as $op<D>>::Output, <V as $Trait>::Output> {
                     Dim( (self.0).$fun(), PhantomData )
                 })*
@@ -229,6 +244,7 @@ macro_rules! dim_binary {
         impl<Dl, Vl, Dr, Vr> $Trait<Dim<Dr, Vr>> for Dim<Dl, Vl>
             where Dl: $op<Dr>, Dr: Dimension, Vl: $Trait<Vr>, <Dl as $op<Dr>>::Output: Dimension {
                 type Output = Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output>;
+                #[inline]
                 $(fn $fun(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output> {
                     Dim( (self.0).$fun(rhs.0), PhantomData )
                 })*
@@ -257,6 +273,7 @@ dim_binary!(Sub, KeepDim, sub);
 // Casting
 macro_rules! cast_from {
     ($fun:ident, $prim:ident) => (
+        #[inline]
         fn $fun(n: $prim) -> Option<Self> {
             match FromPrimitive::$fun(n) {
                 Some(v) => Some( Dim(v, PhantomData) ),
@@ -282,6 +299,7 @@ impl<D, V> FromPrimitive for Dim<D, V> where D: Dimension, V: FromPrimitive {
 
 macro_rules! cast_to {
     ($fun:ident, $prim:ident) => (
+        #[inline]
         fn $fun(&self) -> Option<$prim> {
             (self.0).$fun()
         }
@@ -304,6 +322,7 @@ impl<D, V> ToPrimitive for Dim<D, V> where D: Dimension, V: ToPrimitive {
 }
 
 impl<D, V> NumCast for Dim<D, V> where D: Dimension, V: NumCast {
+    #[inline]
     fn from<N>(n: N) -> Option<Self> where N: ToPrimitive {
         match NumCast::from(n) {
             Some(v) => Some(Dim(v, PhantomData)),
@@ -319,9 +338,9 @@ impl<D, V> NumCast for Dim<D, V> where D: Dimension, V: NumCast {
 
 //------------------------------------------------------------------------------
 // Zero and One
-// impl<D, V> ::num::traits::Zero for Dim<D, V> where D: Dimension + KeepDim<D>, V: ::num::traits::Zero {
+// impl<D, V> ::num::traits::Zero for Dim<D, V> where D: Dimension + KeepDim<D>, V: ::num::traits::Zero, <D as KeepDim<D>>::Output: Dimension {
 //     fn zero() -> Self {
-//         Dim(V::num::traits::Zero::zero())
+//         Dim(V::zero())
 //     }
 // }
 
