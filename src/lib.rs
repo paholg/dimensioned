@@ -25,7 +25,7 @@ extern crate num;
 
 pub use dimensioned::*;
 
-mod peano;
+pub mod peano;
 #[macro_use]
 mod dimensioned;
 #[macro_use]
