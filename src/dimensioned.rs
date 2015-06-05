@@ -87,47 +87,6 @@ impl<D, V> Sqr for Dim<D, V> where D: MulDim<Two>, V: Copy + Mul, <D as MulDim<T
     }
 }
 
-// pub trait PowI<Exp> {
-//     type Output;
-//     fn powi(self) -> <Self as PowI<Exp>>::Output;
-// }
-// impl<D, V, Exp> PowI<Exp> for Dim<D, V>
-//     where D: MulDim<Exp>, V: Float, Exp: ToInt, <D as MulDim<Exp>>::Output: Dimension {
-//         type Output = Dim<<D as MulDim<Exp>>::Output, V>;
-//         fn powi(self) -> <Self as PowI<Exp>>::Output {
-//             Dim( (self.0).powi( <Exp as ToInt>::to_int() ) )
-//         }
-// }
-
-// pub trait PowI<Exp> {
-//     type Output;
-//     fn powi(self) -> <Self as PowI<Exp>>::Output;
-// }
-// impl<D, V, Exp> PowI<Exp> for Dim<D, V>
-//     where D: MulDim<Exp>, V: Float, Exp: ToInt, <D as MulDim<Exp>>::Output: Dimension {
-//         type Output = Dim<<D as MulDim<Exp>>::Output, V>;
-//         fn powi(self) -> <Self as PowI<Exp>>::Output {
-//             Dim( (self.0).powi( <Exp as ToInt>::to_int() ) )
-//         }
-// }
-// macro_rules! pow {
-//     ($Exp:ident, $nexp: expr) => (
-//         pub trait Pow$nexp {
-//             type Output;
-//             fn pow$nexp(self) -> <Self as Pow$nexp>::Output;
-//         }
-//         impl<D, V> Pow$nexp for Dim<D, V>
-//             where D: MulDim<$Exp>, V: Float, <D as MulDim<$Exp>>::Output: Dimension {
-//                 type Output = Dim<<D as MulDim<$Exp>>::Output, V>;
-//                 fn pow$nexp(self) -> <Self as Pow$nexp>::Output {
-//                     Dim( (self.0).powi($nexp) )
-//                 }
-//             }
-//         )
-// }
-// pow!(Two, 2);
-
-
 //------------------------------------------------------------------------------
 // Traits from std::fmt
 //------------------------------------------------------------------------------

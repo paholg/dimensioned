@@ -30,6 +30,9 @@ fn main() {
     let xhat = Vector2d::new(one, 0.0*one);
     let yhat = Vector2d::new(0.0*one, one);
 
+    // fixable?
+    // m * xhat;
+
     let start = -13.0 * xhat * m + 33.0 * yhat * m;
     let end = 26.0 * xhat * m - 19.0 * yhat * m;
 
@@ -37,22 +40,21 @@ fn main() {
     let time = 26.0 * s;
     let vel = displace/time;
 
-    // (m*m).sqrt();
 
-    //let speed = vel.norm2().sqrt();
-//     println!("
-// A physicist was standing at {}.
-// Then she walked to {}, for a displacement of {}.
-// The walk took her {}, so she must have had a velocity of {}.
-// That's a speed of {}!", start, end, displace, time, vel, speed);
+    let speed = vel.norm2(); // fixme: This should be norm() but there's an error
+    println!("
+A physicist was standing at {}.
+Then she walked to {}, for a displacement of {}.
+The walk took her {}, so she must have had a velocity of {}.
+That's a speed of {}!", start, end, displace, time, vel, speed);
 
-//     let center = 24.0 * m * xhat - 17.0 * m * yhat;
-//     let force = xhat*500.0*kilogram*meter/second/second;
-//     let r = end-center;
-//     println!("
-// Now, she's standing next to a merry-go-round, centered at {}.
-// That is {} away from her. She decides to spin it, pushing with a force of {}.
-// That's a torque of {}!", center, r.norm(), force, r.cross(force));
+    let center = 24.0 * xhat * m - 17.0 * yhat * m;
+    let force = 500.0 * xhat * kg*m/s/s;
+    let r = end - center;
+    println!("
+Now, she's standing next to a merry-go-round, centered at {}.
+That is {} away from her. She decides to spin it, pushing with a force of {}.
+That's a torque of {}!", center, r.norm2(), force, r.cross(force)); // fixme: this should be norm() again
 }
 
 pub trait Scalar {}

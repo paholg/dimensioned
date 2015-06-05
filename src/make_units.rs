@@ -40,6 +40,7 @@ macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:id
     impl<$($Type),*> DimToString for $System<$($Type),*>
         where $($Type: ToInt),* {
             fn to_string() -> String {
+                // fimxe: make this betterer
                 let mut _string = String::new();
                 $(
                     let temp = match <$Type as ToInt>::to_int() {
@@ -49,7 +50,7 @@ macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:id
                     };
                     _string = format!("{}{}{}", _string, temp.0, temp.1);
                 )*
-                _string.pop();
+                _string.pop(); // get rid of the last '*'
                 _string
             }
         }
@@ -72,7 +73,7 @@ macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:id
 // fixme: This is a bunch of malarky. Can't cycle the direction I want, so we reverse
 // $Typse to compensate. The "correct" way is commented below, but won't work until RFC:
 // https://github.com/rust-lang/rust/issues/24827 is fixed
-//#[doc_hidden] fixme: uncomment when more mature
+#[doc_hidden]
 #[macro_export]
 macro_rules! __make_types {
     // this first arm filters out the end Types into Zeros with Num, so we go from say
