@@ -19,7 +19,7 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
     #[allow(unused_imports)]
     use $crate::peano::{Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten};
     use $crate::peano::{Peano, KeepPeano, AddPeano, SubPeano, MulPeano, DivPeano, Negate, ToInt};
-    use $crate::dimensioned::{Dimension, Dimensionless, Dim, KeepDim, MulDim, DivDim, PowerDim, RootDim, NegDim, DimToString};
+    use $crate::dimensioned::{Dimension, Dimensionless, Dim, KeepDim, MulDim, DivDim, PowerDim, RootDim, InvertDim, DimToString};
     use std::marker::PhantomData;
 
     #[derive(Copy, Clone)]
@@ -53,7 +53,7 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
         $($Type: Peano + DivPeano<RHS>),*, RHS: Peano {
             type Output = $System<$(<$Type as DivPeano<RHS>>::Output),*>;
         }
-    impl<$($Type),*> NegDim for $System<$($Type),*> where
+    impl<$($Type),*> InvertDim for $System<$($Type),*> where
         $($Type: Peano + Negate),* {
             type Output = $System<$(<$Type as Negate>::Output),*>;
         }

@@ -10,10 +10,10 @@ pub trait Dimension {}
 
 pub trait Dimensionless: Dimension {}
 
-pub trait MulDim<RHS>: Dimension {
+pub trait MulDim<RHS = Self>: Dimension {
     type Output;
 }
-pub trait DivDim<RHS>: Dimension {
+pub trait DivDim<RHS = Self>: Dimension {
     type Output;
 }
 pub trait PowerDim<RHS>: Dimension {
@@ -22,11 +22,10 @@ pub trait PowerDim<RHS>: Dimension {
 pub trait RootDim<RHS>: Dimension {
     type Output;
 }
-pub trait KeepDim<RHS>: Dimension {
+pub trait KeepDim<RHS = Self>: Dimension {
     type Output;
 }
-// fixme: Change NegDim to InvertDim
-pub trait NegDim: Dimension {
+pub trait InvertDim: Dimension {
     type Output;
 }
 
@@ -83,6 +82,35 @@ impl<D, V> Sqr for Dim<D, V> where D: PowerDim<Two>, V: Copy + Mul, <D as PowerD
 }
 
 //------------------------------------------------------------------------------
+// Useful macros for export
+//------------------------------------------------------------------------------
+#[macro_export]
+macro_rules! dim_impl_unary { ($Trait:ident, $fun:ident, $op:ident, $In:ident -> $Out:ident) => (
+    pub trait $Trait {
+        type Output;
+        fn $fun(self) -> Self::Output;
+    }
+    impl<D> $Trait for Dim<D, $In> where D: Dimension + $op, <D as $op>::Output: Dimension {
+        type Output = Dim<<D as $op>::Output, $Out>;
+        fn $fun(self) -> Self::Output { Dim::new( (self.0).$fun() ) }
+    }
+    );
+}
+
+#[macro_export]
+macro_rules! dim_impl_binary { ($Trait:ident, $fun:ident, $op:ident, $In:ident -> $Out:ident) => (
+    pub trait $Trait<RHS> {
+        type Output;
+        fn $fun(self, rhs: RHS) -> Self::Output;
+    }
+    impl<Dl, Dr> $Trait<Dim<Dr, $In>> for Dim<Dl, $In> where Dl: Dimension + $op<Dr>, Dr: Dimension, <Dl as $op<Dr>>::Output: Dimension {
+        type Output = Dim<<Dl as $op<Dr>>::Output, $Out>;
+        fn $fun(self, rhs: Dim<Dr, $In>) -> Self::Output { Dim::new( (self.0).$fun(rhs.0) ) }
+    }
+    );
+}
+
+//------------------------------------------------------------------------------
 // Traits from std::fmt
 //------------------------------------------------------------------------------
 impl<D, V> fmt::Display for Dim<D, V> where D: DimToString, V: fmt::Display {
@@ -117,15 +145,14 @@ impl<D, V, RHS> Mul<RHS> for Dim<D, V>
 
 // fixme: make more generic if possible
 /// Scalar multiplication (with scalar on LHS)!
-#[macro_export]
 macro_rules! dim_lhs_mult {
     ($t: ty) => (
-        impl<D> Mul<Dim<D, $t>> for $t
+        impl<D, V: Mul<$t>> Mul<Dim<D, V>> for $t
             where D: Dimension {
-                type Output = Dim<D, <$t as Mul>::Output>;
+                type Output = Dim<D, <V as Mul<$t>>::Output>;
                 #[inline]
-                fn mul(self, rhs: Dim<D, $t>) -> Self::Output {
-                    Dim( self * rhs.0, PhantomData )
+                fn mul(self, rhs: Dim<D, V>) -> Self::Output {
+                    Dim( rhs.0 * self, PhantomData )
                 }
             }
         );
@@ -155,12 +182,11 @@ impl<D, V, RHS> Div<RHS> for Dim<D, V>
     }
 
 /// Scalar division (with scalar on LHS)!
-#[macro_export]
 macro_rules! dim_lhs_div {
     ($t: ty) => (
         impl<D> Div<Dim<D, $t>> for $t
-            where D: Dimension + NegDim, <D as NegDim>::Output: Dimension {
-                type Output = Dim<<D as NegDim>::Output, <$t as Div>::Output>;
+            where D: Dimension + InvertDim, <D as InvertDim>::Output: Dimension {
+                type Output = Dim<<D as InvertDim>::Output, <$t as Div>::Output>;
                 #[inline]
                 fn div(self, rhs: Dim<D, $t>) -> Self::Output {
                     Dim( self / rhs.0, PhantomData )
@@ -173,8 +199,6 @@ dim_lhs_div!(f32);
 
 
 // Unary operators:
-#[macro_export]
-#[macro_use(dim_unary)]
 macro_rules! dim_unary {
     ($Trait:ident, $op: ident, $($fun:ident),*) => (
         impl<D, V> $Trait for Dim<D, V>
@@ -191,8 +215,6 @@ dim_unary!(Neg, KeepDim, neg);
 dim_unary!(Not, KeepDim, not);
 
 // Binary operators:
-#[macro_export]
-#[macro_use(dim_binary)]
 macro_rules! dim_binary {
     ($Trait:ident, $op: ident, $($fun:ident),*) => (
         impl<Dl, Vl, Dr, Vr> $Trait<Dim<Dr, Vr>> for Dim<Dl, Vl>
