@@ -1,30 +1,13 @@
-#![feature(optin_builtin_traits)]
 #[macro_use]
 extern crate dimensioned;
 extern crate num;
 
-use dimensioned::*;
+use dimensioned::si::{one, m, kg, s};
 
 use num::traits::Float;
 use std::ops::{Add, Sub, Mul, Div};
 use std::fmt::{self, Display};
 
-make_units! {
-    SI, One;
-    base {
-        Meter, m, m;
-        Kilogram, kg, kg;
-        Second, s, s;
-        Ampere, amp, A;
-        Kelvin, kelvin, K;
-        Candela, candela, cd;
-        Mole, mole, mol;
-    }
-    derived {
-        // Doesn't do anything yet
-        Newton(newton) = Kilogram * Meter / Second / Second;
-    }
-}
 
 fn main() {
     let xhat = Vector2d::new(one, 0.0*one);
@@ -57,16 +40,11 @@ That is {} away from her. She decides to spin it, pushing with a force of {}.
 That's a torque of {}!", center, r.norm2(), force, r.cross(force)); // fixme: this should be norm() again
 }
 
-pub trait Scalar {}
-impl Scalar for .. {}
-
 #[derive(Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Vector2d<N> {
     x: N,
     y: N,
 }
-
-impl<N> !Scalar for Vector2d<N> {}
 
 impl<N> Vector2d<N> {
     #[inline]
@@ -100,8 +78,8 @@ pub trait Norm {
     fn norm(self) -> Self::Output;
 }
 
-impl<N> Norm for Vector2d<N> where Vector2d<N>: Norm2, <Vector2d<N> as Norm2>::Output: Sqrt {
-    type Output = <<Vector2d<N> as Norm2>::Output as Sqrt>::Output;
+impl<N> Norm for Vector2d<N> where Vector2d<N>: Norm2, <Vector2d<N> as Norm2>::Output: Float {
+    type Output = <Vector2d<N> as Norm2>::Output;
     #[inline]
     fn norm(self) -> Self::Output { self.norm2().sqrt() }
 }

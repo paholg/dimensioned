@@ -1,6 +1,12 @@
 
 #[macro_export]
 macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:ident, $constant:ident, $print_as:ident;)* } derived {$($Derived:ident($derived_constant: ident) = $e: expr;    )*} ) => (
+    #[allow(unused_imports)]
+    use $crate::peano::{Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten};
+    use $crate::peano::{Peano, KeepPeano, AddPeano, SubPeano, MulPeano, DivPeano, Negate, ToInt};
+    use $crate::dimensioned::{Dimension, Dimensionless, Dim, KeepDim, MulDim, DivDim, PowerDim, RootDim, NegDim, DimToString};
+    use std::marker::PhantomData;
+
     #[derive(Copy, Clone)]
     pub struct $System<$($Type: Peano),*> {
         $($constant: PhantomData<$Type>),*
@@ -141,3 +147,4 @@ macro_rules! __make_types {
 //     ($a: ident / $b: expr) => ($a as DivDim<__convert_expression!($b)>>::Output);
 //     ($a: ident) => ($a);
 // }
+

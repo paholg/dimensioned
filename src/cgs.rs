@@ -1,5 +1,3 @@
-use dimensioned::*;
-
 make_units! {
     CGS, Two;
     base {

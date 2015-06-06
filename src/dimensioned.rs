@@ -1,5 +1,5 @@
-pub use peano::*;
-pub use std::marker::PhantomData;
+use peano::*;
+use std::marker::PhantomData;
 
 use std::ops::*;
 use num::traits::{FromPrimitive, ToPrimitive, NumCast, Float};
@@ -25,6 +25,7 @@ pub trait RootDim<RHS>: Dimension {
 pub trait KeepDim<RHS>: Dimension {
     type Output;
 }
+// fixme: Change NegDim to InvertDim
 pub trait NegDim: Dimension {
     type Output;
 }
@@ -381,3 +382,4 @@ impl<D, V> NumCast for Dim<D, V> where D: Dimension, V: NumCast {
 //         dim_unary_float!(integer_decode, (u64, i16, i8));
 
 //     }
+

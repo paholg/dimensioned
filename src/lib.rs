@@ -27,7 +27,7 @@ pub use dimensioned::*;
 
 pub mod peano;
 #[macro_use]
-mod dimensioned;
+pub mod dimensioned;
 #[macro_use]
 mod make_units;
 

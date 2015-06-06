@@ -2,7 +2,6 @@
 - make_units! :: Add "advanced" version. Investigate printing (try to just store
                  integers, then make string at the end. Could even use a helper
                  function, so someone could define their own)
-- crate structure :: improve this so one can only import what they want.
 
 # "Skipped" things (i.e. to figure out and do)
 - Index/IndexMut :: Lifetime stuff that I need to figure out
