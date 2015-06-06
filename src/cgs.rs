@@ -3,7 +3,7 @@ make_units_adv! {
     base {
         Two, Centimeter, centimeter, cm;
         Two, Gram, gram, g;
-        Two, Second, second, s;
+        One, Second, second, s;
     }
     derived {
     }
