@@ -12,7 +12,8 @@ license = "MIT/Apache-2.0"
 
 [lib]
 name = "dimensioned"
-plugin = true
+# fixme: this is temporary; sqrt() doesn't work with it.
+# plugin = true
 
 [dependencies]
   num = "*"
