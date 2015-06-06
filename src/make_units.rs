@@ -97,11 +97,11 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
 #[macro_export]
 macro_rules! __make_types {
     ($System:ident, $Type:ident, $Root:ident, $($Types:ident, $Roots:ident),+ | $($Zeros:ident),*) => (
-        pub type $Type = $System<$Root $(, $Zeros)*>;
+        pub type $Type = $System< $($Zeros,)* $Root>;
         __make_types!($System, $($Types, $Roots),+ | Zero $(, $Zeros)*);
         );
     ($System:ident, $Type:ident, $Root:ident | $($Zeros:ident),*) => (
-        pub type $Type = $System<$Root $(, $Zeros)*>;
+        pub type $Type = $System<$($Zeros,)* $Root>;
         );
 }
 

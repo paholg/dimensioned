@@ -1,5 +1,14 @@
+#![feature(core)]
 #[macro_use]
 extern crate dimensioned;
+
+fn print_type_of<T>(_: &T) -> () {
+    let type_name =
+        unsafe {
+            std::intrinsics::type_name::<T>()
+        };
+    println!("{}", type_name);
+}
 
 make_units! {
     Fruit, Unitless, one;
@@ -15,6 +24,7 @@ make_units! {
 
 #[test]
 fn test_making_units() {
-    let x = apple * banana;
-    println!("x: {}", x);
+    print_type_of(&apple);
+    print_type_of(&banana);
+    print_type_of(&cucumber);
 }

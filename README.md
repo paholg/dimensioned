@@ -1,7 +1,11 @@
-===== Dimensioned =====
-
 [![crates.io](https://img.shields.io/crates/v/dimensioned.svg)](https://crates.io/crates/dimensioned)
 [![Build Status](https://travis-ci.org/paholg/dimensioned.svg?branch=master)](https://travis-ci.org/paholg/dimensioned)
+
+Dimensioned
+=====
+
+Note: This library is very much unstable, and you should expect regular breaking changes
+for now. It also depends on unstable Rust features.
 
 
 Dimensioned is a library for compile-time type checking of arbitrary unit systems.
