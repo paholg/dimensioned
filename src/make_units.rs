@@ -15,20 +15,20 @@ macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:id
             type Output = $System<$(<$Type as KeepPeano<$constant>>::Output),*>;
         }
     #[allow(non_camel_case_types)]
-    impl<$($Type),*, $($constant),*> AddDim<$System<$($constant),*>> for $System<$($Type),*> where
+    impl<$($Type),*, $($constant),*> MulDim<$System<$($constant),*>> for $System<$($Type),*> where
         $($Type: Peano + AddPeano<$constant>),*, $($constant: Peano),* {
             type Output = $System<$(<$Type as AddPeano<$constant>>::Output),*>;
         }
     #[allow(non_camel_case_types)]
-    impl<$($Type),*, $($constant),*> SubDim<$System<$($constant),*>> for $System<$($Type),*> where
+    impl<$($Type),*, $($constant),*> DivDim<$System<$($constant),*>> for $System<$($Type),*> where
         $($Type: Peano + SubPeano<$constant>),*, $($constant: Peano),* {
             type Output = $System<$(<$Type as SubPeano<$constant>>::Output),*>;
         }
-    impl<$($Type),*, RHS> MulDim<RHS> for $System<$($Type),*> where
+    impl<$($Type),*, RHS> PowerDim<RHS> for $System<$($Type),*> where
         $($Type: Peano + MulPeano<RHS>),*, RHS: Peano {
             type Output = $System<$(<$Type as MulPeano<RHS>>::Output),*>;
         }
-    impl<$($Type),*, RHS> DivDim<RHS> for $System<$($Type),*> where
+    impl<$($Type),*, RHS> RootDim<RHS> for $System<$($Type),*> where
         $($Type: Peano + DivPeano<RHS>),*, RHS: Peano {
             type Output = $System<$(<$Type as DivPeano<RHS>>::Output),*>;
         }
@@ -137,7 +137,7 @@ macro_rules! __make_types {
 
 // #[macro_export]
 // macro_rules! __convert_expression {
-//     ($a: ident * $b: expr) => ($a as AddDim<__convert_expression!($b)>>::Output);
-//     ($a: ident / $b: expr) => ($a as SubDim<__convert_expression!($b)>>::Output);
+//     ($a: ident * $b: expr) => ($a as MulDim<__convert_expression!($b)>>::Output);
+//     ($a: ident / $b: expr) => ($a as DivDim<__convert_expression!($b)>>::Output);
 //     ($a: ident) => ($a);
 // }

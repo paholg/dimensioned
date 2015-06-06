@@ -10,16 +10,16 @@ pub trait Dimension {}
 
 pub trait Dimensionless: Dimension {}
 
-pub trait AddDim<RHS>: Dimension {
-    type Output;
-}
-pub trait SubDim<RHS>: Dimension {
-    type Output;
-}
 pub trait MulDim<RHS>: Dimension {
     type Output;
 }
 pub trait DivDim<RHS>: Dimension {
+    type Output;
+}
+pub trait PowerDim<RHS>: Dimension {
+    type Output;
+}
+pub trait RootDim<RHS>: Dimension {
     type Output;
 }
 pub trait KeepDim<RHS>: Dimension {
@@ -68,8 +68,8 @@ impl<T> Sqrt for T where T: Float {
     fn sqrt(self) -> Self::Output { self.sqrt() }
 }
 
-impl<D, V> Sqrt for Dim<D, V> where D:  DivDim<Two>, V: Float, <D as DivDim<Two>>::Output: Dimension {
-    type Output = Dim<<D as DivDim<Two>>::Output, V>;
+impl<D, V> Sqrt for Dim<D, V> where D:  RootDim<Two>, V: Float, <D as RootDim<Two>>::Output: Dimension {
+    type Output = Dim<<D as RootDim<Two>>::Output, V>;
     #[inline]
     fn sqrt(self) -> <Self as Sqrt>::Output { Dim( (self.0).sqrt(), PhantomData) }
 }
@@ -78,8 +78,8 @@ pub trait Sqr {
     type Output;
     fn sqr(self) -> <Self as Sqr>::Output;
 }
-impl<D, V> Sqr for Dim<D, V> where D: MulDim<Two>, V: Copy + Mul, <D as MulDim<Two>>::Output: Dimension {
-    type Output = Dim<<D as MulDim<Two>>::Output, <V as Mul<V>>::Output>;
+impl<D, V> Sqr for Dim<D, V> where D: PowerDim<Two>, V: Copy + Mul, <D as PowerDim<Two>>::Output: Dimension {
+    type Output = Dim<<D as PowerDim<Two>>::Output, <V as Mul<V>>::Output>;
 
     #[inline]
     fn sqr(self) -> <Self as Sqr>::Output {
@@ -101,11 +101,11 @@ impl<D, V> fmt::Display for Dim<D, V> where D: DimToString, V: fmt::Display {
 
 /// Multiplying! Dimensions must be able to add.
 impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
-    where Dl: Dimension + AddDim<Dr>, Dr: Dimension, Vl: Mul<Vr>, <Dl as AddDim<Dr>>::Output: Dimension {
-        type Output = Dim<<Dl as AddDim<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
+    where Dl: Dimension + MulDim<Dr>, Dr: Dimension, Vl: Mul<Vr>, <Dl as MulDim<Dr>>::Output: Dimension {
+        type Output = Dim<<Dl as MulDim<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
 
         #[inline]
-        fn mul(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as AddDim<Dr>>::Output, <Vl as Mul<Vr>>::Output> {
+        fn mul(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as MulDim<Dr>>::Output, <Vl as Mul<Vr>>::Output> {
             Dim(self.0 * rhs.0, PhantomData)
         }
 }
@@ -141,10 +141,10 @@ dim_lhs_mult!(f32);
 
 /// Dividing! Dimensions must be able to subtract.
 impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
-    where Dl: Dimension + SubDim<Dr>, Dr: Dimension, Vl: Div<Vr>, <Dl as SubDim<Dr>>::Output: Dimension {
-        type Output = Dim<<Dl as SubDim<Dr>>::Output, <Vl as Div<Vr>>::Output>;
+    where Dl: Dimension + DivDim<Dr>, Dr: Dimension, Vl: Div<Vr>, <Dl as DivDim<Dr>>::Output: Dimension {
+        type Output = Dim<<Dl as DivDim<Dr>>::Output, <Vl as Div<Vr>>::Output>;
         #[inline]
-        fn div(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as SubDim<Dr>>::Output, <Vl as Div<Vr>>::Output> {
+        fn div(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as DivDim<Dr>>::Output, <Vl as Div<Vr>>::Output> {
             Dim(self.0 / rhs.0, PhantomData)
         }
     }
