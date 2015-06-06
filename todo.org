@@ -19,5 +19,4 @@
 - roots :: add others besides sqrt()?
 
 # Bugs
-- make_units! macro :: errors for single unit systems.
 - Sqrt :: getting linker error for Float::sqrt when I use my Sqrt

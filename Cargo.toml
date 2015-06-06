@@ -16,3 +16,6 @@ plugin = true
 
 [dependencies]
   num = "*"
+
+[dev-dependencies.vector3]
+  path = "examples/vector3"
