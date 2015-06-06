@@ -63,12 +63,6 @@ pub trait Sqrt {
     fn sqrt(self) -> <Self as Sqrt>::Output;
 }
 
-impl<T> Sqrt for T where T: Float {
-    type Output = T;
-    #[inline]
-    fn sqrt(self) -> Self::Output { self.sqrt() }
-}
-
 impl<D, V> Sqrt for Dim<D, V> where D:  RootDim<Two>, V: Float, <D as RootDim<Two>>::Output: Dimension {
     type Output = Dim<<D as RootDim<Two>>::Output, V>;
     #[inline]

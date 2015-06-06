@@ -2,6 +2,7 @@
 extern crate dimensioned;
 extern crate num;
 
+use dimensioned::Sqrt;
 use dimensioned::si::{one, m, kg, s};
 
 use num::traits::Float;
@@ -24,7 +25,7 @@ fn main() {
     let vel = displace/time;
 
 
-    let speed = vel.norm2(); // fixme: This should be norm() but there's an error
+    let speed = vel.norm2(); // fixme: This should use sqrt() but there's an error
     println!("
 A physicist was standing at {}.
 Then she walked to {}, for a displacement of {}.
@@ -37,7 +38,7 @@ That's a speed of {}!", start, end, displace, time, vel, speed);
     println!("
 Now, she's standing next to a merry-go-round, centered at {}.
 That is {} away from her. She decides to spin it, pushing with a force of {}.
-That's a torque of {}!", center, r.norm2(), force, r.cross(force)); // fixme: this should be norm() again
+That's a torque of {}!", center, r.norm2(), force, r.cross(force)); // fixme: same error with sqrt()
 }
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]

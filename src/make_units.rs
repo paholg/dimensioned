@@ -1,6 +1,21 @@
 
 #[macro_export]
-macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:ident, $constant:ident, $print_as:ident;)* } derived {$($Derived:ident($derived_constant: ident) = $e: expr;    )*} ) => (
+macro_rules! make_units { ($System:ident, $Unitless:ident, $one:ident; base { $($Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e:expr;)*} ) => (
+    make_units_adv!{
+        $System, $Unitless, $one, f64;
+        base {
+            $(One, $Type, $constant, $print_as;)*
+        }
+        derived {
+            $($derived_constant: $Derived = $e;)*
+        }
+    }
+
+    );
+}
+
+#[macro_export]
+macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneType:ident; base { $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e: expr;    )*} ) => (
     #[allow(unused_imports)]
     use $crate::peano::{Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten};
     use $crate::peano::{Peano, KeepPeano, AddPeano, SubPeano, MulPeano, DivPeano, Negate, ToInt};
@@ -8,7 +23,7 @@ macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:id
     use std::marker::PhantomData;
 
     #[derive(Copy, Clone)]
-    pub struct $System<$($Type: Peano),*> {
+    pub struct $System<$($Type: Peano = Zero),*> {
         $($constant: PhantomData<$Type>),*
     }
     impl<$($Type: Peano),*> Dimension for $System<$($Type),*> {}
@@ -52,99 +67,55 @@ macro_rules! make_units { ($System:ident, $allowed_root:ident; base { $($Type:id
                     let temp = match <$Type as ToInt>::to_int() {
                         0 => ("", "".to_string()),
                         1 => (stringify!($print_as), "*".to_string()),
-                        _power => (stringify!($print_as), format!("^{}*", _power/<$allowed_root as ToInt>::to_int()))
+                        _power => (stringify!($print_as), format!("^{}*", _power/<$Root as ToInt>::to_int()))
                     };
-                    _string = format!("{}{}{}", _string, temp.0, temp.1);
-                )*
+                    _string = format!("{}{}{}", _string, temp.0, temp.1)
+                );*;
                 _string.pop(); // get rid of the last '*'
                 _string
             }
         }
 
-    __make_types!($System, $allowed_root | $($Type),* | $($Type),* |);
-    // fixme: when __make_types is fixed, use following line to call:
-    // __make_types!($System, $allowed_root | $($Type),* | $($Type),*);
-
+    pub type $Unitless = $System;
+    impl Dimensionless for $Unitless {}
     #[allow(non_upper_case_globals)]
-    pub const one: Dim<Unitless, f64> = Dim(1.0, PhantomData);
-    $(#[allow(non_upper_case_globals)] pub const $constant: Dim<$Type, f64> = Dim(1.0, PhantomData);)*
+    pub const $one: Dim<$Unitless, $OneType> = Dim(1.0, PhantomData);
 
-        // $(
-        //   __make_derived_type!($Derived, $e);
-        //   pub const $derived_constant: Dim<$Derived, f64> = Dim(1.0, PhantomData);
-        //   )*
-        );
+    __make_types!($System, $($Type, $Root),+ |);
+
+    $(#[allow(non_upper_case_globals)] pub const $constant: Dim<$Type, $OneType> = Dim(1.0, PhantomData));*;
+
+    // $(#[allow(non_upper_case_globals)] pub const $derived_constant: Dim<TYPEPEPEPE, f64> = $e;)*
+
+
+    );
 }
 
-// fixme: This is a bunch of malarky. Can't cycle the direction I want, so we reverse
-// $Typse to compensate. The "correct" way is commented below, but won't work until RFC:
-// https://github.com/rust-lang/rust/issues/24827 is fixed
+
+
 #[doc_hidden]
 #[macro_export]
 macro_rules! __make_types {
-    // this first arm filters out the end Types into Zeros with Num, so we go from say
-    // (One | Meters, Seconds | Meters, Seconds) to (One, Zero | Meters, Seconds |
-    // Meters) and then we move to a different branch I would like a cleaner way to
-    // create the list $Num, Zero, Zero, ... but I have yet to find one.
-    ($System: ident, $($Nums: ident),+ | $($Types: ident),+ | $DeadType: ident, $($Others: ident),* | $($New: ident),*) => (
-        __make_types!($System, $($Nums),+, Zero | $($Types),+ | $($Others),* | $DeadType $(, $New)*);
+    ($System:ident, $Type:ident, $Root:ident, $($Types:ident, $Roots:ident),+ | $($Zeros:ident),*) => (
+        pub type $Type = $System<$Root $(, $Zeros)*>;
+        __make_types!($System, $($Types, $Roots),+ | Zero $(, $Zeros)*);
         );
-    // This branch creates our Unitless type and then trims off the last $Type that we no longer need:
-    ($System: ident, $First: ident, $($Nums: ident),* | $($Types: ident),+ | $Type: ident | $($New: ident),+) => (
-        pub type Unitless = $System<Zero, $($Nums),*>;
-        impl Dimensionless for Unitless {}
-        __make_types!($System, $($Nums),*, $First | $Type, $($New),* );
-        );
-    // Create the type, cycle the numbers, then call again:
-    ($System: ident, $First: ident, $($Nums: ident),* | $Type: ident, $($Types: ident),+) => (
-        pub type $Type = $System<$First, $($Nums),*>;
-        __make_types!($System, $($Nums),*, $First | $($Types),*);
-        );
-    ($System: ident, $($Nums: ident),* | $Type: ident) => (
-        pub type $Type = $System<$($Nums),*>;
+    ($System:ident, $Type:ident, $Root:ident | $($Zeros:ident),*) => (
+        pub type $Type = $System<$Root $(, $Zeros)*>;
         );
 }
-// end of malarky
-
-// // we call this with __make_types!(Num | Types | Types)
-// #[doc_hidden]
-// #[macro_export]
-// macro_rules! __make_types {
-//     // this first arm filters out the end Types into Zeros with Num, so we go from say
-//     // (One | Meters, Seconds | Meters, Seconds) to (One, Zero | Meters, Seconds |
-//     // Meters) and then we move to a different branch I would like a cleaner way to
-//     // create the list $Num, Zero, Zero, ... but I have yet to find one.
-//     ($System: ident, $($Nums: ident),+ | $($Types: ident),+ | $DeadType: ident, $($Others: ident),+) => (
-//         __make_types!($System, $($Nums),*, Zero | $($Types),* | $($Others),*);
-//         );
-//     // This branch creates our Unitless type and then trims off the last $Type that we no longer need:
-//     ($System: ident, $First: ident, $($Nums: ident),* | $($Types: ident),+ | $Type: ident) => (
-//         pub type Unitless = $System<Zero, $($Nums),*>;
-//         impl Dimensionless for Unitless {}
-//         __make_types!($System, $First, $($Nums),* | $($Types),* );
-//         );
-//     // Create the type, cycle the numbers, then call again:
-//     ($System: ident, $($Nums: ident),*, $Last: ident | $Type: ident, $($Types: ident),+) => (
-//         pub type $Type = $System<$($Nums),*, $Last>;
-//         __make_types!($System, $Last, $($Nums),* | $($Types),*);
-//         );
-//     ($System: ident, $($Nums: ident),* | $Type: ident) => (
-//         pub type $Type = $System<$($Nums),*>;
-//         );
-// }
-
 
 // #[macro_export]
 // macro_rules! __make_derived_type {
-//     ($D: ident, $e: expr) => (
+//     ($D:ident, $e: expr) => (
 //         pub type $D = __convert_expression!($e);
 //         );
 // }
 
 // #[macro_export]
 // macro_rules! __convert_expression {
-//     ($a: ident * $b: expr) => ($a as MulDim<__convert_expression!($b)>>::Output);
-//     ($a: ident / $b: expr) => ($a as DivDim<__convert_expression!($b)>>::Output);
-//     ($a: ident) => ($a);
+//     ($a:ident * $b: expr) => ($a as MulDim<__convert_expression!($b)>>::Output);
+//     ($a:ident / $b: expr) => ($a as DivDim<__convert_expression!($b)>>::Output);
+//     ($a:ident) => ($a);
 // }
 

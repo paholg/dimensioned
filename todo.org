@@ -1,7 +1,7 @@
 # Fixes
-- make_units! :: Add "advanced" version. Investigate printing (try to just store
-                 integers, then make string at the end. Could even use a helper
-                 function, so someone could define their own)
+- make_units! :: Investigate printing (try to just store integers, then make string at
+                 the end. Could even use a helper function, so someone could define
+                 their own)
 
 # "Skipped" things (i.e. to figure out and do)
 - Index/IndexMut :: Lifetime stuff that I need to figure out
@@ -9,6 +9,8 @@
            but any attempt to implement them in a type-preserving way conflicts with the
            already existing definitions.
 - Derived Units :: Get macro working for these. Probably syntax extension.
+- constant initialization value :: Right now this is "1.0" for any type. Once associated
+     constants hit, use std::num::One.
 
 # Features to implement
 - Dim :: Figure out if I want to implement any more traits for this.

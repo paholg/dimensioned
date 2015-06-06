@@ -1,5 +1,5 @@
 make_units! {
-    SI, One;
+    SI, Unitless, one;
     base {
         Meter, m, m;
         Kilogram, kg, kg;
@@ -10,5 +10,6 @@ make_units! {
         Mole, mole, mol;
     }
     derived {
+        newton: Newton = kg*m/s/s;
     }
 }

@@ -1,9 +1,9 @@
-make_units! {
-    CGS, Two;
+make_units_adv! {
+    CGS, Unitless, one, f64;
     base {
-        Centimeter, centimeter, cm;
-        Gram, gram, g;
-        Second, second, s;
+        Two, Centimeter, centimeter, cm;
+        Two, Gram, gram, g;
+        Two, Second, second, s;
     }
     derived {
     }
