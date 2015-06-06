@@ -2,7 +2,7 @@ use peano::*;
 use std::marker::PhantomData;
 
 use std::ops::*;
-use num::traits::{FromPrimitive, ToPrimitive, NumCast, Float};
+use num::traits::{Float, FromPrimitive, ToPrimitive, NumCast};
 use std::cmp::*;
 use std::fmt;
 
@@ -85,7 +85,7 @@ impl<D, V> Sqr for Dim<D, V> where D: PowerDim<Two>, V: Copy + Mul, <D as PowerD
 // Useful macros for export
 //------------------------------------------------------------------------------
 #[macro_export]
-macro_rules! dim_impl_unary { ($Trait:ident, $fun:ident, $op:ident, $In:ident -> $Out:ident) => (
+macro_rules! dim_impl_unary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $Out:ty) => (
     pub trait $Trait {
         type Output;
         fn $fun(self) -> Self::Output;
@@ -98,7 +98,7 @@ macro_rules! dim_impl_unary { ($Trait:ident, $fun:ident, $op:ident, $In:ident ->
 }
 
 #[macro_export]
-macro_rules! dim_impl_binary { ($Trait:ident, $fun:ident, $op:ident, $In:ident -> $Out:ident) => (
+macro_rules! dim_impl_binary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $Out:ty) => (
     pub trait $Trait<RHS> {
         type Output;
         fn $fun(self, rhs: RHS) -> Self::Output;

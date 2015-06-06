@@ -7,4 +7,4 @@ name = "vector3"
 
 [dependencies]
   num = "*"
-  dimensioned = "*"
+  # dimensioned = "*"

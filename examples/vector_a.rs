@@ -1,17 +1,17 @@
 #[macro_use]
-extern crate dimensioned;
+extern crate dimensioned as dim;
 extern crate vector3;
 
 use vector3::vector3a::Vector3;
-use dimensioned::si::{one, m, kg, s};
+use dim::si::{one, m, kg, s};
 
-use dimensioned::{Dim, Dimension, KeepDim, MulDim};
+use dim::{Dim, Dimension, KeepDim, MulDim};
 
-dim_impl_unary!(Norm, norm, KeepDim, Vector3 -> f64);
-dim_impl_unary!(Norm2, norm2, MulDim, Vector3 -> f64);
+dim_impl_unary!(Norm, norm, KeepDim, Vector3 => f64);
+dim_impl_unary!(Norm2, norm2, MulDim, Vector3 => f64);
 
-dim_impl_binary!(Dot, dot, MulDim, Vector3 -> f64);
-dim_impl_binary!(Cross, cross, MulDim, Vector3 -> Vector3);
+dim_impl_binary!(Dot, dot, MulDim, Vector3 => f64);
+dim_impl_binary!(Cross, cross, MulDim, Vector3 => Vector3);
 
 fn main() {
     let xhat = one * Vector3::new(1.0, 0.0, 0.0);

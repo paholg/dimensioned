@@ -1,10 +1,24 @@
-extern crate dimensioned;
+extern crate dimensioned as dim;
 extern crate vector3;
+extern crate num;
 
-use vector3::vector3b::{Vector3, Norm, Norm2, Cross, Dot};
+use vector3::vector3b::{Vector3, Norm2, Cross, Dot};
 
-use dimensioned::Sqrt;
-use dimensioned::si::{one, m, kg, s};
+use num::Float;
+
+use dim::Sqrt;
+use dim::si::{one, m, kg, s};
+
+pub trait Norm {
+    type Output;
+    fn norm(self) -> Self::Output;
+}
+
+impl<N> Norm for Vector3<N> where Vector3<N>: Norm2, <Vector3<N> as Norm2>::Output: Sqrt {
+    type Output = <<Vector3<N> as Norm2>::Output as Sqrt>::Output;
+    #[inline]
+    fn norm(self) -> Self::Output { self.norm2().sqrt() }
+}
 
 
 fn main() {
@@ -23,7 +37,7 @@ fn main() {
     let vel = displace/time;
 
 
-    let speed = vel.norm2(); // fixme: This should use sqrt() but there's an error
+    let speed = vel.norm();
     println!("
 A physicist was standing at {}.
 Then she walked to {}, for a displacement of {}.
@@ -36,5 +50,5 @@ That's a speed of {}!", start, end, displace, time, vel, speed);
     println!("
 Now, she's standing next to a merry-go-round, centered at {}.
 That is {} away from her. She decides to spin it, pushing with a force of {}.
-That's a torque of {}!", center, r.norm2(), force, r.cross(force).norm2()); // fixme: same error with sqrt()
+That's a torque of {}!", center, r.norm2(), force, r.cross(force).norm());
 }

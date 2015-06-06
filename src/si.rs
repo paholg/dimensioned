@@ -10,6 +10,7 @@ make_units! {
         Mole, mole, mol;
     }
     derived {
+        // does nothing
         newton: Newton = kg*m/s/s;
     }
 }
