@@ -59,13 +59,13 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
         }
 
 
-    pub fn pretty_dim(roots: [i32; count_args!($($Type),*)], exps: [i32; count_args!($($Type),*)], tokens: [&'static str; count_args!($($Type),*)]) -> String {
+    fn pretty_dim(roots: [i32; count_args!($($Type),*)], exps: [i32; count_args!($($Type),*)], tokens: [&'static str; count_args!($($Type),*)]) -> String {
         let mut __string = String::new();
         for ((&root, &exp), &token) in roots.iter().zip(exps.iter()).zip(tokens.iter()) {
             let __temp: (&'static str, String) = match exp {
                 0 => ("", "".to_string()),
                 1 => (token, "*".to_string()),
-                n => (token, format!("^{}*", exp/root)),
+                _ => (token, format!("^{}*", exp/root)),
             };
             __string = format!("{}{}{}", __string, __temp.0, __temp.1);
         }
@@ -82,6 +82,7 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
                 let allowed_roots = [$($Root::to_int()),*];
                 let exponents = [$($Type::to_int()),*];
                 let print_tokens = [$(stringify!($print_as)),*];
+
                 pretty_dim(allowed_roots, exponents, print_tokens)
             }
         }
@@ -101,7 +102,7 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
     );
 }
 
-#[doc_hidden]
+/// Just counts the number of arguments its called with and gives you the total
 #[macro_export]
 macro_rules! count_args {
     ($arg:ident, $($args:ident),+) => (
