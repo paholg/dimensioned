@@ -1,7 +1,4 @@
 # Fixes
-- make_units! :: Investigate printing (try to just store integers, then make string at
-                 the end. Could even use a helper function, so someone could define
-                 their own)
 
 # "Skipped" things (i.e. to figure out and do)
 - Index/IndexMut :: Lifetime stuff that I need to figure out
@@ -13,10 +10,8 @@
      constants hit, use std::num::One.
 
 # Features to implement
-- Dim :: Figure out if I want to implement any more traits for this.
-- Macros :: Find a better way of writing macros to wrap arbitrary functions, or some
-            other method.
+- Dim :: Figure out if I want to implement any more traits.
+- Macros :: Investigate better macros for implementing arbitrary functions.
 - roots :: add others besides sqrt()?
 
 # Bugs
-- Sqrt :: getting linker error for Float::sqrt when I use my Sqrt

@@ -58,21 +58,31 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
             type Output = $System<$(<$Type as Negate>::Output),*>;
         }
 
+
+    pub fn pretty_dim(roots: [i32; count_args!($($Type),*)], exps: [i32; count_args!($($Type),*)], tokens: [&'static str; count_args!($($Type),*)]) -> String {
+        let mut __string = String::new();
+        for ((&root, &exp), &token) in roots.iter().zip(exps.iter()).zip(tokens.iter()) {
+            let __temp: (&'static str, String) = match exp {
+                0 => ("", "".to_string()),
+                1 => (token, "*".to_string()),
+                n => (token, format!("^{}*", exp/root)),
+            };
+            __string = format!("{}{}{}", __string, __temp.0, __temp.1);
+        }
+        __string.pop(); // remove last "*"
+        __string
+    }
+
+
     impl<$($Type),*> DimToString for $System<$($Type),*>
         where $($Type: ToInt),* {
             fn to_string() -> String {
-                // fimxe: make this betterer
-                let mut _string = String::new();
-                $(
-                    let temp = match <$Type as ToInt>::to_int() {
-                        0 => ("", "".to_string()),
-                        1 => (stringify!($print_as), "*".to_string()),
-                        _power => (stringify!($print_as), format!("^{}*", _power/<$Root as ToInt>::to_int()))
-                    };
-                    _string = format!("{}{}{}", _string, temp.0, temp.1)
-                );*;
-                _string.pop(); // get rid of the last '*'
-                _string
+                // fixme: add #[allow(unused_variables)] lints for these. Not working
+                // for me for some reason.
+                let allowed_roots = [$($Root::to_int()),*];
+                let exponents = [$($Type::to_int()),*];
+                let print_tokens = [$(stringify!($print_as)),*];
+                pretty_dim(allowed_roots, exponents, print_tokens)
             }
         }
 
@@ -91,7 +101,16 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
     );
 }
 
-
+#[doc_hidden]
+#[macro_export]
+macro_rules! count_args {
+    ($arg:ident, $($args:ident),+) => (
+        1 + count_args!($($args),+);
+    );
+    ($arg:ident) => (
+        1
+    );
+}
 
 #[doc_hidden]
 #[macro_export]

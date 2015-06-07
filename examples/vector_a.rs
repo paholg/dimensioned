@@ -19,27 +19,32 @@ fn main() {
     let zhat = one * Vector3::new(0.0, 0.0, 1.0);
 
 
-    let start = -13.0*xhat*m + 33.0*yhat*m;
+    let start = -22.0*xhat*m + 5.0*yhat*m + 6.0*zhat*m;
+    println!("A physicist was standing on a hill at position {}.", start);
+
     let end = 26.0*xhat*m - 19.0*yhat*m;
+    println!("Then she walked down the hill to {}.", end);
 
     let displace = end - start;
-    let time = 26.0*s;
-    let vel = displace/time;
+    println!("So, her displacement vector was {}.", displace);
 
+    let time = 30.0*s;
+    println!("The walk took her {}.", time);
 
-    let speed = vel.norm();
-    println!("
-A physicist was standing at {}.
-Then she walked to {}, for a displacement of {}.
-The walk took her {}, so she must have had a velocity of {}.
-That's a speed of {}!", start, end, displace, time, vel, speed);
+    let velocity = displace/time;
+    println!("She must have had an average velocity of {}.", velocity);
 
-    let center = 24.0*xhat*m - 17.0*yhat*m;
+    let speed = velocity.norm();
+    println!("So, her average speed was {}.", speed);
+
+    let center = 28.0*xhat*m - 21.0*yhat*m;
+    println!("Now, she's standing next to a merry-go-round, centered at {}.", center);
+
     let force = 500.0*xhat*kg*m/s/s;
+    println!("She decides to spin it, pushing with a force of {}", force);
+
     let r = end - center;
-    println!("
-Now, she's standing next to a merry-go-round, centered at {}.
-That is {} away from her. She decides to spin it, pushing with a force of {}.
-That's a torque of {}!", center, r.norm(), force, r.cross(force).norm());
+    let torque = r.cross(force);
+    println!("That's a torque of {}!", torque);
 }
 

@@ -48,7 +48,7 @@ impl<D: Dimension, V> !NotDim for Dim<D, V> {}
 
 pub trait Wrap<B> {
     type Output;
-    fn wrap(&self, b: B) -> <Self as Wrap<B>>::Output;
+    fn wrap(&self, b: B) -> Self::Output;
 }
 impl<D, A, B> Wrap<B> for Dim<D, A>
     where D: Dimension {
@@ -59,25 +59,38 @@ impl<D, A, B> Wrap<B> for Dim<D, A>
 
 pub trait Sqrt {
     type Output;
-    fn sqrt(self) -> <Self as Sqrt>::Output;
+    fn sqrt(self) -> Self::Output;
 }
 
 impl<D, V> Sqrt for Dim<D, V> where D:  RootDim<Two>, V: Float, <D as RootDim<Two>>::Output: Dimension {
     type Output = Dim<<D as RootDim<Two>>::Output, V>;
     #[inline]
-    fn sqrt(self) -> <Self as Sqrt>::Output { Dim( (self.0).sqrt(), PhantomData) }
+    fn sqrt(self) -> Self::Output { Dim( (self.0).sqrt(), PhantomData) }
 }
 
 pub trait Sqr {
     type Output;
-    fn sqr(self) -> <Self as Sqr>::Output;
+    fn sqr(self) -> Self::Output;
 }
 impl<D, V> Sqr for Dim<D, V> where D: PowerDim<Two>, V: Copy + Mul, <D as PowerDim<Two>>::Output: Dimension {
     type Output = Dim<<D as PowerDim<Two>>::Output, <V as Mul<V>>::Output>;
 
     #[inline]
-    fn sqr(self) -> <Self as Sqr>::Output {
+    fn sqr(self) -> Self::Output {
         Dim( (self.0)*(self.0), PhantomData )
+    }
+}
+
+pub trait Cube {
+    type Output;
+    fn cube(self) -> Self::Output;
+}
+impl<D, V> Cube for Dim<D, V> where D: PowerDim<Three>, V: Copy + Mul, <D as PowerDim<Three>>::Output: Dimension, <V as Mul<V>>::Output: Mul<V> {
+    type Output = Dim<<D as PowerDim<Three>>::Output, <<V as Mul<V>>::Output as Mul<V>>::Output>;
+
+    #[inline]
+    fn cube(self) -> Self::Output {
+        Dim( ((self.0)*(self.0))*(self.0), PhantomData )
     }
 }
 
