@@ -1,4 +1,7 @@
 # Fixes
+- make_units! :: Investigate printing (try to just store integers, then make string at
+                 the end. Could even use a helper function, so someone could define
+                 their own)
 
 # "Skipped" things (i.e. to figure out and do)
 - Index/IndexMut :: Lifetime stuff that I need to figure out
@@ -11,7 +14,7 @@
 
 # Features to implement
 - Dim :: Figure out if I want to implement any more traits.
-- Macros :: Investigate better macros for implementing arbitrary functions.
+- Macros :: Investigate more macros for implementing arbitrary functions.
 - roots :: add others besides sqrt()?
 
 # Bugs

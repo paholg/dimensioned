@@ -1,11 +1,11 @@
 #[macro_use]
-extern crate dimensioned as dim;
+extern crate dimensioned;
 extern crate vector3;
 
 use vector3::vector3a::Vector3;
-use dim::si::{one, m, kg, s};
 
-use dim::{Dim, Dimension, KeepDim, MulDim};
+use dimensioned::si::{one, m, kg, s};
+use dimensioned::{Dim, Dimension, KeepDim, MulDim};
 
 dim_impl_unary!(Norm, norm, KeepDim, Vector3 => f64);
 dim_impl_unary!(Norm2, norm2, MulDim, Vector3 => f64);
