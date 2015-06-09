@@ -1,5 +1,4 @@
 extern crate dimensioned as dim;
-extern crate vector3;
 extern crate num;
 
 use vector3b::{Vector3, Norm2, Cross};

@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate dimensioned;
-extern crate vector3;
 
 use vector3a::Vector3;
 
