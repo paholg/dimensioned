@@ -40,22 +40,14 @@ impl<D: Dimension, V> Dim<D, V> {
     pub fn new(v: V) -> Dim<D, V> {
         Dim(v, PhantomData)
     }
+    pub fn map<O, F: FnOnce(V) -> O>(self, f: F) -> Dim<D, O> {
+        Dim(f(self.0), PhantomData)
+    }
 }
 
 pub trait NotDim {}
 impl NotDim for .. {}
 impl<D: Dimension, V> !NotDim for Dim<D, V> {}
-
-pub trait Wrap<B> {
-    type Output;
-    fn wrap(&self, b: B) -> Self::Output;
-}
-impl<D, A, B> Wrap<B> for Dim<D, A>
-    where D: Dimension {
-        type Output = Dim<D, B>;
-        #[inline]
-        fn wrap(&self, b: B) -> Dim<D, B> { Dim(b, PhantomData) }
-}
 
 pub trait Sqrt {
     type Output;
