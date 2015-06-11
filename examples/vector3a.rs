@@ -4,7 +4,8 @@ extern crate dimensioned;
 use vector3a::Vector3;
 
 use dimensioned::si::{one, m, kg, s};
-use dimensioned::{Dim, Dimension, KeepDim, MulDim};
+use dimensioned::{Dim, Dimension, KeepDim, MulDim, Pow};
+use dimensioned::peano::Two;
 
 dim_impl_unary!(Norm, norm, KeepDim, Vector3 => f64);
 dim_impl_unary!(Norm2, norm2, MulDim, Vector3 => f64);
@@ -13,6 +14,10 @@ dim_impl_binary!(Dot, dot, MulDim, Vector3 => f64);
 dim_impl_binary!(Cross, cross, MulDim, Vector3 => Vector3);
 
 fn main() {
+
+    println!("{}", Two::pow(m));
+
+
     let xhat = one * Vector3::new(1.0, 0.0, 0.0);
     let yhat = one * Vector3::new(0.0, 1.0, 0.0);
     let zhat = one * Vector3::new(0.0, 0.0, 1.0);

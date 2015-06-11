@@ -99,37 +99,24 @@ impl<D, V> Sqrt for Dim<D, V> where D:  RootDim<Two>, V: Float, <D as RootDim<Tw
     fn sqrt(self) -> Self::Output { Dim( (self.0).sqrt(), PhantomData) }
 }
 
-/// As powers change type signature for dimensioned objects, this traits offers a simple
-/// method for squaring. It may be replaced by something more general in future.
-pub trait Sqr {
+/// Generic integer powers using peano numbers.
+/// No other types should implement it.
+/// Example:
+/// ```
+/// let x = 3.0*m;
+/// let y = 9.0*m*m;
+/// assert_eq!(y, Two::pow(x));
+/// ```
+pub trait Pow<Base> {
     #[allow(missing_docs)]
     type Output;
-    /// Square a dimensioned object
-    fn sqr(self) -> Self::Output;
-}
-impl<D, V> Sqr for Dim<D, V> where D: PowerDim<Two>, V: Copy + Mul, <D as PowerDim<Two>>::Output: Dimension {
-    type Output = Dim<<D as PowerDim<Two>>::Output, <V as Mul<V>>::Output>;
-
-    #[inline]
-    fn sqr(self) -> Self::Output {
-        Dim( (self.0)*(self.0), PhantomData )
-    }
-}
-
-/// As powers change type signature for dimensioned objects, this traits offers a simple
-/// method for cubing. It may be replaced by something more general in future.
-pub trait Cube {
     #[allow(missing_docs)]
-    type Output;
-    /// Cube a dimensioned object
-    fn cube(self) -> Self::Output;
+    fn pow(base: Base) -> Self::Output;
 }
-impl<D, V> Cube for Dim<D, V> where D: PowerDim<Three>, V: Copy + Mul, <D as PowerDim<Three>>::Output: Dimension, <V as Mul<V>>::Output: Mul<V> {
-    type Output = Dim<<D as PowerDim<Three>>::Output, <<V as Mul<V>>::Output as Mul<V>>::Output>;
-
-    #[inline]
-    fn cube(self) -> Self::Output {
-        Dim( ((self.0)*(self.0))*(self.0), PhantomData )
+impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Dimension + PowerDim<Exp>, V: Float, Exp: Peano + ToInt, <D as PowerDim<Exp>>::Output: Dimension {
+    type Output = Dim<<D as PowerDim<Exp>>::Output, V>;
+    fn pow(base: Dim<D, V>) -> Self::Output {
+        Dim::new( (base.0).powi(Exp::to_int()) )
     }
 }
 
@@ -308,13 +295,12 @@ dim_binary!(Shr, KeepDim, shr);
 dim_binary!(Sub, KeepDim, sub);
 
 // fixme: figure this out
-// impl<'a, D, V, I> Index<I> for Dim<D, V>
-//     where D: Dimension, V: Index<I> + 'a, <V as Index<I>>::Output: Sized {
-//         type Output = Dim<D, &'a <V as Index<I>>::Output>;
-//         fn index<'b>(&'b self, _index: &I) -> &'b Dim<D, &'a <V as Index<I>>::Output> {
-//             &Dim((self.0).index(_index))
-//         }
+// impl<D, V, Idx> Index<Idx> for Dim<D, V> where D: Dimension, V: Index<Idx>, <V as Index<Idx>>::Output: Sized {
+//     type Output = Dim<D, <V as Index<Idx>>::Output>;
+//     fn index<'a>(&'a self, index: Idx) -> &'a Self::Output {
+//         &Dim::new((self.0)[index])
 //     }
+// }
 
 //------------------------------------------------------------------------------
 // Casting
