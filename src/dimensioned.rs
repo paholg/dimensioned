@@ -186,16 +186,24 @@ macro_rules! dim_impl_binary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $
 //------------------------------------------------------------------------------
 // Traits from std::fmt
 //------------------------------------------------------------------------------
-impl<D, V> fmt::Display for Dim<D, V> where D: DimToString, V: fmt::Display {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{} {}", self.0, <D as DimToString>::to_string())
-    }
+macro_rules! dim_fmt {
+    ($Trait:ident, $str:expr) => (
+        impl<D, V> fmt::$Trait for Dim<D, V> where D: DimToString, V: fmt::$Trait {
+            fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+                write!(f, $str, self.0, <D as DimToString>::to_string())
+            }
+        }
+        );
 }
-impl<D, V> fmt::Debug for Dim<D, V> where D: DimToString, V: fmt::Debug {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{:?} {}", self.0, <D as DimToString>::to_string())
-    }
-}
+dim_fmt!(Display, "{} {}");
+dim_fmt!(Debug, "{:?} {}");
+dim_fmt!(Octal, "{:o} {}");
+dim_fmt!(LowerHex, "{:x} {}");
+dim_fmt!(UpperHex, "{:X} {}");
+dim_fmt!(Pointer, "{:p} {}");
+dim_fmt!(Binary, "{:b} {}");
+dim_fmt!(LowerExp, "{:e} {}");
+dim_fmt!(UpperExp, "{:E} {}");
 //------------------------------------------------------------------------------
 // Traits from std::cmp
 //------------------------------------------------------------------------------
