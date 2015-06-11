@@ -1,41 +1,82 @@
+/*!
+Peano numbers allow us to do arithmetic at compile time using Rust's type system.
+
+This module creates many traits. They are all used for arithmetic between Peano numbers
+and it is not recommended that you implement them for anything else.
+*/
 use std::marker::PhantomData;
 
+/// The type-level number 0
 #[derive(Copy, Clone)]
 pub struct Zero;
+
+/// For any number N, we define its successor. In mathematics, this and Zero are enough
+/// to get all the natural numbers; in Rust, it only gets us up to 63 as that is the
+/// most levels of embedded structs we can have.
+///
+/// We further specify that N must not be negative. This way we never have a situation
+/// like `Succ<Pred<Zero>>` and all numbers are uniquely defined.
 #[derive(Copy, Clone)]
 pub struct Succ<N: NonNeg> {
     _marker: PhantomData<N>
 }
+/// For any number N that isn't a positive number, we define its
+/// predecessor. Mathematically, we have now defined all of the integers. We have
+/// actually defined -63 to 63.
 #[derive(Copy, Clone)]
 pub struct Pred<N: NonPos> {
     _marker: PhantomData<N>
 }
 
+#[allow(missing_docs)]
 pub type One = Succ<Zero>;
+#[allow(missing_docs)]
 pub type Two = Succ<One>;
+#[allow(missing_docs)]
 pub type Three = Succ<Two>;
+#[allow(missing_docs)]
 pub type Four = Succ<Three>;
+#[allow(missing_docs)]
 pub type Five = Succ<Four>;
+#[allow(missing_docs)]
 pub type Six = Succ<Five>;
+#[allow(missing_docs)]
 pub type Seven = Succ<Six>;
+#[allow(missing_docs)]
 pub type Eight = Succ<Seven>;
+#[allow(missing_docs)]
 pub type Nine = Succ<Eight>;
+#[allow(missing_docs)]
 pub type Ten = Succ<Nine>;
 
+#[allow(missing_docs)]
 pub type NegOne = Pred<Zero>;
+#[allow(missing_docs)]
 pub type NegTwo = Pred<NegOne>;
+#[allow(missing_docs)]
 pub type NegThree = Pred<NegTwo>;
+#[allow(missing_docs)]
 pub type NegFour = Pred<NegThree>;
+#[allow(missing_docs)]
 pub type NegFive = Pred<NegFour>;
+#[allow(missing_docs)]
 pub type NegSix = Pred<NegFive>;
+#[allow(missing_docs)]
 pub type NegSeven = Pred<NegSix>;
+#[allow(missing_docs)]
 pub type NegEight = Pred<NegSeven>;
+#[allow(missing_docs)]
 pub type NegNine = Pred<NegEight>;
+#[allow(missing_docs)]
 pub type NegTen = Pred<NegNine>;
 
+/// All numbers defined in this module will belong to the **Peano** trait.
 pub trait Peano {}
+/// All numbers of the form `Succ<M>` or `Pred<N>` will belong to the trait **NonZero**.
 pub trait NonZero: Peano {}
+/// All numbers of the form `Succ<N>` and `Zero` will belong to the trait **NonNeg**.
 pub trait NonNeg: Peano {}
+/// All numbers of the form `Pred<N>` and `Zero` will belong to the trait **NonNeg**.
 pub trait NonPos: Peano {}
 
 impl Peano for Zero {}
@@ -50,11 +91,13 @@ impl<N: NonPos> Peano for Pred<N> {}
 impl<N: NonPos> NonPos for Pred<N> {}
 impl<N: NonPos> NonZero for Pred<N> {}
 
+/// This trait allows us to add any two Peano numbers.
 pub trait AddPeano<RHS>: Peano {
+    #[allow(missing_docs)]
     type Output;
 }
 
-/// Adding things to zero (e.g. 0 + 3)
+/// Adding any number to zero (e.g. 0 + 3)
 impl<RHS: Peano> AddPeano<RHS> for Zero {
     type Output = RHS;
 }
@@ -85,7 +128,9 @@ impl<LHS: NonPos + AddPeano<RHS>, RHS: NonNeg> AddPeano<Succ<RHS>> for Pred<LHS>
     type Output = <LHS as AddPeano<RHS>>::Output;
 }
 
+/// This trait provides the negation of a number (e.g. -5 to 5)
 pub trait Negate {
+    #[allow(missing_docs)]
     type Output;
 }
 impl Negate for Zero {
@@ -99,8 +144,9 @@ impl<N: NonPos + Negate> Negate for Pred<N> {
 }
 
 
-
+/// This trait allows us to subtract any two Peano numbers.
 pub trait SubPeano<RHS>: Peano {
+    #[allow(missing_docs)]
     type Output;
 }
 
@@ -136,8 +182,9 @@ impl<LHS: NonPos + SubPeano<RHS>, RHS: NonPos> SubPeano<Pred<RHS>> for Pred<LHS>
 }
 
 
-
+/// This trait allows us to multiply any two Peano numbers.
 pub trait MulPeano<RHS>: Peano {
+    #[allow(missing_docs)]
     type Output;
 }
 
@@ -159,9 +206,12 @@ impl<LHS, RHS> MulPeano<RHS> for Pred<LHS>
 }
 
 
-/// Note that, while we define division, we are operating in a ring, so an error
-/// will be thrown unless the numerator is divisible by the denominator
+/// This trait allows us to divide two Peano numbers so long as the numerator is divisible by the denominator.
+///
+/// We are operating in a ring, so an error will be if the numerator is not divisible by
+/// the denominator
 pub trait DivPeano<RHS>: Peano {
+    #[allow(missing_docs)]
     type Output;
 }
 impl<RHS> DivPeano<RHS> for Zero
@@ -201,8 +251,9 @@ impl<LHS, RHS> DivPeanoPriv<Pred<RHS>> for Succ<LHS>
 }
 
 
-
+/// This trait does nothing, but it forces `Self` and `RHS` to be the same peano number.
 pub trait KeepPeano<RHS>: Peano {
+    #[allow(missing_docs)]
     type Output;
 }
 /// Output = N iff both operands are type N
@@ -213,6 +264,7 @@ impl<N> KeepPeano<N> for N where N: Peano {
 
 /// Converts a type to the integer it represents
 pub trait ToInt: Peano {
+    /// This function is called with, for example, `Two::to_int();`
     fn to_int() -> i32;
 }
 impl ToInt for Zero {

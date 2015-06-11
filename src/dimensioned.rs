@@ -1,56 +1,95 @@
-use peano::*;
-use std::marker::PhantomData;
+/*!
+This module allows dimensioned to be very flexible. It creates the `Dim<D, V>` type,
+which is the type that will be used with all dimensionful objects. It then implements as
+many traits from `std` as generically as possible.
+
+**dimensioned** creates many traits, the majority of which are used for type level
+**arithmetic and should not be implemented for any objects outside this library.
+*/
+
+use peano::*; use std::marker::PhantomData;
 
 use std::ops::*;
 use num::traits::{Float, FromPrimitive, ToPrimitive, NumCast};
 use std::cmp::*;
 use std::fmt;
 
+/// All types created for a unit system will implement this trait.
+///
+/// No other types should implement it.
 pub trait Dimension {}
 
+/// The only types that implement this trait are the `Unitless` types that exist in each
+/// unit system. It allows more flexibility when handling specifically objects without
+/// dimension.
 pub trait Dimensionless: Dimension {}
 
+/// This trait allows us to multiply two dimensioned objects
 pub trait MulDim<RHS = Self>: Dimension {
+    #[allow(missing_docs)]
     type Output;
 }
+/// This trait allows us to divide two dimensioned objects
 pub trait DivDim<RHS = Self>: Dimension {
+    #[allow(missing_docs)]
     type Output;
 }
+/// This trait allows us to take a dimensioned object to a power given by a peano number
 pub trait PowerDim<RHS>: Dimension {
+    #[allow(missing_docs)]
     type Output;
 }
+/// This trait allows us to take a root, given by a peano number, of a dimensioned object
 pub trait RootDim<RHS>: Dimension {
+    #[allow(missing_docs)]
     type Output;
 }
+/// This trait enforces that `Self` and `RHS` have the same dimensions. It is useful
+/// mostly for macros.
 pub trait KeepDim<RHS = Self>: Dimension {
+    #[allow(missing_docs)]
     type Output;
 }
+/// This trait inverts the dimensions of an object. For example, it takes seconds to hertz.
 pub trait InvertDim: Dimension {
+    #[allow(missing_docs)]
     type Output;
 }
-
+/// This trait gives a human-friendly representation of a dimensioned object. It is
+/// useful for printing and debugging.
 pub trait DimToString: Dimension {
+    /// Gives a human friendly `String` representation of a `Dimension` type.
     fn to_string() -> String;
 }
 
+/// This is the primary struct that users of this library will interact with.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Dim<D: Dimension, V>(pub V, pub PhantomData<D>);
 
 impl<D: Dimension, V> Dim<D, V> {
+    /// Construct a new dimensioned object
     pub fn new(v: V) -> Dim<D, V> {
         Dim(v, PhantomData)
     }
+    /// Maps a Dim<D, V> to Dim<D, O> by applying a function to the contained value
     pub fn map<O, F: FnOnce(V) -> O>(self, f: F) -> Dim<D, O> {
         Dim(f(self.0), PhantomData)
     }
 }
 
+/// This traits is implemented by default for everything that is not Dim<D, V>. It
+/// allows a greater level of generic operator overloading than would be possible
+/// otherwise.
 pub trait NotDim {}
 impl NotDim for .. {}
 impl<D: Dimension, V> !NotDim for Dim<D, V> {}
 
+/// Because it would not make sense to implement `Float` for `Dim<D, V>`, we create a
+/// special `Sqrt` trait. We then implement it for `Dim<D, V>` where `V: Float`
 pub trait Sqrt {
+    #[allow(missing_docs)]
     type Output;
+    /// Take the square root of a dimensioned object
     fn sqrt(self) -> Self::Output;
 }
 
@@ -60,8 +99,12 @@ impl<D, V> Sqrt for Dim<D, V> where D:  RootDim<Two>, V: Float, <D as RootDim<Tw
     fn sqrt(self) -> Self::Output { Dim( (self.0).sqrt(), PhantomData) }
 }
 
+/// As powers change type signature for dimensioned objects, this traits offers a simple
+/// method for squaring. It may be replaced by something more general in future.
 pub trait Sqr {
+    #[allow(missing_docs)]
     type Output;
+    /// Square a dimensioned object
     fn sqr(self) -> Self::Output;
 }
 impl<D, V> Sqr for Dim<D, V> where D: PowerDim<Two>, V: Copy + Mul, <D as PowerDim<Two>>::Output: Dimension {
@@ -73,8 +116,12 @@ impl<D, V> Sqr for Dim<D, V> where D: PowerDim<Two>, V: Copy + Mul, <D as PowerD
     }
 }
 
+/// As powers change type signature for dimensioned objects, this traits offers a simple
+/// method for cubing. It may be replaced by something more general in future.
 pub trait Cube {
+    #[allow(missing_docs)]
     type Output;
+    /// Cube a dimensioned object
     fn cube(self) -> Self::Output;
 }
 impl<D, V> Cube for Dim<D, V> where D: PowerDim<Three>, V: Copy + Mul, <D as PowerDim<Three>>::Output: Dimension, <V as Mul<V>>::Output: Mul<V> {
@@ -162,8 +209,18 @@ macro_rules! dim_lhs_mult {
             }
         );
 }
-dim_lhs_mult!(f64);
 dim_lhs_mult!(f32);
+dim_lhs_mult!(f64);
+dim_lhs_mult!(i8);
+dim_lhs_mult!(i16);
+dim_lhs_mult!(i32);
+dim_lhs_mult!(i64);
+dim_lhs_mult!(isize);
+dim_lhs_mult!(u8);
+dim_lhs_mult!(u16);
+dim_lhs_mult!(u32);
+dim_lhs_mult!(u64);
+dim_lhs_mult!(usize);
 
 
 /// Dividing! Dimensions must be able to subtract.
@@ -199,8 +256,18 @@ macro_rules! dim_lhs_div {
             }
         );
 }
-dim_lhs_div!(f64);
 dim_lhs_div!(f32);
+dim_lhs_div!(f64);
+dim_lhs_div!(i8);
+dim_lhs_div!(i16);
+dim_lhs_div!(i32);
+dim_lhs_div!(i64);
+dim_lhs_div!(isize);
+dim_lhs_div!(u8);
+dim_lhs_div!(u16);
+dim_lhs_div!(u32);
+dim_lhs_div!(u64);
+dim_lhs_div!(usize);
 
 
 // Unary operators:

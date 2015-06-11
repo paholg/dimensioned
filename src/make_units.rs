@@ -2,7 +2,7 @@
 #[macro_export]
 macro_rules! make_units { ($System:ident, $Unitless:ident, $one:ident; base { $($Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e:expr;)*} ) => (
     make_units_adv!{
-        $System, $Unitless, $one, f64;
+        $System, $Unitless, $one, f64, 1.0;
         base {
             $(One, $Type, $constant, $print_as;)*
         }
@@ -15,7 +15,7 @@ macro_rules! make_units { ($System:ident, $Unitless:ident, $one:ident; base { $(
 }
 
 #[macro_export]
-macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneType:ident; base { $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e: expr;    )*} ) => (
+macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneType:ident, $val:expr; base { $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e: expr;    )*} ) => (
     #[allow(unused_imports)]
     use $crate::peano::{Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten};
     use $crate::peano::{Peano, KeepPeano, AddPeano, SubPeano, MulPeano, DivPeano, Negate, ToInt};
@@ -90,11 +90,11 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
     pub type $Unitless = $System;
     impl Dimensionless for $Unitless {}
     #[allow(non_upper_case_globals)]
-    pub const $one: Dim<$Unitless, $OneType> = Dim(1.0, PhantomData);
+    pub const $one: Dim<$Unitless, $OneType> = Dim($val, PhantomData);
 
     __make_types!($System, $($Type, $Root),+ |);
 
-    $(#[allow(non_upper_case_globals)] pub const $constant: Dim<$Type, $OneType> = Dim(1.0, PhantomData));*;
+    $(#[allow(non_upper_case_globals)] pub const $constant: Dim<$Type, $OneType> = Dim($val, PhantomData));*;
 
     // $(#[allow(non_upper_case_globals)] pub const $derived_constant: Dim<TYPEPEPEPE, f64> = $e;)*
 

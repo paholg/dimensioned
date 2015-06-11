@@ -1,16 +1,17 @@
-# Fixes
-- make_units! :: Allow custom print function for advanced macro
-
-# "Skipped" things (i.e. to figure out and do)
+# To do
+- Derived Units :: Get macro working for these. Probably syntax extension.
 - Index/IndexMut :: Lifetime stuff that I need to figure out
 - Float :: Implement for dimensionless
-- Derived Units :: Get macro working for these. Probably syntax extension.
-- constant initialization value :: Right now this is "1.0" for any type. Once associated
-     constants hit, use std::num::One.
 
-# Features to implement
+# Questions
+- roots :: add others besides sqrt()?
+- make_units! :: Allow custom print function for advanced macro?
 - Dim :: Figure out if I want to implement any more traits.
 - Macros :: Investigate more macros for implementing arbitrary functions.
-- roots :: add others besides sqrt()?
+
+# Future
+- constant initialization value :: Once associated constants hit, use std::num::One.
+- Numbers :: Compare shoggoth to peano. Shoggoth should probablye be faster, and can
+             count higher. Can it divide?
 
 # Known Bugs

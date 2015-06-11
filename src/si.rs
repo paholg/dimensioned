@@ -1,3 +1,11 @@
+/*!
+The **si** module provides a unit system for use with SI units.
+
+It will also define derived units, although this is not implemented yet.
+*/
+
+#![allow(missing_docs)]
+
 make_units! {
     SI, Unitless, one;
     base {
