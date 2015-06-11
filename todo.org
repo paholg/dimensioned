@@ -1,17 +1,24 @@
 # To do
 - Derived Units :: Get macro working for these. Probably syntax extension.
 - Index/IndexMut :: Lifetime stuff that I need to figure out
-- Float :: Implement for dimensionless
+- Doc comments :: Make these better, especially by adding examples.
 
 # Questions
 - roots :: add others besides sqrt()?
 - make_units! :: Allow custom print function for advanced macro?
-- Dim :: Figure out if I want to implement any more traits.
+- Dim :: Figure out what other traits to implement.
 - Macros :: Investigate more macros for implementing arbitrary functions.
 
 # Future
+- Float :: Implement for dimensionless. This requires num::traits::Zero and
+           num::traits::One. The new versions of these in std::num are much more
+           compatible with dimensioned, so implementation of Float will wait until it
+           uses these.
 - constant initialization value :: Once associated constants hit, use std::num::One.
-- Numbers :: Compare shoggoth to peano. Shoggoth should probablye be faster, and can
-             count higher. Can it divide?
+- Numbers :: Compare shoggoth to peano. Shoggoth should be faster, and can count
+             higher. Can it divide?
+- Numerics :: If and when Rust supports numerics and arithmetic in type signatures,
+              switch to using them. This will likely correspond to a version 2.0 of
+              dimensioned.
 
 # Known Bugs

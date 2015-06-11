@@ -174,14 +174,14 @@ impl<D, V> fmt::Display for Dim<D, V> where D: DimToString, V: fmt::Display {
 // Traits from std::ops
 //------------------------------------------------------------------------------
 
-/// Multiplying! Dimensions must be able to add.
+/// Multiplying!
 impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
     where Dl: Dimension + MulDim<Dr>, Dr: Dimension, Vl: Mul<Vr>, <Dl as MulDim<Dr>>::Output: Dimension {
         type Output = Dim<<Dl as MulDim<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
 
         #[inline]
-        fn mul(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as MulDim<Dr>>::Output, <Vl as Mul<Vr>>::Output> {
-            Dim(self.0 * rhs.0, PhantomData)
+        fn mul(self, rhs: Dim<Dr, Vr>) -> Self::Output {
+            Dim::new(self.0 * rhs.0)
         }
 }
 
@@ -195,7 +195,6 @@ impl<D, V, RHS> Mul<RHS> for Dim<D, V>
         }
     }
 
-// fixme: make more generic if possible
 /// Scalar multiplication (with scalar on LHS)!
 macro_rules! dim_lhs_mult {
     ($t: ty) => (
@@ -223,7 +222,7 @@ dim_lhs_mult!(u64);
 dim_lhs_mult!(usize);
 
 
-/// Dividing! Dimensions must be able to subtract.
+/// Dividing!
 impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
     where Dl: Dimension + DivDim<Dr>, Dr: Dimension, Vl: Div<Vr>, <Dl as DivDim<Dr>>::Output: Dimension {
         type Output = Dim<<Dl as DivDim<Dr>>::Output, <Vl as Div<Vr>>::Output>;
@@ -380,18 +379,20 @@ impl<D, V> NumCast for Dim<D, V> where D: Dimension, V: NumCast {
 }
 
 //------------------------------------------------------------------------------
+impl<D, V> ::std::num::Zero for Dim<D, V> where D: Dimension, V: ::std::num::Zero {
+    fn zero() -> Self {
+        Dim::new(V::zero())
+    }
+}
+
+//------------------------------------------------------------------------------
 // DIMENSIONLESS THINGS HERE
 //------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-// Zero and One
-// impl<D, V> ::num::traits::Zero for Dim<D, V> where D: Dimension + KeepDim<D>, V: ::num::traits::Zero, <D as KeepDim<D>>::Output: Dimension {
-//     fn zero() -> Self {
-//         Dim(V::zero())
-//     }
-// }
-
+impl<D, V> ::std::num::One for Dim<D, V> where D: Dimensionless + MulDim<D>, V: ::std::num::One + Mul {
+    fn one() -> Self {
+        Dim::new(V::one())
+    }
+}
 
 //------------------------------------------------------------------------------
 // Num

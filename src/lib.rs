@@ -8,7 +8,7 @@ The best place to read about it is [here](http://paholg.com/dimensioned)
 #![warn(missing_docs)]
 
 #![feature(optin_builtin_traits)]
-
+#![feature(zero_one)]
 extern crate num;
 
 
