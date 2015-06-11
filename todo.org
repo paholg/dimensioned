@@ -4,7 +4,6 @@
 - Doc comments :: Make these better, especially by adding examples.
 
 # Questions
-- roots :: add others besides sqrt()?
 - make_units! :: Allow custom print function for advanced macro?
 - Dim :: Figure out what other traits to implement.
 - Macros :: Investigate more macros for implementing arbitrary functions.
