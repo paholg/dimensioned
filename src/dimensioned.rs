@@ -208,8 +208,29 @@ impl<Dl, Dr, Vl, Vr> PartialEq<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension 
     }
 }
 impl<D: Dimension + KeepDim, V: Eq> Eq for Dim<D, V> {}
-// impl<D: Dimension, V: PartialOrd> PartialOrd for Dim<D, V> {}
-// impl<D: Dimension, V: Ord> Ord for Dim<D, V> {}
+
+impl<Dl, Dr, Vl, Vr> PartialOrd<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension + KeepDim<Dr>, Dr: Dimension, Vl: PartialOrd<Vr> {
+    fn partial_cmp(&self, other: &Dim<Dr, Vr>) -> Option<Ordering> {
+        (self.0).partial_cmp(&(other.0))
+    }
+    fn lt(&self, other: &Dim<Dr, Vr>) -> bool {
+        (self.0).lt(&(other.0))
+    }
+    fn le(&self, other: &Dim<Dr, Vr>) -> bool {
+        (self.0).le(&(other.0))
+    }
+    fn gt(&self, other: &Dim<Dr, Vr>) -> bool {
+        (self.0).gt(&(other.0))
+    }
+    fn ge(&self, other: &Dim<Dr, Vr>) -> bool {
+        (self.0).ge(&(other.0))
+    }
+}
+impl<D: Dimension + KeepDim, V: Ord> Ord for Dim<D, V> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        (self.0).cmp(&(other.0))
+    }
+}
 //------------------------------------------------------------------------------
 // Traits from std::ops
 //------------------------------------------------------------------------------
