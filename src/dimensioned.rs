@@ -115,8 +115,12 @@ impl<D, V> Cbrt for Dim<D, V> where D:  RootDim<Three>, V: Float, <D as RootDim<
 
 /// Generic roots using peano numbers.
 /// No other types should implement it.
-/// Example:
+/// # Example
 /// ```
+/// use dimensioned::si::m;
+/// use dimensioned::Root;
+/// use dimensioned::peano::Two;
+///
 /// let x = 2.0*m;
 /// assert_eq!(x, Two::root(x*x));
 /// ```
