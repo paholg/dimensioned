@@ -63,7 +63,7 @@ pub trait DimToString: Dimension {
 }
 
 /// This is the primary struct that users of this library will interact with.
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Copy, Clone)]
 pub struct Dim<D: Dimension, V>(pub V, pub PhantomData<D>);
 
 impl<D: Dimension, V> Dim<D, V> {
@@ -98,14 +98,48 @@ impl<D, V> Sqrt for Dim<D, V> where D:  RootDim<Two>, V: Float, <D as RootDim<Tw
     #[inline]
     fn sqrt(self) -> Self::Output { Dim( (self.0).sqrt(), PhantomData) }
 }
+/// Because it would not make sense to implement `Float` for `Dim<D, V>`, we create a
+/// special `Cbrt` trait. We then implement it for `Dim<D, V>` where `V: Float`
+pub trait Cbrt {
+    #[allow(missing_docs)]
+    type Output;
+    /// Take the square root of a dimensioned object
+    fn cbrt(self) -> Self::Output;
+}
+
+impl<D, V> Cbrt for Dim<D, V> where D:  RootDim<Three>, V: Float, <D as RootDim<Three>>::Output: Dimension {
+    type Output = Dim<<D as RootDim<Three>>::Output, V>;
+    #[inline]
+    fn cbrt(self) -> Self::Output { Dim( (self.0).cbrt(), PhantomData) }
+}
+
+/// Generic roots using peano numbers.
+/// No other types should implement it.
+/// Example:
+/// ```
+/// let x = 2.0*m;
+/// assert_eq!(x, Two::root(x*x));
+/// ```
+pub trait Root<Radicand> {
+    #[allow(missing_docs)]
+    type Output;
+    #[allow(missing_docs)]
+    fn root(radicand: Radicand) -> Self::Output;
+}
+impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + RootDim<Degree>, V: Float, Degree: Peano + ToInt, <D as RootDim<Degree>>::Output: Dimension {
+    type Output = Dim<<D as RootDim<Degree>>::Output, V>;
+    fn root(base: Dim<D, V>) -> Self::Output {
+        let x: V = NumCast::from(Degree::to_int()).expect("Attempted to take a root of a Dim<D, V>, but could not convert from i32 to V to be able to compute it");
+        Dim::new( (base.0).powf(x.recip()) )
+    }
+}
 
 /// Generic integer powers using peano numbers.
 /// No other types should implement it.
 /// Example:
 /// ```
-/// let x = 3.0*m;
-/// let y = 9.0*m*m;
-/// assert_eq!(y, Two::pow(x));
+/// let x = 2.0*m;
+/// assert_eq!(x*x, Two::pow(x));
 /// ```
 pub trait Pow<Base> {
     #[allow(missing_docs)]
@@ -157,6 +191,25 @@ impl<D, V> fmt::Display for Dim<D, V> where D: DimToString, V: fmt::Display {
         write!(f, "{} {}", self.0, <D as DimToString>::to_string())
     }
 }
+impl<D, V> fmt::Debug for Dim<D, V> where D: DimToString, V: fmt::Debug {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "{:?} {}", self.0, <D as DimToString>::to_string())
+    }
+}
+//------------------------------------------------------------------------------
+// Traits from std::cmp
+//------------------------------------------------------------------------------
+impl<Dl, Dr, Vl, Vr> PartialEq<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension + KeepDim<Dr>, Dr: Dimension, Vl: PartialEq<Vr> {
+    fn eq(&self, other: &Dim<Dr, Vr>) -> bool {
+        (self.0).eq(&(other.0))
+    }
+    fn ne(&self, other: &Dim<Dr, Vr>) -> bool {
+        (self.0).ne(&(other.0))
+    }
+}
+impl<D: Dimension + KeepDim, V: Eq> Eq for Dim<D, V> {}
+// impl<D: Dimension, V: PartialOrd> PartialOrd for Dim<D, V> {}
+// impl<D: Dimension, V: Ord> Ord for Dim<D, V> {}
 //------------------------------------------------------------------------------
 // Traits from std::ops
 //------------------------------------------------------------------------------
