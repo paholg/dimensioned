@@ -31,13 +31,13 @@ with the associated type acting as the result of the computation.
 
 # Example
 ```
-use dimensioned::peano::{Two, Three, Four, ToInt};
+use dimensioned::peano::{P2, P3, P4, ToInt};
 # use std::ops::{Add, Div};
 // 2 + 3 == 5
-assert_eq!( 5, <<Two as Add<Three>>::Output as ToInt>::to_int() );
+assert_eq!( 5, <<P2 as Add<P3>>::Output as ToInt>::to_int() );
 
 // 4 / 2 == 2
-assert_eq!( 2, <<Four as Div<Two>>::Output as ToInt>::to_int() );
+assert_eq!( 2, <<P4 as Div<P2>>::Output as ToInt>::to_int() );
 ```
 
 Note that the `ToInt` trait here is only used to get an integer output; it is the only
@@ -106,48 +106,6 @@ pub type N8 = Pred<N7>;
 pub type N9 = Pred<N8>;
 
 
-
-/// Deprecated; use P1
-pub type One = Succ<Zero>;
-/// Deprecated; use P2
-pub type Two = Succ<One>;
-/// Deprecated; use P3
-pub type Three = Succ<Two>;
-/// Deprecated; use P4
-pub type Four = Succ<Three>;
-/// Deprecated; use P5
-pub type Five = Succ<Four>;
-/// Deprecated; use P6
-pub type Six = Succ<Five>;
-/// Deprecated; use P7
-pub type Seven = Succ<Six>;
-/// Deprecated; use P8
-pub type Eight = Succ<Seven>;
-/// Deprecated; use P9
-pub type Nine = Succ<Eight>;
-/// Deprecated
-pub type Ten = Succ<Nine>;
-
-/// Deprecated; use N1
-pub type NegOne = Pred<Zero>;
-/// Deprecated; use N2
-pub type NegTwo = Pred<NegOne>;
-/// Deprecated; use N3
-pub type NegThree = Pred<NegTwo>;
-/// Deprecated; use N4
-pub type NegFour = Pred<NegThree>;
-/// Deprecated; use N5
-pub type NegFive = Pred<NegFour>;
-/// Deprecated; use N6
-pub type NegSix = Pred<NegFive>;
-/// Deprecated; use N7
-pub type NegSeven = Pred<NegSix>;
-/// Deprecated; use N8
-pub type NegEight = Pred<NegSeven>;
-/// Deprecated; use N9
-pub type NegNine = Pred<NegEight>;
-/// Deprecated
-pub type NegTen = Pred<NegNine>;
 
 /// All numbers defined in this module belong to the **Peano** trait which should not be implemented for anything else.
 pub trait Peano {}
@@ -331,21 +289,21 @@ impl<Rhs: NonZero> DivPrivate<Rhs> for Zero {
 impl<Lhs, Rhs> DivPrivate<Succ<Rhs>> for Succ<Lhs>
     where Lhs: NonNeg, Succ<Lhs>: DivPrivate<Succ<Rhs>> + Sub<Succ<Rhs>>, Rhs: NonNeg {
         // Lhs / Rhs = 1 + (Lhs - Rhs) / Rhs
-        type Output = <One as Add<<<Succ<Lhs> as Sub<Succ<Rhs>>>::Output as DivPrivate<Succ<Rhs>>>::Output>>::Output;
+        type Output = <P1 as Add<<<Succ<Lhs> as Sub<Succ<Rhs>>>::Output as DivPrivate<Succ<Rhs>>>::Output>>::Output;
 }
 // Dividing a positive integer by a negative integer (e.g. 4 / -2)
 impl<Lhs, Rhs> DivPrivate<Pred<Rhs>> for Succ<Lhs>
     where Lhs: NonNeg, Succ<Lhs>: DivPrivate<Pred<Rhs>> + Add<Pred<Rhs>>, Rhs: NonPos {
         // Lhs / Rhs = -1 + (Lhs + Rhs) / Rhs
-        type Output = <NegOne as Add<<<Succ<Lhs> as Add<Pred<Rhs>>>::Output as DivPrivate<Pred<Rhs>>>::Output>>::Output;
+        type Output = <N1 as Add<<<Succ<Lhs> as Add<Pred<Rhs>>>::Output as DivPrivate<Pred<Rhs>>>::Output>>::Output;
     }
 
 /// `Same` is used to ensure that two types are the same. Its `Output` should be that type.
 /// # Example:
 /// ```
-/// use dimensioned::peano::{Succ, One, Two, Same, ToInt};
+/// use dimensioned::peano::{Succ, P1, P2, Same, ToInt};
 ///
-/// assert_eq!(2, <<Succ<One> as Same<Two>>::Output as ToInt>::to_int());
+/// assert_eq!(2, <<Succ<P1> as Same<P2>>::Output as ToInt>::to_int());
 /// ```
 pub trait Same<Rhs = Self> {
     /// `Output` should always be `Self`
@@ -365,9 +323,9 @@ impl<N> Same<N> for N where N: Peano {
 /// Once Rust implements associated constants, an associated constant will replace the function `to_int()`.
 /// # Example:
 /// ```
-/// use dimensioned::peano::{Two, ToInt};
+/// use dimensioned::peano::{P2, ToInt};
 ///
-/// assert_eq!(2, <Two as ToInt>::to_int());
+/// assert_eq!(2, <P2 as ToInt>::to_int());
 /// ```
 pub trait ToInt: Peano {
     #[allow(missing_docs)]

@@ -4,7 +4,7 @@ macro_rules! make_units { ($System:ident, $Unitless:ident, $one:ident; base { $(
     make_units_adv!{
         $System, $Unitless, $one, f64, 1.0;
         base {
-            $(One, $Type, $constant, $print_as;)*
+            $(P1, $Type, $constant, $print_as;)*
         }
         derived {
             $($derived_constant: $Derived = $e;)*
@@ -17,9 +17,9 @@ macro_rules! make_units { ($System:ident, $Unitless:ident, $one:ident; base { $(
 #[macro_export]
 macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneType:ident, $val:expr; base { $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e: expr;    )*} ) => (
     #[allow(unused_imports)]
-    use $crate::peano::{Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten};
+    use $crate::dimensioned::{Zero, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
     use $crate::peano::{Peano, Same, ToInt};
-    use $crate::dimensioned::{Dimension, Dimensionless, Dim, KeepDim, MulDim, DivDim, PowerDim, RootDim, InvertDim, DimToString};
+    use $crate::dimensioned::{Dimension, Dimensionless, Dim, Pow, Root, Recip, DimToString};
     use ::std::ops::{Add, Neg, Sub, Mul, Div};
     use std::marker::PhantomData;
 
@@ -32,31 +32,40 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
     // using $Type and $constant for these traits is confusing. It should really be $Type_Left and
     // $Type_Right or something, but as far as I can tell, that is not supported by Rust
     #[allow(non_camel_case_types)]
-    impl<$($Type),*, $($constant),*> KeepDim<$System<$($constant),*>> for $System<$($Type),*> where
+    impl<$($Type),*, $($constant),*> Same<$System<$($constant),*>> for $System<$($Type),*> where
         $($Type: Peano + Same<$constant>),*, $($constant: Peano),* {
             type Output = $System<$(<$Type as Same<$constant>>::Output),*>;
         }
     #[allow(non_camel_case_types)]
-    impl<$($Type),*, $($constant),*> MulDim<$System<$($constant),*>> for $System<$($Type),*> where
-        $($Type: Peano + Add<$constant>),*, $($constant: Peano),* {
+    impl<$($Type),*, $($constant),*> Mul<$System<$($constant),*>> for $System<$($Type),*> where
+        $($Type: Peano + Add<$constant>),*, $($constant: Peano),*, $(<$Type as Add<$constant>>::Output: Peano),* {
             type Output = $System<$(<$Type as Add<$constant>>::Output),*>;
+            #[allow(unused_variables)]
+            fn mul(self, rhs: $System<$($constant),*>) -> Self::Output { unreachable!()  }
         }
     #[allow(non_camel_case_types)]
-    impl<$($Type),*, $($constant),*> DivDim<$System<$($constant),*>> for $System<$($Type),*> where
-        $($Type: Peano + Sub<$constant>),*, $($constant: Peano),* {
+    impl<$($Type),*, $($constant),*> Div<$System<$($constant),*>> for $System<$($Type),*> where
+        $($Type: Peano + Sub<$constant>),*, $($constant: Peano),*, $(<$Type as Sub<$constant>>::Output: Peano),* {
             type Output = $System<$(<$Type as Sub<$constant>>::Output),*>;
+            #[allow(unused_variables)]
+            fn div(self, rhs: $System<$($constant),*>) -> Self::Output { unreachable!()  }
         }
-    impl<$($Type),*, RHS> PowerDim<RHS> for $System<$($Type),*> where
-        $($Type: Peano + Mul<RHS>),*, RHS: Peano {
+    impl<$($Type),*, RHS> Pow<RHS> for $System<$($Type),*> where
+        $($Type: Peano + Mul<RHS>),*, RHS: Peano, $(<$Type as Mul<RHS>>::Output: Peano),* {
             type Output = $System<$(<$Type as Mul<RHS>>::Output),*>;
+            #[allow(unused_variables)]
+            fn pow(rhs: RHS) -> Self::Output { unreachable!() }
         }
-    impl<$($Type),*, RHS> RootDim<RHS> for $System<$($Type),*> where
-        $($Type: Peano + Div<RHS>),*, RHS: Peano {
+    impl<$($Type),*, RHS> Root<RHS> for $System<$($Type),*> where
+        $($Type: Peano + Div<RHS>),*, RHS: Peano, $(<$Type as Div<RHS>>::Output: Peano),* {
             type Output = $System<$(<$Type as Div<RHS>>::Output),*>;
+            #[allow(unused_variables)]
+            fn root(radicand: RHS) -> Self::Output { unreachable!() }
         }
-    impl<$($Type),*> InvertDim for $System<$($Type),*> where
-        $($Type: Peano + Neg),* {
+    impl<$($Type),*> Recip for $System<$($Type),*> where
+        $($Type: Peano + Neg),*, $(<$Type as Neg>::Output: Peano),* {
             type Output = $System<$(<$Type as Neg>::Output),*>;
+            fn recip(self) -> Self::Output { unreachable!() }
         }
 
 
@@ -103,7 +112,7 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
     );
 }
 
-/// Just counts the number of arguments its called with and gives you the total
+/// Counts the number of arguments its called with and gives you the total
 #[macro_export]
 macro_rules! count_args {
     ($arg:ident, $($args:ident),+) => (
@@ -135,8 +144,8 @@ macro_rules! __make_types {
 
 // #[macro_export]
 // macro_rules! __convert_expression {
-//     ($a:ident * $b: expr) => ($a as MulDim<__convert_expression!($b)>>::Output);
-//     ($a:ident / $b: expr) => ($a as DivDim<__convert_expression!($b)>>::Output);
+//     ($a:ident * $b: expr) => ($a as Mul<__convert_expression!($b)>>::Output);
+//     ($a:ident / $b: expr) => ($a as Div<__convert_expression!($b)>>::Output);
 //     ($a:ident) => ($a);
 // }
 

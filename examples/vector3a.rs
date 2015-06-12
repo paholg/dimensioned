@@ -3,14 +3,15 @@ extern crate dimensioned;
 
 use vector3a::Vector3;
 
+use std::ops::{Mul};
 use dimensioned::si::{one, m, kg, s};
-use dimensioned::{Dim, Dimension, KeepDim, MulDim};
+use dimensioned::{Dim, Dimension, Same};
 
-dim_impl_unary!(Norm, norm, KeepDim, Vector3 => f64);
-dim_impl_unary!(Norm2, norm2, MulDim, Vector3 => f64);
+dim_impl_unary!(Norm, norm, Same, Vector3 => f64);
+dim_impl_unary!(Norm2, norm2, Mul, Vector3 => f64);
 
-dim_impl_binary!(Dot, dot, MulDim, Vector3 => f64);
-dim_impl_binary!(Cross, cross, MulDim, Vector3 => Vector3);
+dim_impl_binary!(Dot, dot, Mul, Vector3 => f64);
+dim_impl_binary!(Cross, cross, Mul, Vector3 => Vector3);
 
 fn main() {
     let xhat = one * Vector3::new(1.0, 0.0, 0.0);

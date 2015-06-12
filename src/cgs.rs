@@ -9,9 +9,9 @@ It will also define derived units, although this is not implemented yet.
 make_units_adv! {
     CGS, Unitless, one, f64, 1.0;
     base {
-        Two, Centimeter, cm, cm;
-        Two, Gram, g, g;
-        One, Second, s, s;
+        P2, Centimeter, cm, cm;
+        P2, Gram, g, g;
+        P1, Second, s, s;
     }
     derived {
     }

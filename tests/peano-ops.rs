@@ -1,6 +1,6 @@
 extern crate dimensioned;
 
-use dimensioned::peano::*;
+use dimensioned::peano::{ToInt, Zero, P1, P2, P3, P4, N2, N3, N4};
 
 use std::ops::{Add, Neg, Sub, Mul, Div};
 
@@ -10,42 +10,42 @@ fn test_peano() {
     // 0 == 0
     assert_eq!( 0, <Zero as ToInt>::to_int() );
     // 2 == 2
-    assert_eq!( 2, <Two as ToInt>::to_int() );
+    assert_eq!( 2, <P2 as ToInt>::to_int() );
     // -2 == -2
-    assert_eq!( -2, <NegTwo as ToInt>::to_int() );
+    assert_eq!( -2, <N2 as ToInt>::to_int() );
 
     // Testing addition
     // 0 + 0 == 0
     assert_eq!( 0, <<Zero as Add<Zero>>::Output as ToInt>::to_int() );
     // 0 + 3 == 3
-    assert_eq!( 3, <<Zero as Add<Three>>::Output as ToInt>::to_int() );
+    assert_eq!( 3, <<Zero as Add<P3>>::Output as ToInt>::to_int() );
     // 0 + -3 == -3
-    assert_eq!( -3, <<Zero as Add<NegThree>>::Output as ToInt>::to_int() );
+    assert_eq!( -3, <<Zero as Add<N3>>::Output as ToInt>::to_int() );
 
     // 2 + 0 == 2
-    assert_eq!( 2, <<Two as Add<Zero>>::Output as ToInt>::to_int() );
+    assert_eq!( 2, <<P2 as Add<Zero>>::Output as ToInt>::to_int() );
     // 2 + 3 == 5
-    assert_eq!( 5, <<Two as Add<Three>>::Output as ToInt>::to_int() );
+    assert_eq!( 5, <<P2 as Add<P3>>::Output as ToInt>::to_int() );
     // 2 + -3 == -1
-    assert_eq!( -1, <<Two as Add<NegThree>>::Output as ToInt>::to_int() );
+    assert_eq!( -1, <<P2 as Add<N3>>::Output as ToInt>::to_int() );
     // 3 + -2 == 1
-    assert_eq!( 1, <<Three as Add<NegTwo>>::Output as ToInt>::to_int() );
+    assert_eq!( 1, <<P3 as Add<N2>>::Output as ToInt>::to_int() );
 
     // -2 + 0 == 2
-    assert_eq!( -2, <<NegTwo as Add<Zero>>::Output as ToInt>::to_int() );
+    assert_eq!( -2, <<N2 as Add<Zero>>::Output as ToInt>::to_int() );
     // -2 + -3 == -5
-    assert_eq!( -5, <<NegTwo as Add<NegThree>>::Output as ToInt>::to_int() );
+    assert_eq!( -5, <<N2 as Add<N3>>::Output as ToInt>::to_int() );
     // -2 + 3 == 1
-    assert_eq!( 1, <<NegTwo as Add<Three>>::Output as ToInt>::to_int() );
+    assert_eq!( 1, <<N2 as Add<P3>>::Output as ToInt>::to_int() );
     // -3 + 2 == -1
-    assert_eq!( -1, <<NegThree as Add<Two>>::Output as ToInt>::to_int() );
+    assert_eq!( -1, <<N3 as Add<P2>>::Output as ToInt>::to_int() );
 
 
     // Testing Negation
     // -3 == -(3)
-    assert_eq!( -3, <<Three as Neg>::Output as ToInt>::to_int() );
+    assert_eq!( -3, <<P3 as Neg>::Output as ToInt>::to_int() );
     // 3 == -(-3)
-    assert_eq!( 3, <<NegThree as Neg>::Output as ToInt>::to_int() );
+    assert_eq!( 3, <<N3 as Neg>::Output as ToInt>::to_int() );
     // 0 == -0
     assert_eq!( 0, <<Zero as Neg>::Output as ToInt>::to_int() );
 
@@ -54,75 +54,75 @@ fn test_peano() {
     // 0 - 0 == 0
     assert_eq!( 0, <<Zero as Sub<Zero>>::Output as ToInt>::to_int() );
     // 0 - 3 == -3
-    assert_eq!( -3, <<Zero as Sub<Three>>::Output as ToInt>::to_int() );
+    assert_eq!( -3, <<Zero as Sub<P3>>::Output as ToInt>::to_int() );
     // 0 - -3 == 3
-    assert_eq!( 3, <<Zero as Sub<NegThree>>::Output as ToInt>::to_int() );
+    assert_eq!( 3, <<Zero as Sub<N3>>::Output as ToInt>::to_int() );
 
     // 2 - 0 == 2
-    assert_eq!( 2, <<Two as Sub<Zero>>::Output as ToInt>::to_int() );
+    assert_eq!( 2, <<P2 as Sub<Zero>>::Output as ToInt>::to_int() );
     // 2 - 3 == -1
-    assert_eq!( -1, <<Two as Sub<Three>>::Output as ToInt>::to_int() );
+    assert_eq!( -1, <<P2 as Sub<P3>>::Output as ToInt>::to_int() );
     // 2 - -3 == 5
-    assert_eq!( 5, <<Two as Sub<NegThree>>::Output as ToInt>::to_int() );
+    assert_eq!( 5, <<P2 as Sub<N3>>::Output as ToInt>::to_int() );
     // 3 - -2 == 5
-    assert_eq!( 5, <<Three as Sub<NegTwo>>::Output as ToInt>::to_int() );
+    assert_eq!( 5, <<P3 as Sub<N2>>::Output as ToInt>::to_int() );
 
     // -2 - 0 == -2
-    assert_eq!( -2, <<NegTwo as Sub<Zero>>::Output as ToInt>::to_int() );
+    assert_eq!( -2, <<N2 as Sub<Zero>>::Output as ToInt>::to_int() );
     // -2 - -3 == 1
-    assert_eq!( 1, <<NegTwo as Sub<NegThree>>::Output as ToInt>::to_int() );
+    assert_eq!( 1, <<N2 as Sub<N3>>::Output as ToInt>::to_int() );
     // -2 - 3 == -5
-    assert_eq!( -5, <<NegTwo as Sub<Three>>::Output as ToInt>::to_int() );
+    assert_eq!( -5, <<N2 as Sub<P3>>::Output as ToInt>::to_int() );
     // -3 - 2 == -5
-    assert_eq!( -5, <<NegThree as Sub<Two>>::Output as ToInt>::to_int() );
+    assert_eq!( -5, <<N3 as Sub<P2>>::Output as ToInt>::to_int() );
 
 
     // Testing Multiplication
     // 0 * 0 == 0
     assert_eq!( 0, <<Zero as Mul<Zero>>::Output as ToInt>::to_int() );
     // 0 * 2 == 0
-    assert_eq!( 0, <<Zero as Mul<Two>>::Output as ToInt>::to_int() );
+    assert_eq!( 0, <<Zero as Mul<P2>>::Output as ToInt>::to_int() );
     // 2 * 0 == 0
-    assert_eq!( 0, <<Two as Mul<Zero>>::Output as ToInt>::to_int() );
+    assert_eq!( 0, <<P2 as Mul<Zero>>::Output as ToInt>::to_int() );
     // 0 * -2 == 0
-    assert_eq!( 0, <<Zero as Mul<NegTwo>>::Output as ToInt>::to_int() );
+    assert_eq!( 0, <<Zero as Mul<N2>>::Output as ToInt>::to_int() );
     // -2 * 0 == 0
-    assert_eq!( 0, <<NegTwo as Mul<Zero>>::Output as ToInt>::to_int() );
+    assert_eq!( 0, <<N2 as Mul<Zero>>::Output as ToInt>::to_int() );
 
     // 2 * 3 == 6
-    assert_eq!( 6, <<Two as Mul<Three>>::Output as ToInt>::to_int() );
+    assert_eq!( 6, <<P2 as Mul<P3>>::Output as ToInt>::to_int() );
     // 2 * -3 == -6
-    assert_eq!( -6, <<Two as Mul<NegThree>>::Output as ToInt>::to_int() );
+    assert_eq!( -6, <<P2 as Mul<N3>>::Output as ToInt>::to_int() );
     // -2 * 3 == -6
-    assert_eq!( -6, <<NegTwo as Mul<Three>>::Output as ToInt>::to_int() );
+    assert_eq!( -6, <<N2 as Mul<P3>>::Output as ToInt>::to_int() );
     // -2 * -3 == 6
-    assert_eq!( 6, <<NegTwo as Mul<NegThree>>::Output as ToInt>::to_int() );
+    assert_eq!( 6, <<N2 as Mul<N3>>::Output as ToInt>::to_int() );
 
     // Testing Division
     // 0 / 2 == 0
-    assert_eq!( 0, <<Zero as Div<Two>>::Output as ToInt>::to_int() );
+    assert_eq!( 0, <<Zero as Div<P2>>::Output as ToInt>::to_int() );
     // 1 / 1 == 1
-    assert_eq!( 1, <<One as Div<One>>::Output as ToInt>::to_int() );
+    assert_eq!( 1, <<P1 as Div<P1>>::Output as ToInt>::to_int() );
     // 4 / 2 == 2
-    assert_eq!( 2, <<Four as Div<Two>>::Output as ToInt>::to_int() );
+    assert_eq!( 2, <<P4 as Div<P2>>::Output as ToInt>::to_int() );
     // 4 / -2 == -2
-    assert_eq!( -2, <<Four as Div<NegTwo>>::Output as ToInt>::to_int() );
+    assert_eq!( -2, <<P4 as Div<N2>>::Output as ToInt>::to_int() );
     // -4 / 2 == -2
-    assert_eq!( -2, <<NegFour as Div<Two>>::Output as ToInt>::to_int() );
+    assert_eq!( -2, <<N4 as Div<P2>>::Output as ToInt>::to_int() );
     // -4 / -2 == 2
-    assert_eq!( 2, <<NegFour as Div<NegTwo>>::Output as ToInt>::to_int() );
+    assert_eq!( 2, <<N4 as Div<N2>>::Output as ToInt>::to_int() );
 
     // Uncomment for erroneous divisions!
     // // 3 / 2
-    // <<Three as DivPeano<Two>>::Output as ToInt>::to_int();
+    // <<P3 as DivPeano<P2>>::Output as ToInt>::to_int();
     // // -3 / 2
-    // <<NegThree as DivPeano<Two>>::Output as ToInt>::to_int();
+    // <<N3 as DivPeano<P2>>::Output as ToInt>::to_int();
     // // 3 / -2
-    // <<Three as DivPeano<NegTwo>>::Output as ToInt>::to_int();
+    // <<P3 as DivPeano<N2>>::Output as ToInt>::to_int();
     // // -3 / -2
-    // <<NegThree as DivPeano<NegTwo>>::Output as ToInt>::to_int();
+    // <<N3 as DivPeano<N2>>::Output as ToInt>::to_int();
     // // 2 / 0
-    // <<Two as DivPeano<Zero>>::Output as ToInt>::to_int();
+    // <<P2 as DivPeano<Zero>>::Output as ToInt>::to_int();
     // // -2 / 0
-    // <<NegTwo as DivPeano<Zero>>::Output as ToInt>::to_int();
+    // <<N2 as DivPeano<Zero>>::Output as ToInt>::to_int();
 }

@@ -3,7 +3,10 @@
 
 **dimensioned** is a library for compile time type checking for arbitrary unit systems.
 
-The best place to read about it is [here](http://paholg.com/dimensioned)
+I will do my best to provide detailed documentation and examples here.
+
+For more in depth and basic tutorials, please check
+ [here](http://paholg.com/dimensioned).
  */
 #![doc(html_logo_url = "http://paholg.com/dimensioned/imgs/favicon.png",
        html_favicon_url = "http://paholg.com/dimensioned/imgs/favicon.png",

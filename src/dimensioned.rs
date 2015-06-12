@@ -1,62 +1,47 @@
 /*!
 This module allows dimensioned to be very flexible. It creates the `Dim<D, V>` type,
-which is the type that will be used with all dimensionful objects. It then implements as
+which is the type that will be used for all dimensioned objects. It then implements as
 many traits from `std` as generically as possible.
 
-**dimensioned** creates many traits, the majority of which are used for type level
-**arithmetic and should not be implemented for any objects outside this library.
+Among the included traits in **dimensioned**, there are a few that are used solely to
+aid in generic programming and should not be implemented for anything outside this
+module. They are `Dimension`, `Dimensionless`, `NotDim`, and `DimToString`.
 */
 
-use peano::*; use std::marker::PhantomData;
+pub use peano::{Same, Zero};
+pub use peano::{P1, P2, P3, P4, P5, P6, P7, P8, P9};
+pub use peano::{N1, N2, N3, N4, N5, N6, N7, N8, N9};
 
-use std::ops::*;
+use peano::{Peano, ToInt};
+use std::marker::PhantomData;
+
+use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd, BitOr, BitXor, FnOnce, Not, Rem, Shl, Shr};
 use num::traits::{Float, FromPrimitive, ToPrimitive, NumCast};
-use std::cmp::*;
+use std::cmp::{Eq, PartialEq, Ord, PartialOrd, Ordering};
 use std::fmt;
 
-/// All types created for a unit system will implement this trait.
-///
-/// No other types should implement it.
+/**
+All types created for a unit system will implement this trait. No other types should
+implement it.
+*/
 pub trait Dimension {}
 
-/// The only types that implement this trait are the `Unitless` types that exist in each
-/// unit system. It allows more flexibility when handling specifically objects without
-/// dimension.
+/**
+The only types that implement this trait are the `Unitless` types that exist in each
+unit system. It allows more flexibility when handling specifically objects without
+dimension.
+
+All types created for a unit system will implement this trait. No other types should
+implement it.
+*/
 pub trait Dimensionless: Dimension {}
 
-/// This trait allows us to multiply two dimensioned objects
-pub trait MulDim<RHS = Self>: Dimension {
-    #[allow(missing_docs)]
-    type Output;
-}
-/// This trait allows us to divide two dimensioned objects
-pub trait DivDim<RHS = Self>: Dimension {
-    #[allow(missing_docs)]
-    type Output;
-}
-/// This trait allows us to take a dimensioned object to a power given by a peano number
-pub trait PowerDim<RHS>: Dimension {
-    #[allow(missing_docs)]
-    type Output;
-}
-/// This trait allows us to take a root, given by a peano number, of a dimensioned object
-pub trait RootDim<RHS>: Dimension {
-    #[allow(missing_docs)]
-    type Output;
-}
-/// This trait enforces that `Self` and `RHS` have the same dimensions. It is useful
-/// mostly for macros.
-pub trait KeepDim<RHS = Self>: Dimension {
-    #[allow(missing_docs)]
-    type Output;
-}
-/// This trait inverts the dimensions of an object. For example, it takes seconds to hertz.
-pub trait InvertDim: Dimension {
-    #[allow(missing_docs)]
-    type Output;
-}
-/// This trait gives a human-friendly representation of a dimensioned object. It is
-/// useful for printing and debugging.
+/**
+This trait allows human-friendly printing of dimensioned objects.
+
+All types created for a unit system will implement this trait. No other types should
+implement it.
+*/
 pub trait DimToString: Dimension {
     /// Gives a human friendly `String` representation of a `Dimension` type.
     fn to_string() -> String;
@@ -67,94 +52,185 @@ pub trait DimToString: Dimension {
 pub struct Dim<D: Dimension, V>(pub V, pub PhantomData<D>);
 
 impl<D: Dimension, V> Dim<D, V> {
-    /// Construct a new dimensioned object
+    /**
+    Construct a new `Dim` object.
+
+    It is recommened to use this only where necessary, and to generally use the
+    constants that ship with unit systems to create `Dim` objects.
+
+    # Example
+    ```
+    use dimensioned::Dim;
+    use dimensioned::si::{m, Meter};
+
+    let x: Dim<Meter, f64> = Dim::new(3.0);
+    let y = 3.0*m;
+    assert_eq!(x, y);
+    ```
+
+     */
     pub fn new(v: V) -> Dim<D, V> {
         Dim(v, PhantomData)
     }
-    /// Maps a Dim<D, V> to Dim<D, O> by applying a function to the contained value
+    /**
+    Map a `Dim<D, V>` to `Dim<D, O>` by applying function `f` to the contained value
+    # Example
+    ```
+    # extern crate dimensioned;
+    # extern crate num;
+
+    use num::traits::Float;
+    use dimensioned::si::m;
+
+    # fn main() {
+    let x = 3.5*m;
+    assert_eq!(3.0*m, x.map(Float::trunc) );
+    # }
+    ```
+     */
     pub fn map<O, F: FnOnce(V) -> O>(self, f: F) -> Dim<D, O> {
         Dim(f(self.0), PhantomData)
     }
 }
 
-/// This traits is implemented by default for everything that is not Dim<D, V>. It
-/// allows a greater level of generic operator overloading than would be possible
-/// otherwise.
+/**
+This trait is implemented by default for everything that is not Dim<D, V>. It allows a
+ greater level of generic operator overloading than would be possible otherwise.
+*/
 pub trait NotDim {}
 impl NotDim for .. {}
 impl<D: Dimension, V> !NotDim for Dim<D, V> {}
 
-/// Because it would not make sense to implement `Float` for `Dim<D, V>`, we create a
-/// special `Sqrt` trait. We then implement it for `Dim<D, V>` where `V: Float`
+/// Trait for implementing a sqrt() member for types that don't impl Float.
 pub trait Sqrt {
     #[allow(missing_docs)]
     type Output;
-    /// Take the square root of a dimensioned object
+    /**
+    Take a square root.
+    # Example
+    ```
+    use dimensioned::si::m;
+    use dimensioned::Sqrt;
+
+    let x = 2.0*m;
+    let y = 4.0*m*m;
+    assert_eq!(x, y.sqrt());
+    ```
+     */
     fn sqrt(self) -> Self::Output;
 }
 
-impl<D, V> Sqrt for Dim<D, V> where D:  RootDim<Two>, V: Float, <D as RootDim<Two>>::Output: Dimension {
-    type Output = Dim<<D as RootDim<Two>>::Output, V>;
+impl<D, V> Sqrt for Dim<D, V> where D: Dimension + Root<P2>, V: Float, <D as Root<P2>>::Output: Dimension {
+    type Output = Dim<<D as Root<P2>>::Output, V>;
     #[inline]
     fn sqrt(self) -> Self::Output { Dim( (self.0).sqrt(), PhantomData) }
 }
-/// Because it would not make sense to implement `Float` for `Dim<D, V>`, we create a
-/// special `Cbrt` trait. We then implement it for `Dim<D, V>` where `V: Float`
+/// Trait for implementing a cbrt() member for types that don't impl Float.
 pub trait Cbrt {
     #[allow(missing_docs)]
     type Output;
-    /// Take the square root of a dimensioned object
+    /**
+    Take a cube root.
+    # Example
+    ```
+    use dimensioned::si::m;
+    use dimensioned::Cbrt;
+
+    let x = 2.0*m;
+    let y = 8.0*m*m*m;
+    assert_eq!(x, y.cbrt());
+    ```
+     */
     fn cbrt(self) -> Self::Output;
 }
 
-impl<D, V> Cbrt for Dim<D, V> where D:  RootDim<Three>, V: Float, <D as RootDim<Three>>::Output: Dimension {
-    type Output = Dim<<D as RootDim<Three>>::Output, V>;
+impl<D, V> Cbrt for Dim<D, V> where D: Dimension + Root<P3>, V: Float, <D as Root<P3>>::Output: Dimension {
+    type Output = Dim<<D as Root<P3>>::Output, V>;
     #[inline]
     fn cbrt(self) -> Self::Output { Dim( (self.0).cbrt(), PhantomData) }
 }
 
-/// Generic roots using peano numbers.
-/// No other types should implement it.
-/// # Example
-/// ```
-/// use dimensioned::si::m;
-/// use dimensioned::Root;
-/// use dimensioned::peano::Two;
-///
-/// let x = 2.0*m;
-/// assert_eq!(x, Two::root(x*x));
-/// ```
+/**
+Trait for implementing general integer roots for types that don't impl Float. Uses Peano
+numbers to specify the degree.
+
+The syntax is a little bit weird and may be subject to change.
+*/
 pub trait Root<Radicand> {
     #[allow(missing_docs)]
     type Output;
-    #[allow(missing_docs)]
+
+    /**
+    # Example
+    ```
+    use dimensioned::si::m;
+    use dimensioned::{P4, Root};
+
+    let x = 2.0*m;
+    let y = 16.0*m*m*m*m;
+    assert_eq!(x, P4::root(x*x*x*x));
+    ```
+    */
     fn root(radicand: Radicand) -> Self::Output;
 }
-impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + RootDim<Degree>, V: Float, Degree: Peano + ToInt, <D as RootDim<Degree>>::Output: Dimension {
-    type Output = Dim<<D as RootDim<Degree>>::Output, V>;
+impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + Root<Degree>, V: Float, Degree: Peano + ToInt, <D as Root<Degree>>::Output: Dimension {
+    type Output = Dim<<D as Root<Degree>>::Output, V>;
     fn root(base: Dim<D, V>) -> Self::Output {
-        let x: V = NumCast::from(Degree::to_int()).expect("Attempted to take a root of a Dim<D, V>, but could not convert from i32 to V to be able to compute it");
+        let x: V = NumCast::from(Degree::to_int()).expect("Attempted to take nth root of a Dim<D, V>, but could not convert from i32 to V to compute n.");
         Dim::new( (base.0).powf(x.recip()) )
     }
 }
 
-/// Generic integer powers using peano numbers.
-/// No other types should implement it.
-/// Example:
-/// ```
-/// let x = 2.0*m;
-/// assert_eq!(x*x, Two::pow(x));
-/// ```
+/**
+Trait for implementing general integer powers for types that don't impl Float. Uses
+Peano numbers to specify the exponent.
+
+The syntax is a little bit weird and may be subject to change.
+*/
 pub trait Pow<Base> {
     #[allow(missing_docs)]
     type Output;
-    #[allow(missing_docs)]
+    /**
+    # Example
+    ```
+    use dimensioned::si::m;
+    use dimensioned::{P3, Pow};
+
+    let x = 2.0*m;
+    let y = 8.0*m*m*m;
+    assert_eq!(P3::pow(x), y);
+    ```
+    */
     fn pow(base: Base) -> Self::Output;
 }
-impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Dimension + PowerDim<Exp>, V: Float, Exp: Peano + ToInt, <D as PowerDim<Exp>>::Output: Dimension {
-    type Output = Dim<<D as PowerDim<Exp>>::Output, V>;
+impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Dimension + Pow<Exp>, V: Float, Exp: Peano + ToInt, <D as Pow<Exp>>::Output: Dimension {
+    type Output = Dim<<D as Pow<Exp>>::Output, V>;
     fn pow(base: Dim<D, V>) -> Self::Output {
         Dim::new( (base.0).powi(Exp::to_int()) )
+    }
+}
+
+/// Trait for implementing a recip() member for types that don't impl Float.
+pub trait Recip {
+    #[allow(missing_docs)]
+    type Output;
+    /**
+    # Example
+    ```
+    use dimensioned::si::s;
+    use dimensioned::Recip;
+
+    let x = 4.0*s;
+    let y = 0.25/s;
+    assert_eq!(x, y.recip())
+    ```
+     */
+    fn recip(self) -> Self::Output;
+}
+impl<D, V> Recip for Dim<D, V> where D: Dimension + Recip, V: Float, <D as Recip>::Output: Dimension {
+    type Output = Dim<<D as Recip>::Output, V>;
+    fn recip(self) -> Self::Output {
+        Dim::new( (self.0).recip() )
     }
 }
 
@@ -211,7 +287,7 @@ dim_fmt!(UpperExp, "{:E} {}");
 //------------------------------------------------------------------------------
 // Traits from std::cmp
 //------------------------------------------------------------------------------
-impl<Dl, Dr, Vl, Vr> PartialEq<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension + KeepDim<Dr>, Dr: Dimension, Vl: PartialEq<Vr> {
+impl<Dl, Dr, Vl, Vr> PartialEq<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension + Same<Dr>, Dr: Dimension, Vl: PartialEq<Vr> {
     fn eq(&self, other: &Dim<Dr, Vr>) -> bool {
         (self.0).eq(&(other.0))
     }
@@ -219,9 +295,9 @@ impl<Dl, Dr, Vl, Vr> PartialEq<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension 
         (self.0).ne(&(other.0))
     }
 }
-impl<D: Dimension + KeepDim, V: Eq> Eq for Dim<D, V> {}
+impl<D: Dimension + Same, V: Eq> Eq for Dim<D, V> {}
 
-impl<Dl, Dr, Vl, Vr> PartialOrd<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension + KeepDim<Dr>, Dr: Dimension, Vl: PartialOrd<Vr> {
+impl<Dl, Dr, Vl, Vr> PartialOrd<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension + Same<Dr>, Dr: Dimension, Vl: PartialOrd<Vr> {
     fn partial_cmp(&self, other: &Dim<Dr, Vr>) -> Option<Ordering> {
         (self.0).partial_cmp(&(other.0))
     }
@@ -238,7 +314,7 @@ impl<Dl, Dr, Vl, Vr> PartialOrd<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension
         (self.0).ge(&(other.0))
     }
 }
-impl<D: Dimension + KeepDim, V: Ord> Ord for Dim<D, V> {
+impl<D: Dimension + Same, V: Ord> Ord for Dim<D, V> {
     fn cmp(&self, other: &Self) -> Ordering {
         (self.0).cmp(&(other.0))
     }
@@ -249,8 +325,8 @@ impl<D: Dimension + KeepDim, V: Ord> Ord for Dim<D, V> {
 
 /// Multiplying!
 impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
-    where Dl: Dimension + MulDim<Dr>, Dr: Dimension, Vl: Mul<Vr>, <Dl as MulDim<Dr>>::Output: Dimension {
-        type Output = Dim<<Dl as MulDim<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
+    where Dl: Dimension + Mul<Dr>, Dr: Dimension, Vl: Mul<Vr>, <Dl as Mul<Dr>>::Output: Dimension {
+        type Output = Dim<<Dl as Mul<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
 
         #[inline]
         fn mul(self, rhs: Dim<Dr, Vr>) -> Self::Output {
@@ -297,10 +373,10 @@ dim_lhs_mult!(usize);
 
 /// Dividing!
 impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
-    where Dl: Dimension + DivDim<Dr>, Dr: Dimension, Vl: Div<Vr>, <Dl as DivDim<Dr>>::Output: Dimension {
-        type Output = Dim<<Dl as DivDim<Dr>>::Output, <Vl as Div<Vr>>::Output>;
+    where Dl: Dimension + Div<Dr>, Dr: Dimension, Vl: Div<Vr>, <Dl as Div<Dr>>::Output: Dimension {
+        type Output = Dim<<Dl as Div<Dr>>::Output, <Vl as Div<Vr>>::Output>;
         #[inline]
-        fn div(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as DivDim<Dr>>::Output, <Vl as Div<Vr>>::Output> {
+        fn div(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as Div<Dr>>::Output, <Vl as Div<Vr>>::Output> {
             Dim(self.0 / rhs.0, PhantomData)
         }
     }
@@ -316,11 +392,12 @@ impl<D, V, RHS> Div<RHS> for Dim<D, V>
     }
 
 /// Scalar division (with scalar on LHS)!
+// fixme: Switch to Dim<D, V>'s impl of Recip?
 macro_rules! dim_lhs_div {
     ($t: ty) => (
         impl<D> Div<Dim<D, $t>> for $t
-            where D: Dimension + InvertDim, <D as InvertDim>::Output: Dimension {
-                type Output = Dim<<D as InvertDim>::Output, <$t as Div>::Output>;
+            where D: Dimension + Recip, <D as Recip>::Output: Dimension {
+                type Output = Dim<<D as Recip>::Output, <$t as Div>::Output>;
                 #[inline]
                 fn div(self, rhs: Dim<D, $t>) -> Self::Output {
                     Dim( self / rhs.0, PhantomData )
@@ -346,7 +423,7 @@ dim_lhs_div!(usize);
 macro_rules! dim_unary {
     ($Trait:ident, $op: ident, $($fun:ident),*) => (
         impl<D, V> $Trait for Dim<D, V>
-            where D: $op<D>, V: $Trait, <D as $op<D>>::Output: Dimension {
+            where D: Dimension + $op<D>, V: $Trait, <D as $op<D>>::Output: Dimension {
                 type Output = Dim<<D as $op<D>>::Output, <V as $Trait>::Output>;
                 #[inline]
                 $(fn $fun(self) -> Dim<<D as $op<D>>::Output, <V as $Trait>::Output> {
@@ -355,14 +432,14 @@ macro_rules! dim_unary {
             }
         )
 }
-dim_unary!(Neg, KeepDim, neg);
-dim_unary!(Not, KeepDim, not);
+dim_unary!(Neg, Same, neg);
+dim_unary!(Not, Same, not);
 
 // Binary operators:
 macro_rules! dim_binary {
     ($Trait:ident, $op: ident, $($fun:ident),*) => (
         impl<Dl, Vl, Dr, Vr> $Trait<Dim<Dr, Vr>> for Dim<Dl, Vl>
-            where Dl: $op<Dr>, Dr: Dimension, Vl: $Trait<Vr>, <Dl as $op<Dr>>::Output: Dimension {
+            where Dl: Dimension + $op<Dr>, Dr: Dimension, Vl: $Trait<Vr>, <Dl as $op<Dr>>::Output: Dimension {
                 type Output = Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output>;
                 #[inline]
                 $(fn $fun(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output> {
@@ -371,14 +448,14 @@ macro_rules! dim_binary {
             }
         )
 }
-dim_binary!(Add, KeepDim, add);
-dim_binary!(BitAnd, KeepDim, bitand);
-dim_binary!(BitOr, KeepDim, bitor);
-dim_binary!(BitXor, KeepDim, bitxor);
-dim_binary!(Rem, KeepDim, rem);
-dim_binary!(Shl, KeepDim, shl);
-dim_binary!(Shr, KeepDim, shr);
-dim_binary!(Sub, KeepDim, sub);
+dim_binary!(Add, Same, add);
+dim_binary!(BitAnd, Same, bitand);
+dim_binary!(BitOr, Same, bitor);
+dim_binary!(BitXor, Same, bitxor);
+dim_binary!(Rem, Same, rem);
+dim_binary!(Shl, Same, shl);
+dim_binary!(Shr, Same, shr);
+dim_binary!(Sub, Same, sub);
 
 // fixme: figure this out
 // impl<D, V, Idx> Index<Idx> for Dim<D, V> where D: Dimension, V: Index<Idx>, <V as Index<Idx>>::Output: Sized {
@@ -460,7 +537,7 @@ impl<D, V> ::std::num::Zero for Dim<D, V> where D: Dimension, V: ::std::num::Zer
 //------------------------------------------------------------------------------
 // DIMENSIONLESS THINGS HERE
 //------------------------------------------------------------------------------
-impl<D, V> ::std::num::One for Dim<D, V> where D: Dimensionless + MulDim<D>, V: ::std::num::One + Mul {
+impl<D, V> ::std::num::One for Dim<D, V> where D: Dimensionless + Mul<D>, V: ::std::num::One + Mul {
     fn one() -> Self {
         Dim::new(V::one())
     }
@@ -469,7 +546,7 @@ impl<D, V> ::std::num::One for Dim<D, V> where D: Dimensionless + MulDim<D>, V: 
 //------------------------------------------------------------------------------
 // Num
 // impl<D, V> Num for Dim<D, V>
-//     where D: Dimensionless + KeepDim<D>, V: Float, <D as KeepDim<D>>::Output: Dimensionless {
+//     where D: Dimensionless + Same<D>, V: Float, <D as Same<D>>::Output: Dimensionless {
 //         type FromStrRadixErr = Dim<D, <V as Num>::FromStrRadixErr>;
 //         fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
 //             Dim( <V as Num>::from_str_radix(str, radix));
@@ -484,7 +561,7 @@ impl<D, V> ::std::num::One for Dim<D, V> where D: Dimensionless + MulDim<D>, V: 
 // }
 
 // impl<D, V> Float for Dim<D, V>
-//     where D: Dimensionless + KeepDim<D>, V: Float, <D as KeepDim<D>>::Output: Dimensionless {
+//     where D: Dimensionless + Same<D>, V: Float, <D as Same<D>>::Output: Dimensionless {
 //         // fn nan(self) -> Dim<D, V> {Dim ( (self.0).nan() )}
 //         dim_unary_float!(nan, Self);
 //         dim_unary_float!(infinity, Self);
