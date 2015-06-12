@@ -2,7 +2,48 @@
 Peano numbers allow us to do arithmetic at compile time using Rust's type system.
 
 This module should not require much (if any) direct interaction from users of **dimensioned**.
-*/
+
+The basic idea of the peano numbers is that we first define the number `Zero`. Then, we
+inductively define the rest of the natural numbers. For any non-negative natural number
+`N`, define its successor, `Succ<N>`, a positive number. We can now count!
+
+Because we want all the integers and not just the natural numbers, we have to be a
+little bit careful with these definitions, which is why it is specified that `N` above
+must not be negative. Otherwise, when we define predecessors we could end up with
+`Pred<Succ<Zero>>` which should represent the number `Zero` but is a distinct type and
+would not be treated as such by the compiler.
+
+We can now define negative numbers: For any non-positive natural number `N`, define
+its predecessor, `Pred<N>`, a negative number.
+
+By the definitions of `Pred` and `Succ`, we disallow them to be used together.
+
+Conceptually, we now have access to all of the integers. In practice, we have access to
+the numbers from -63 to 63, as Rust only allows structs to be embedded 64 levels deep.
+
+These numbers are used to track powers of units in **dimensioned**.
+
+In addition to the traits created here, the traits `Add`, `Sub`, `Mul`, `Div`, and `Neg`
+are all implemented for Peano numbers. Note that these traits are used here very
+differently than is typical. The functions that come with them are not used at all (and
+will throw an error if you try). Instead, we are using them as operators on *types*,
+with the associated type acting as the result of the computation.
+
+# Example
+```
+use dimensioned::peano::{Two, Three, Four, ToInt};
+# use std::ops::{Add, Div};
+// 2 + 3 == 5
+assert_eq!( 5, <<Two as Add<Three>>::Output as ToInt>::to_int() );
+
+// 4 / 2 == 2
+assert_eq!( 2, <<Four as Div<Two>>::Output as ToInt>::to_int() );
+```
+
+Note that the `ToInt` trait here is only used to get an integer output; it is the only
+runtime operation defined for Peano numbers, and exists primarily for debugging
+purposes. What is important and generally used is the associated type `Output`.
+ */
 use std::marker::PhantomData;
 use std::ops::{Add, Sub, Mul, Div, Neg};
 
@@ -25,55 +66,96 @@ pub struct Pred<N: NonPos> {
     _marker: PhantomData<N>
 }
 
-#[allow(missing_docs)]
+
+/// The Peano number +1; `P1 = Succ<Zero>;`
+pub type P1 = Succ<Zero>;
+/// The Peano number +2; `P2 = Succ<P1>;`
+pub type P2 = Succ<P1>;
+/// The Peano number +3; `P3 = Succ<P2>;`
+pub type P3 = Succ<P2>;
+/// The Peano number +4; `P4 = Succ<P3>;`
+pub type P4 = Succ<P3>;
+/// The Peano number +5; `P5 = Succ<P4>;`
+pub type P5 = Succ<P4>;
+/// The Peano number +6; `P6 = Succ<P5>;`
+pub type P6 = Succ<P5>;
+/// The Peano number +7; `P7 = Succ<P6>;`
+pub type P7 = Succ<P6>;
+/// The Peano number +8; `P8 = Succ<P7>;`
+pub type P8 = Succ<P7>;
+/// The Peano number +9; `P9 = Succ<P8>;`
+pub type P9 = Succ<P8>;
+
+/// The Peano number -1; `N1 = Pred<Zero>;`
+pub type N1 = Pred<Zero>;
+/// The Peano number -2; `N2 = Pred<N1>;`
+pub type N2 = Pred<N1>;
+/// The Peano number -3; `N3 = Pred<N2>;`
+pub type N3 = Pred<N2>;
+/// The Peano number -4; `N4 = Pred<N3>;`
+pub type N4 = Pred<N3>;
+/// The Peano number -5; `N5 = Pred<N4>;`
+pub type N5 = Pred<N4>;
+/// The Peano number -6; `N6 = Pred<N5>;`
+pub type N6 = Pred<N5>;
+/// The Peano number -7; `N7 = Pred<N6>;`
+pub type N7 = Pred<N6>;
+/// The Peano number -8; `N8 = Pred<N7>;`
+pub type N8 = Pred<N7>;
+/// The Peano number -9; `N9 = Pred<N8>;`
+pub type N9 = Pred<N8>;
+
+
+
+/// Deprecated; use P1
 pub type One = Succ<Zero>;
-#[allow(missing_docs)]
+/// Deprecated; use P2
 pub type Two = Succ<One>;
-#[allow(missing_docs)]
+/// Deprecated; use P3
 pub type Three = Succ<Two>;
-#[allow(missing_docs)]
+/// Deprecated; use P4
 pub type Four = Succ<Three>;
-#[allow(missing_docs)]
+/// Deprecated; use P5
 pub type Five = Succ<Four>;
-#[allow(missing_docs)]
+/// Deprecated; use P6
 pub type Six = Succ<Five>;
-#[allow(missing_docs)]
+/// Deprecated; use P7
 pub type Seven = Succ<Six>;
-#[allow(missing_docs)]
+/// Deprecated; use P8
 pub type Eight = Succ<Seven>;
-#[allow(missing_docs)]
+/// Deprecated; use P9
 pub type Nine = Succ<Eight>;
-#[allow(missing_docs)]
+/// Deprecated
 pub type Ten = Succ<Nine>;
 
-#[allow(missing_docs)]
+/// Deprecated; use N1
 pub type NegOne = Pred<Zero>;
-#[allow(missing_docs)]
+/// Deprecated; use N2
 pub type NegTwo = Pred<NegOne>;
-#[allow(missing_docs)]
+/// Deprecated; use N3
 pub type NegThree = Pred<NegTwo>;
-#[allow(missing_docs)]
+/// Deprecated; use N4
 pub type NegFour = Pred<NegThree>;
-#[allow(missing_docs)]
+/// Deprecated; use N5
 pub type NegFive = Pred<NegFour>;
-#[allow(missing_docs)]
+/// Deprecated; use N6
 pub type NegSix = Pred<NegFive>;
-#[allow(missing_docs)]
+/// Deprecated; use N7
 pub type NegSeven = Pred<NegSix>;
-#[allow(missing_docs)]
+/// Deprecated; use N8
 pub type NegEight = Pred<NegSeven>;
-#[allow(missing_docs)]
+/// Deprecated; use N9
 pub type NegNine = Pred<NegEight>;
-#[allow(missing_docs)]
+/// Deprecated
 pub type NegTen = Pred<NegNine>;
 
-/// All numbers defined in this module will belong to the **Peano** trait.
+/// All numbers defined in this module belong to the **Peano** trait which should not be implemented for anything else.
 pub trait Peano {}
-/// All numbers of the form `Succ<M>` or `Pred<N>` will belong to the trait **NonZero**.
+/// Implemented for all Peano numbers of the form `Succ<M: NonNeg>` or `Pred<N: NonPos>`.
 pub trait NonZero: Peano {}
-/// All numbers of the form `Succ<N>` and `Zero` will belong to the trait **NonNeg**.
+/// Implemented for `Zero` and all numbers of the form `Succ<N: NonNeg>`.
 pub trait NonNeg: Peano {}
-/// All numbers of the form `Pred<N>` and `Zero` will belong to the trait **NonPos**.
+/// Implemented for `Zero` and all numbers of the form `Pred<N: NonPos>`.
 pub trait NonPos: Peano {}
 
 impl NonZero for .. {}
@@ -266,7 +348,8 @@ impl<Lhs, Rhs> DivPrivate<Pred<Rhs>> for Succ<Lhs>
 /// assert_eq!(2, <<Succ<One> as Same<Two>>::Output as ToInt>::to_int());
 /// ```
 pub trait Same<Rhs = Self> {
-    type Output;
+    /// `Output` should always be `Self`
+    type Output = Self;
 }
 impl<N> Same<N> for N where N: Peano {
     type Output = N;
@@ -287,6 +370,7 @@ impl<N> Same<N> for N where N: Peano {
 /// assert_eq!(2, <Two as ToInt>::to_int());
 /// ```
 pub trait ToInt: Peano {
+    #[allow(missing_docs)]
     fn to_int() -> i32;
 }
 impl ToInt for Zero {
