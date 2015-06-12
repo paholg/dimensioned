@@ -18,8 +18,9 @@ macro_rules! make_units { ($System:ident, $Unitless:ident, $one:ident; base { $(
 macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneType:ident, $val:expr; base { $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e: expr;    )*} ) => (
     #[allow(unused_imports)]
     use $crate::peano::{Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten};
-    use $crate::peano::{Peano, KeepPeano, AddPeano, SubPeano, MulPeano, DivPeano, Negate, ToInt};
+    use $crate::peano::{Peano, Same, ToInt};
     use $crate::dimensioned::{Dimension, Dimensionless, Dim, KeepDim, MulDim, DivDim, PowerDim, RootDim, InvertDim, DimToString};
+    use ::std::ops::{Add, Neg, Sub, Mul, Div};
     use std::marker::PhantomData;
 
     #[derive(Copy, Clone)]
@@ -32,30 +33,30 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
     // $Type_Right or something, but as far as I can tell, that is not supported by Rust
     #[allow(non_camel_case_types)]
     impl<$($Type),*, $($constant),*> KeepDim<$System<$($constant),*>> for $System<$($Type),*> where
-        $($Type: Peano + KeepPeano<$constant>),*, $($constant: Peano),* {
-            type Output = $System<$(<$Type as KeepPeano<$constant>>::Output),*>;
+        $($Type: Peano + Same<$constant>),*, $($constant: Peano),* {
+            type Output = $System<$(<$Type as Same<$constant>>::Output),*>;
         }
     #[allow(non_camel_case_types)]
     impl<$($Type),*, $($constant),*> MulDim<$System<$($constant),*>> for $System<$($Type),*> where
-        $($Type: Peano + AddPeano<$constant>),*, $($constant: Peano),* {
-            type Output = $System<$(<$Type as AddPeano<$constant>>::Output),*>;
+        $($Type: Peano + Add<$constant>),*, $($constant: Peano),* {
+            type Output = $System<$(<$Type as Add<$constant>>::Output),*>;
         }
     #[allow(non_camel_case_types)]
     impl<$($Type),*, $($constant),*> DivDim<$System<$($constant),*>> for $System<$($Type),*> where
-        $($Type: Peano + SubPeano<$constant>),*, $($constant: Peano),* {
-            type Output = $System<$(<$Type as SubPeano<$constant>>::Output),*>;
+        $($Type: Peano + Sub<$constant>),*, $($constant: Peano),* {
+            type Output = $System<$(<$Type as Sub<$constant>>::Output),*>;
         }
     impl<$($Type),*, RHS> PowerDim<RHS> for $System<$($Type),*> where
-        $($Type: Peano + MulPeano<RHS>),*, RHS: Peano {
-            type Output = $System<$(<$Type as MulPeano<RHS>>::Output),*>;
+        $($Type: Peano + Mul<RHS>),*, RHS: Peano {
+            type Output = $System<$(<$Type as Mul<RHS>>::Output),*>;
         }
     impl<$($Type),*, RHS> RootDim<RHS> for $System<$($Type),*> where
-        $($Type: Peano + DivPeano<RHS>),*, RHS: Peano {
-            type Output = $System<$(<$Type as DivPeano<RHS>>::Output),*>;
+        $($Type: Peano + Div<RHS>),*, RHS: Peano {
+            type Output = $System<$(<$Type as Div<RHS>>::Output),*>;
         }
     impl<$($Type),*> InvertDim for $System<$($Type),*> where
-        $($Type: Peano + Negate),* {
-            type Output = $System<$(<$Type as Negate>::Output),*>;
+        $($Type: Peano + Neg),* {
+            type Output = $System<$(<$Type as Neg>::Output),*>;
         }
 
 

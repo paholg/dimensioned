@@ -4,8 +4,7 @@ extern crate dimensioned;
 use vector3a::Vector3;
 
 use dimensioned::si::{one, m, kg, s};
-use dimensioned::{Dim, Dimension, KeepDim, MulDim, Pow};
-use dimensioned::peano::Two;
+use dimensioned::{Dim, Dimension, KeepDim, MulDim};
 
 dim_impl_unary!(Norm, norm, KeepDim, Vector3 => f64);
 dim_impl_unary!(Norm2, norm2, MulDim, Vector3 => f64);
