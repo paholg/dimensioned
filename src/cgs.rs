@@ -1,5 +1,6 @@
 /*!
-The **cgs** module provides a unit system for use with Gaussian CGS units.
+The **cgs** module provides a unit system for use with Gaussian CGS units. It was
+generated using the `make_units!` macro. See its documentation for more information.
 
 It will also define derived units, although this is not implemented yet.
 */

@@ -106,8 +106,8 @@ pub type N8 = Pred<N7>;
 pub type N9 = Pred<N8>;
 
 
-
-/// All numbers defined in this module belong to the **Peano** trait which should not be implemented for anything else.
+/// All numbers defined in this module belong to the **Peano** trait. It should not be
+/// implemented for anything else.
 pub trait Peano {}
 /// Implemented for all Peano numbers of the form `Succ<M: NonNeg>` or `Pred<N: NonPos>`.
 pub trait NonZero: Peano {}
@@ -298,13 +298,14 @@ impl<Lhs, Rhs> DivPrivate<Pred<Rhs>> for Succ<Lhs>
         type Output = <N1 as Add<<<Succ<Lhs> as Add<Pred<Rhs>>>::Output as DivPrivate<Pred<Rhs>>>::Output>>::Output;
     }
 
-/// `Same` is used to ensure that two types are the same. Its `Output` should be that type.
-/// # Example:
-/// ```
-/// use dimensioned::peano::{Succ, P1, P2, Same, ToInt};
-///
-/// assert_eq!(2, <<Succ<P1> as Same<P2>>::Output as ToInt>::to_int());
-/// ```
+/** `Same` is used to ensure that two types are the same. Its `Output` should be that type.
+# Example:
+```
+use dimensioned::peano::{Same, Succ, P1, P2, ToInt};
+
+assert_eq!(2, <<Succ<P1> as Same<P2>>::Output as ToInt>::to_int());
+```
+*/
 pub trait Same<Rhs = Self> {
     /// `Output` should always be `Self`
     type Output = Self;
@@ -318,15 +319,19 @@ impl<N> Same<N> for N where N: Peano {
 // ToInt
 // -------------------------------------------------------------------------------------
 
-/// Convert a Peano number to the integer it represents.
-///
-/// Once Rust implements associated constants, an associated constant will replace the function `to_int()`.
-/// # Example:
-/// ```
-/// use dimensioned::peano::{P2, ToInt};
-///
-/// assert_eq!(2, <P2 as ToInt>::to_int());
-/// ```
+/**
+Convert a Peano number to the integer it represents.
+
+Once Rust implements associated constants, an associated constant will replace the
+function `to_int()`.
+
+# Example:
+```
+use dimensioned::peano::{P2, ToInt};
+
+assert_eq!(2, <P2 as ToInt>::to_int());
+```
+*/
 pub trait ToInt: Peano {
     #[allow(missing_docs)]
     fn to_int() -> i32;

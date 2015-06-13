@@ -8,7 +8,7 @@ aid in generic programming and should not be implemented for anything outside th
 module. They are `Dimension`, `Dimensionless`, `NotDim`, and `DimToString`.
 */
 
-pub use peano::{Same, Zero};
+pub use peano::{Same, Zero, Succ, Pred};
 pub use peano::{P1, P2, P3, P4, P5, P6, P7, P8, P9};
 pub use peano::{N1, N2, N3, N4, N5, N6, N7, N8, N9};
 
@@ -23,7 +23,8 @@ use std::fmt;
 /**
 All types created for a unit system will implement this trait. No other types should
 implement it.
-*/
+ */
+#[doc(hidden)]
 pub trait Dimension {}
 
 /**
@@ -34,6 +35,7 @@ dimension.
 All types created for a unit system will implement this trait. No other types should
 implement it.
 */
+#[doc(hidden)]
 pub trait Dimensionless: Dimension {}
 
 /**
@@ -42,6 +44,7 @@ This trait allows human-friendly printing of dimensioned objects.
 All types created for a unit system will implement this trait. No other types should
 implement it.
 */
+#[doc(hidden)]
 pub trait DimToString: Dimension {
     /// Gives a human friendly `String` representation of a `Dimension` type.
     fn to_string() -> String;
@@ -97,11 +100,12 @@ impl<D: Dimension, V> Dim<D, V> {
 This trait is implemented by default for everything that is not Dim<D, V>. It allows a
  greater level of generic operator overloading than would be possible otherwise.
 */
+#[doc(hidden)]
 pub trait NotDim {}
 impl NotDim for .. {}
 impl<D: Dimension, V> !NotDim for Dim<D, V> {}
 
-/// Trait for implementing a sqrt() member for types that don't impl Float.
+/// **Sqrt** is used for implementing a `sqrt()` member for types that don't `impl Float`.
 pub trait Sqrt {
     #[allow(missing_docs)]
     type Output;
@@ -125,7 +129,8 @@ impl<D, V> Sqrt for Dim<D, V> where D: Dimension + Root<P2>, V: Float, <D as Roo
     #[inline]
     fn sqrt(self) -> Self::Output { Dim( (self.0).sqrt(), PhantomData) }
 }
-/// Trait for implementing a cbrt() member for types that don't impl Float.
+
+/// **Cbrt** is used for implementing a `cbrt()` member for types that don't `impl Float`.
 pub trait Cbrt {
     #[allow(missing_docs)]
     type Output;
@@ -151,8 +156,10 @@ impl<D, V> Cbrt for Dim<D, V> where D: Dimension + Root<P3>, V: Float, <D as Roo
 }
 
 /**
-Trait for implementing general integer roots for types that don't impl Float. Uses Peano
-numbers to specify the degree.
+**Root<Radicand>** is used for implementing general integer roots for types that don't
+`impl Float` and whose type signature changes when taking a root, such as `Dim<D, V>`.
+
+It uses Peano numbers to specify the degree.
 
 The syntax is a little bit weird and may be subject to change.
 */
@@ -182,8 +189,10 @@ impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + Root<Degree>,
 }
 
 /**
-Trait for implementing general integer powers for types that don't impl Float. Uses
-Peano numbers to specify the exponent.
+**Pow<Base>** is used for implementing general integer powers for types that don't `impl
+Float` and whose type signature changes when multiplying, such as `Dim<D, V>`.
+
+It uses Peano numbers to specify the degree.
 
 The syntax is a little bit weird and may be subject to change.
 */
@@ -210,7 +219,7 @@ impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Dimension + Pow<Exp>, V: Float, 
     }
 }
 
-/// Trait for implementing a recip() member for types that don't impl Float.
+/// **Recip** is used for implementing a `recip()` member for types that don't `impl Float`.
 pub trait Recip {
     #[allow(missing_docs)]
     type Output;

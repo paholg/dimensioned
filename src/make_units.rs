@@ -123,7 +123,7 @@ macro_rules! count_args {
     );
 }
 
-#[doc_hidden]
+#[doc(hidden)]
 #[macro_export]
 macro_rules! __make_types {
     ($System:ident, $Type:ident, $Root:ident, $($Types:ident, $Roots:ident),+ | $($Zeros:ident),*) => (
