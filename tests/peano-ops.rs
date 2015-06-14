@@ -112,17 +112,34 @@ fn test_peano() {
     // -4 / -2 == 2
     assert_eq!( 2, <<N4 as Div<N2>>::Output as ToInt>::to_int() );
 
-    // Uncomment for erroneous divisions!
+    // // Uncomment for erroneous divisions
     // // 3 / 2
-    // <<P3 as DivPeano<P2>>::Output as ToInt>::to_int();
+    // <<P3 as Div<P2>>::Output as ToInt>::to_int();
     // // -3 / 2
-    // <<N3 as DivPeano<P2>>::Output as ToInt>::to_int();
+    // <<N3 as Div<P2>>::Output as ToInt>::to_int();
     // // 3 / -2
-    // <<P3 as DivPeano<N2>>::Output as ToInt>::to_int();
+    // <<P3 as Div<N2>>::Output as ToInt>::to_int();
     // // -3 / -2
-    // <<N3 as DivPeano<N2>>::Output as ToInt>::to_int();
+    // <<N3 as Div<N2>>::Output as ToInt>::to_int();
     // // 2 / 0
-    // <<P2 as DivPeano<Zero>>::Output as ToInt>::to_int();
+    // <<P2 as Div<Zero>>::Output as ToInt>::to_int();
     // // -2 / 0
-    // <<N2 as DivPeano<Zero>>::Output as ToInt>::to_int();
+    // <<N2 as Div<Zero>>::Output as ToInt>::to_int();
 }
+
+#[test]
+fn test_addition_time() {
+    type A1 = <P1 as Add<P1>>::Output;
+    type A2 = <A1 as Add<A1>>::Output;
+    type A3 = <A2 as Add<A2>>::Output;
+    type A4 = <A3 as Add<A3>>::Output;
+    // type A5 = <A4 as Add<A4>>::Output;
+    // type A6 = <A5 as Add<A4>>::Output;
+    // type A7 = <A6 as Add<A3>>::Output;
+    // type A8 = <A7 as Add<A2>>::Output;
+    // type A9 = <A8 as Add<P3>>::Output;
+    // type Test = <A9 as KeepPeano<A8>>::Output;
+    // let x: TEST;
+    println!("THING: {}", <A4 as ToInt>::to_int());
+}
+

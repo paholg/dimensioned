@@ -1,6 +1,7 @@
 # To do
 - Derived Units :: Get macro working for these. Probably syntax extension.
 - Index/IndexMut :: Lifetime stuff that I need to figure out.
+- Impls :: Include impls for references and not just pass-by-value.
 
 # Questions
 - make_units_adv! :: Allow custom print function?
