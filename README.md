@@ -4,12 +4,8 @@
 Dimensioned
 =====
 
-Note: This library is unstable, and you should expect breaking changes for
-now. It also depends on unstable Rust features.
-
-
-Dimensioned is a library for compile-time type checking of arbitrary unit systems. It
-has its own (under construction) [website](http://paholg.com/dimensioned/).
+Dimensioned is a Rust library for compile-time type checking of arbitrary unit systems. It
+has its own [website](http://paholg.com/dimensioned/).
 
 Here is a short example of its use:
 
@@ -26,3 +22,6 @@ fn main() {
 ```
 
 For more in-depth examples and documentation, see the website.
+
+Note: This library is unstable, and you should expect breaking changes for now. It also
+depends on unstable Rust features.
