@@ -60,8 +60,7 @@ mod vector3b {
     use std::ops::{Add, Sub, Mul, Div};
     use std::fmt::{self, Display};
 
-
-    #[derive(Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
+    #[derive(Copy, Clone)]
     pub struct Vector3<N> {
         x: N,
         y: N,

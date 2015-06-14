@@ -5,7 +5,7 @@ many traits from `std` as generically as possible.
 
 Among the included traits in **dimensioned**, there are a few that are used solely to
 aid in generic programming and should not be implemented for anything outside this
-module. They are `Dimension`, `Dimensionless`, `NotDim`, and `DimToString`.
+module. They are `Dimension`, `Dimensionless`, and `DimToString`.
 */
 
 pub use peano::{Same, Zero, Succ, Pred};
@@ -22,9 +22,8 @@ use std::fmt;
 
 /**
 All types created for a unit system will implement this trait. No other types should
-implement it.
+implement it. The struct `Dim<D, V>` requires that `D` implement `Dimension`.
  */
-#[doc(hidden)]
 pub trait Dimension {}
 
 /**
@@ -32,19 +31,17 @@ The only types that implement this trait are the `Unitless` types that exist in 
 unit system. It allows more flexibility when handling specifically objects without
 dimension.
 
-All types created for a unit system will implement this trait. No other types should
-implement it.
+No other types should implement it.
 */
-#[doc(hidden)]
 pub trait Dimensionless: Dimension {}
 
 /**
-This trait allows human-friendly printing of dimensioned objects.
+This trait allows human-friendly printing of dimensioned objects. It is used to
+implement the traits in **std::fmt**.
 
 All types created for a unit system will implement this trait. No other types should
 implement it.
 */
-#[doc(hidden)]
 pub trait DimToString: Dimension {
     /// Gives a human friendly `String` representation of a `Dimension` type.
     fn to_string() -> String;
@@ -246,6 +243,63 @@ impl<D, V> Recip for Dim<D, V> where D: Dimension + Recip, V: Float, <D as Recip
 //------------------------------------------------------------------------------
 // Useful macros for export
 //------------------------------------------------------------------------------
+/**
+Used for implementing unary members of `V` for `Dim<D, V>`
+
+Assume you have some type `V` with a member function `fun` that takes no arguments
+and has output of type `Out`.
+
+Then, you can implement `fun` as a member for `Dim<D, V>` with the macro invocation:
+
+```ignore
+dim_impl_unary!(Trait, fun, Op, V => Out);
+```
+
+where `Trait` is the name of the trait that you want to put this member in; it can be
+any available name.
+
+Finally, `Op` determines how the dimensions should change when calling `fun()` and is
+one of:
+
+* `Same`: Keeps the dimensions the same.
+* `Mul`: Multiplies `Self` by `Self`. The same as `Pow<P2>`.
+* `Div`: Divides `Self` by `Self`. The same as `Pow<Zero>`.
+* `Recip`: Gives the reciprocal of `Self`.
+* `Pow<N>`: Raises `Self` to the exponent `N` where `N` is a Peano number.
+* `Root<N>`: Takes the `N`th root of `Self` where `N` is a Peano number.
+* `Sqrt`: Takes the square root of `Self`. The same as `Root<P2>`.
+* `Cbrt`: Takes the cube root of `Self`. The same as `Root<P3>`.
+
+# Example
+```rust
+#[macro_use]
+extern crate dimensioned;
+use dimensioned::{Dim, Dimension, Same};
+use dimensioned::si::{Meter, m};
+use std::ops::Mul;
+
+pub struct Vector2 {
+    x: f64,
+    y: f64
+}
+impl Vector2 {
+    fn norm(self) -> f64 {
+        (self.x*self.x + self.y*self.y).sqrt()
+    }
+}
+impl Mul<Vector2> for f64 {
+    type Output = Vector2;
+    fn mul(self, rhs: Vector2) -> Vector2 { Vector2{x: self*rhs.x, y: self*rhs.y} }
+}
+
+dim_impl_unary!(Norm, norm, Same, Vector2 => f64);
+
+fn main() {
+    let v = m * Vector2{ x: 3.0, y: 4.0 };
+    assert_eq!(5.0*m, v.norm());
+}
+```
+*/
 #[macro_export]
 macro_rules! dim_impl_unary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $Out:ty) => (
     pub trait $Trait {
@@ -259,6 +313,57 @@ macro_rules! dim_impl_unary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $O
     );
 }
 
+/**
+Used for implementing binary members of `V` for `Dim<D, V>`
+
+Assume you have some type `V` with a member function `fun` that takes one argument also
+of type `V` and has output type `Out`.
+
+Then, you can implement `fun` as a member for `Dim<D, V>` with the macro invocation:
+
+```ignore
+dim_impl_binary!(Trait, fun, Op, V => Out);
+```
+
+where `Trait` is the name of the trait that you want to put this member in; it can be
+any available name.
+
+Finally, `Op` determines how the dimensions should change when calling `fun()` and is
+one of:
+
+* `Same<RHS>`: Ensures that `Self` has the same dimensions as `RHS` but doesn't change them.
+* `Mul<RHS>`: Multiplies `Self` by `RHS`.
+* `Div<RHS>`: Divides `Self` by `RHS`.
+
+# Example
+```rust
+#[macro_use]
+extern crate dimensioned;
+use dimensioned::{Dim, Dimension};
+use dimensioned::si::{Meter, m};
+use std::ops::Mul;
+
+pub struct Vector2 {
+    x: f64,
+    y: f64
+}
+impl Vector2 {
+    fn dot(self, rhs: Vector2) -> f64 { self.x*rhs.x + self.y*rhs.y }
+}
+impl Mul<Vector2> for f64 {
+    type Output = Vector2;
+    fn mul(self, rhs: Vector2) -> Vector2 { Vector2{ x: self*rhs.x, y: self*rhs.y } }
+}
+
+dim_impl_binary!(Dot, dot, Mul, Vector2 => f64);
+
+fn main() {
+    let v1 = m * Vector2{ x: 1.0, y: 2.0 };
+    let v2 = m * Vector2{ x: 3.0, y: 5.0 };
+    assert_eq!(13.0*m*m, v1.dot(v2));
+}
+```
+*/
 #[macro_export]
 macro_rules! dim_impl_binary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $Out:ty) => (
     pub trait $Trait<RHS> {

@@ -1,4 +1,47 @@
+/**
+Create a unit system.
 
+As this macro performs various imports, it is strongly recommended that you call it
+inside of its own module.
+
+# Example
+```rust
+#[macro_use]
+extern crate dimensioned;
+
+mod fruit {
+    make_units! {
+        Fruit, Unitless, one;
+        base {
+            Apple, apple, a;
+            Banana, banana, b;
+            Cucumber, cuke, c;
+            Mango, mango, m;
+            Watermelon, watermelon, w;
+        }
+        derived {
+        }
+    }
+}
+use fruit::{apple, banana, cuke, mango, watermelon};
+
+fn main() {
+    let fruit_salad = apple * banana * mango * mango * watermelon;
+    println!("Mmmm, delicious: {}", fruit_salad);
+    assert_eq!(format!("{}", fruit_salad), "1 a*b*m^2*w");
+}
+```
+
+The line `Fruit, Unitless, one;` names the unit system `Fruit`, names its type for
+unitless data `Unitless` and creates the corresponding constant `one`.
+
+The `base` block is used to define the base units of this system. The line `Apple,
+apple, a;` creates the unit `Apple`, the corresponding constant `apple`, and will use
+the token "a" to print `Apple`s.
+
+The `derived` block is not yet implemented, but will be used to define derived units and
+constants.
+*/
 #[macro_export]
 macro_rules! make_units { ($System:ident, $Unitless:ident, $one:ident; base { $($Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e:expr;)*} ) => (
     make_units_adv!{
@@ -13,13 +56,62 @@ macro_rules! make_units { ($System:ident, $Unitless:ident, $one:ident; base { $(
 
     );
 }
+/**
+Create a unit system with more flexibility than `make_units!()`.
 
+As this macro performs various imports, it is strongly recommended that you call it
+inside of its own module.
+
+# Example
+
+Here we define the **CGS** unit system.
+
+```rust
+#[macro_use]
+extern crate dimensioned;
+
+mod cgs {
+    make_units_adv! {
+        CGS, Unitless, one, f64, 1.0;
+        base {
+            P2, Centimeter, cm, cm;
+            P2, Gram, g, g;
+            P1, Second, s, s;
+        }
+        derived {
+        }
+    }
+}
+
+# fn main() {
+# }
+```
+
+The line `CGS, Unitless, one, f64, 1.0;` names the unit system `CGS`, names its type for
+unitless data `Unitless` and creates the corresponding constant `one`. It also states
+that all constants will be of type `Dim<D, f64>` and will be initialized to a value of
+`1.0`.
+
+Once associated constants hit, `std::num::One` will be used to determine the initalize value.
+
+The `base` block is used to define the base units of this system. The line `P2,
+Centimeter, cm, cm;` creates the unit `Centimeter`, the corresponding constant `cm`, and
+will use the token "cm" to print `Centimeter`s. It also states that square roots will be
+allowed for `Centimeter`s; the `P2` is the Peano number for 2 and dictates the highest
+root allowed. You will almost always want this to be `P1`. For `CGS`, though, some
+derived units are defined in terms of square roots of base units, so they are necessary
+to allow.
+
+The `derived` block is not yet implemented, but will be used to define derived units and
+constants.
+
+*/
 #[macro_export]
 macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneType:ident, $val:expr; base { $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e: expr;    )*} ) => (
     #[allow(unused_imports)]
-    use $crate::dimensioned::{Zero, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
+    use $crate::{Zero, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
     use $crate::peano::{Peano, Same, ToInt};
-    use $crate::dimensioned::{Dimension, Dimensionless, Dim, Pow, Root, Recip, DimToString};
+    use $crate::{Dimension, Dimensionless, Dim, Pow, Root, Recip, DimToString};
     use ::std::ops::{Add, Neg, Sub, Mul, Div};
     use std::marker::PhantomData;
 
