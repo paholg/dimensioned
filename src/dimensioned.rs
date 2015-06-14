@@ -270,12 +270,14 @@ one of:
 * `Sqrt`: Takes the square root of `Self`. The same as `Root<P2>`.
 * `Cbrt`: Takes the cube root of `Self`. The same as `Root<P3>`.
 
+Note: This macro requires that `Dim` and `Dimension` be imported.
+
 # Example
 ```rust
 #[macro_use]
 extern crate dimensioned;
 use dimensioned::{Dim, Dimension, Same};
-use dimensioned::si::{Meter, m};
+use dimensioned::si::m;
 use std::ops::Mul;
 
 pub struct Vector2 {
@@ -314,7 +316,7 @@ macro_rules! dim_impl_unary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $O
 }
 
 /**
-Used for implementing binary members of `V` for `Dim<D, V>`
+Used for implementing binary members of `V` for `Dim<D, V>`.
 
 Assume you have some type `V` with a member function `fun` that takes one argument also
 of type `V` and has output type `Out`.
@@ -335,12 +337,14 @@ one of:
 * `Mul<RHS>`: Multiplies `Self` by `RHS`.
 * `Div<RHS>`: Divides `Self` by `RHS`.
 
+Note: This macro requires that `Dim` and `Dimension` be imported.
+
 # Example
 ```rust
 #[macro_use]
 extern crate dimensioned;
 use dimensioned::{Dim, Dimension};
-use dimensioned::si::{Meter, m};
+use dimensioned::si::m;
 use std::ops::Mul;
 
 pub struct Vector2 {

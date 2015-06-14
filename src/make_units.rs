@@ -204,7 +204,20 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
     );
 }
 
-/// Counts the number of arguments its called with and gives you the total
+/** Counts the number of arguments its called with and gives you the total.
+
+#Example
+
+```rust
+#[macro_use]
+extern crate dimensioned;
+
+fn main() {
+    let x = count_args!(a, b, cat, banana);
+    assert_eq!(4, x);
+}
+```
+*/
 #[macro_export]
 macro_rules! count_args {
     ($arg:ident, $($args:ident),+) => (

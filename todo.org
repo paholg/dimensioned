@@ -1,12 +1,11 @@
 # To do
 - Derived Units :: Get macro working for these. Probably syntax extension.
-- Index/IndexMut :: Lifetime stuff that I need to figure out
-- Doc comments :: Make these better, especially by adding examples.
+- Index/IndexMut :: Lifetime stuff that I need to figure out.
 
 # Questions
-- make_units! :: Allow custom print function for advanced macro?
+- make_units_adv! :: Allow custom print function?
 - Dim :: Figure out what other traits to implement.
-- Macros :: Investigate more macros for implementing arbitrary functions.
+- Macros :: Investigate more macros for implementing functions.
 
 # Future
 - Float :: Implement for dimensionless. This requires num::traits::Zero and
