@@ -43,7 +43,14 @@ The `derived` block is not yet implemented, but will be used to define derived u
 constants.
 */
 #[macro_export]
-macro_rules! make_units { ($System:ident, $Unitless:ident, $one:ident; base { $($Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e:expr;)*} ) => (
+macro_rules! make_units {
+    ($System:ident, $Unitless:ident, $one:ident;
+     base {
+         $($Type:ident, $constant:ident, $print_as:ident;)+
+     }
+     derived {
+         $($derived_constant:ident: $Derived:ident = $e:expr;)*
+     } ) => (
     make_units_adv!{
         $System, $Unitless, $one, f64, 1.0;
         base {
@@ -107,13 +114,20 @@ constants.
 
 */
 #[macro_export]
-macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneType:ident, $val:expr; base { $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+ } derived {$($derived_constant:ident: $Derived:ident = $e: expr;    )*} ) => (
+macro_rules! make_units_adv {
+    ($System:ident, $Unitless:ident, $one:ident, $OneType:ident, $val:expr;
+     base {
+         $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+
+     }
+     derived {
+         $($derived_constant:ident: $Derived:ident = $e: expr;)*
+     } ) => (
     #[allow(unused_imports)]
     use $crate::{Zero, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
     use $crate::peano::{Peano, Same, ToInt};
     use $crate::{Dimension, Dimensionless, Dim, Pow, Root, Recip, DimToString};
     use ::std::ops::{Add, Neg, Sub, Mul, Div};
-    use std::marker::PhantomData;
+    use ::std::marker::PhantomData;
 
     #[derive(Copy, Clone)]
     pub struct $System<$($Type: Peano = Zero),*> {
@@ -171,7 +185,7 @@ macro_rules! make_units_adv { ($System:ident, $Unitless:ident, $one:ident, $OneT
             };
             __string = format!("{}{}{}", __string, __temp.0, __temp.1);
         }
-        __string.pop(); // remove last "*"
+        __string.pop(); // remove the last "*"
         __string
     }
 

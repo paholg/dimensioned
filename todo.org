@@ -1,18 +1,23 @@
 # To do
-- Derived Units :: Get macro working for these. Probably syntax extension.
+- Derived Units :: Get macro working for these. Wait to see if
+                   https://github.com/rust-lang/rfcs/pull/873 goes through, otherwise
+                   will have to be a syntax extension.
 - Index/IndexMut :: Lifetime stuff that I need to figure out.
 - Impls :: Include impls for references and not just pass-by-value.
+- Stable :: Get dimensioned working with Rust stable.
 
 # Questions
 - make_units_adv! :: Allow custom print function?
-- Dim :: Figure out what other traits to implement.
+- Dim :: Decide on other traits to implement.
 - Macros :: Investigate more macros for implementing functions.
 
 # Future
 - Float :: Implement for dimensionless. This requires num::traits::Zero and
            num::traits::One. The new versions of these in std::num are much more
            compatible with dimensioned, so implementation of Float will wait until it
-           uses these.
+           uses these. Otherwise, I need to implement Mul and Add for Dimensionless in a
+           type-preserving way, so I will have to use default trait impls to
+           differentiate these from the Mul and Add impls for Dimension.
 - constant initialization value :: Once associated constants hit, use std::num::One.
 - Numbers :: Compare shoggoth to peano. Shoggoth should be faster, and can count
              higher. Can it divide?

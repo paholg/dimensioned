@@ -1,7 +1,7 @@
 /*!
 Peano numbers allow us to do arithmetic at compile time using Rust's type system.
 
-This module should not require much (if any) direct interaction from users of **dimensioned**.
+This module should not require much direct interaction from users of **dimensioned**.
 
 The basic idea of the peano numbers is that we first define the number `Zero`. Then, we
 inductively define the rest of the natural numbers. For any non-negative natural number
@@ -18,8 +18,9 @@ its predecessor, `Pred<N>`, a negative number.
 
 By the definitions of `Pred` and `Succ`, we disallow them to be used together.
 
-Conceptually, we now have access to all of the integers. In practice, we have access to
-the numbers from -63 to 63, as Rust only allows structs to be embedded 64 levels deep.
+Conceptually, we now have access to all integers. In practice, we have access to
+the numbers from -63 to 63 unless we use the `#![recursion_limit="N"]` lint to increase
+the allowed number of embedded traits.
 
 These numbers are used to track powers of units in **dimensioned**.
 
@@ -53,14 +54,14 @@ pub struct Zero;
 
 /// For any non-negative Peano number `N`, we define its successor, `Succ<N>`.
 ///
-/// This gives us Peano numbers up to 63, as Rust only supports 64 levels of embedded structs.
+/// This gives us positive Peano numbers.
 #[derive(Copy, Clone)]
 pub struct Succ<N: NonNeg> {
     _marker: PhantomData<N>
 }
 /// For any non-positive Peano number `N`, we define its predecessor, `Pred<N>`.
 ///
-/// This gives us Peano numbers down to -63, as Rust only supports 64 levels of embedded structs.
+/// This gives us negative Peano numbers.
 #[derive(Copy, Clone)]
 pub struct Pred<N: NonPos> {
     _marker: PhantomData<N>
@@ -116,23 +117,16 @@ pub trait NonNeg: Peano {}
 /// Implemented for `Zero` and all numbers of the form `Pred<N: NonPos>`.
 pub trait NonPos: Peano {}
 
-impl NonZero for .. {}
-impl NonNeg for .. {}
-impl NonPos for .. {}
-
 impl Peano for Zero {}
-impl !NonZero for Zero {}
 impl NonNeg for Zero {}
 impl NonPos for Zero {}
 
 
 impl<N: NonNeg> Peano for Succ<N> {}
 impl<N: NonNeg> NonNeg for Succ<N> {}
-impl<N: NonNeg> !NonPos for Succ<N> {}
 impl<N: NonNeg> NonZero for Succ<N> {}
 
 impl<N: NonPos> Peano for Pred<N> {}
-impl<N: NonPos> !NonNeg for Pred<N> {}
 impl<N: NonPos> NonPos for Pred<N> {}
 impl<N: NonPos> NonZero for Pred<N> {}
 
@@ -278,7 +272,10 @@ impl<Lhs, Rhs> Div<Rhs> for Pred<Lhs> where Lhs: NonPos + Neg, Rhs: Neg, Succ<<L
 
 
 // DivPrivate only supports positive numerators. As division is implemented via repeated
-// subtraction, we can be sure to only support division between divisible numbers by terminating when the numerator is Zero and not allowing it to become negative. We can support negative numerators by mapping e.g. -4 / 2 -> 4 / -2, which is what is done in `Div`
+// subtraction, we can be sure to only support division between divisible numbers by
+// terminating when the numerator is Zero and not allowing it to become negative. We can
+// support negative numerators by mapping e.g. -4 / 2 to 4 / -2, which is what is done
+// in the implementation of `Div`
 trait DivPrivate<Rhs>: Peano {
     type Output;
 }
@@ -299,6 +296,7 @@ impl<Lhs, Rhs> DivPrivate<Pred<Rhs>> for Succ<Lhs>
     }
 
 /** `Same` is used to ensure that two types are the same. Its `Output` should be that type.
+
 # Example:
 ```
 use dimensioned::peano::{Same, Succ, P1, P2, ToInt};

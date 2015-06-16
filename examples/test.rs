@@ -1,7 +1,7 @@
+#![recursion_limit="128"]
 extern crate dimensioned;
-use std::ops::{Add, Mul};
-
-use dimensioned::peano::{Peano, NonNeg, ToInt, Succ, Zero, P1, P8};
+use dimensioned::peano::{Peano, NonNeg, ToInt, Succ, Zero, P1, P5};
+use std::ops::{Mul, Add};
 
 trait Fac: Peano {
     type Output;
@@ -16,6 +16,6 @@ impl<N> Fac for Succ<N> where N: NonNeg + Fac + Mul<<N as Fac>::Output>,
 }
 
 fn main() {
-    type X = <P8 as Mul<P8>>::Output;
-    assert_eq!(24, <X as ToInt>::to_int());
+    type X = <P5 as Fac>::Output;
+    // assert_eq!(120, <X as ToInt>::to_int());
 }
