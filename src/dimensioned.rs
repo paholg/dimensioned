@@ -69,7 +69,7 @@ impl<D: Dimension, V> Dim<D, V> {
     ```
 
      */
-    pub fn new(v: V) -> Dim<D, V> {
+    pub const fn new(v: V) -> Dim<D, V> {
         Dim(v, PhantomData)
     }
     /**
@@ -240,9 +240,6 @@ impl<D, V> Recip for Dim<D, V> where D: Dimension + Recip, V: Float, <D as Recip
     }
 }
 
-//------------------------------------------------------------------------------
-// Useful macros for export
-//------------------------------------------------------------------------------
 /**
 Used for implementing unary members of `V` for `Dim<D, V>`
 

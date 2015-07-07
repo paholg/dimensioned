@@ -10,8 +10,7 @@ For in depth tutorials, check [here](http://paholg.com/dimensioned).
        html_root_url = "http://paholg.com/dimensioned")]
 #![warn(missing_docs)]
 
-#![feature(optin_builtin_traits)]
-#![feature(zero_one)]
+#![feature(optin_builtin_traits, zero_one, const_fn)]
 
 
 extern crate num;
