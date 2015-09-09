@@ -282,20 +282,34 @@ trait DivPrivate<Rhs>: Peano {
 impl<Rhs: NonZero> DivPrivate<Rhs> for Zero {
     type Output = Zero;
 }
+
 // Dividing a positive integer by a positive integer (e.g. 4 / 2)
 impl<Lhs, Rhs> DivPrivate<Succ<Rhs>> for Succ<Lhs>
-    where Lhs: NonNeg, Succ<Lhs>: DivPrivate<Succ<Rhs>> + Sub<Succ<Rhs>>, Rhs: NonNeg {
-        // Lhs / Rhs = 1 + (Lhs - Rhs) / Rhs
-        type Output = <P1 as Add<<<Succ<Lhs> as Sub<Succ<Rhs>>>::Output as DivPrivate<Succ<Rhs>>>::Output>>::Output;
+    where Lhs: NonNeg, Rhs: NonNeg,
+          Succ<Lhs>: DivPrivate<Succ<Rhs>> + Sub<Succ<Rhs>>,
+          <Succ<Lhs> as Sub<Succ<Rhs>>>::Output: DivPrivate<Succ<Rhs>>,
+          <<Succ<Lhs> as Sub<Succ<Rhs>>>::Output as DivPrivate<Succ<Rhs>>>::Output: NonNeg
+{
+    // Lhs / Rhs = 1 + (Lhs - Rhs) / Rhs
+    type Output = <P1 as Add<<<Succ<Lhs> as Sub<Succ<Rhs>>>::Output as DivPrivate<Succ<Rhs>>>::Output>>::Output;
 }
+
 // Dividing a positive integer by a negative integer (e.g. 4 / -2)
 impl<Lhs, Rhs> DivPrivate<Pred<Rhs>> for Succ<Lhs>
-    where Lhs: NonNeg, Succ<Lhs>: DivPrivate<Pred<Rhs>> + Add<Pred<Rhs>>, Rhs: NonPos {
-        // Lhs / Rhs = -1 + (Lhs + Rhs) / Rhs
-        type Output = <N1 as Add<<<Succ<Lhs> as Add<Pred<Rhs>>>::Output as DivPrivate<Pred<Rhs>>>::Output>>::Output;
-    }
+    where Lhs: NonNeg, Rhs: NonPos,
+          Succ<Lhs>: DivPrivate<Pred<Rhs>> + Add<Pred<Rhs>>,
+          <Succ<Lhs> as Add<Pred<Rhs>>>::Output: DivPrivate<Pred<Rhs>>,
+          <<Succ<Lhs> as Add<Pred<Rhs>>>::Output as DivPrivate<Pred<Rhs>>>::Output: NonPos
+{
+    // Lhs / Rhs = -1 + (Lhs + Rhs) / Rhs
+    type Output = <N1 as Add<<<Succ<Lhs> as Add<Pred<Rhs>>>::Output as DivPrivate<Pred<Rhs>>>::Output>>::Output;
+}
 
-/** `Same` is used to ensure that two types are the same. Its `Output` should be that type.
+impl<Lhs: Peano> DivPrivate<Zero> for Lhs {
+    type Output = P1;
+}
+
+/** `Same` is used to ensure that two types are the same. Its `Output` should **always** be that type.
 
 # Example:
 ```
@@ -306,8 +320,9 @@ assert_eq!(2, <<Succ<P1> as Same<P2>>::Output as ToInt>::to_int());
 */
 pub trait Same<Rhs = Self> {
     /// `Output` should always be `Self`
-    type Output = Self;
+    type Output;
 }
+
 impl<N> Same<N> for N where N: Peano {
     type Output = N;
 }
