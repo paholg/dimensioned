@@ -19,6 +19,6 @@ make_units! {
         Mole, mole, mol;
     }
     derived {
-        newton: Newton = Kilogram * Meter / (Second * Second);
+        newton: Newton = Kilogram * Meter / Second / Second;
     }
 }

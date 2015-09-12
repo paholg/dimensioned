@@ -50,6 +50,7 @@ macro_rules! make_units {
      }
      derived {
          $($derived_constant:ident: $Derived:ident = $e:expr;)*
+         // $($derived_constant:ident: $Derived:ident = $FirstType:ident $($op:tt $Type:ident)*);*;
      } ) => (
         make_units_adv!{
             $System, $Unitless, $one, f64, 1.0;
@@ -58,6 +59,7 @@ macro_rules! make_units {
             }
             derived {
                 $($derived_constant: $Derived = $e;)*
+                // $($derived_constant: $Derived = $FirstType $($op $Type)*);*;
             }
         }
 
@@ -120,7 +122,8 @@ macro_rules! make_units_adv {
          $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+
      }
      derived {
-         $($derived_constant:ident: $Derived:ident = $e: expr;)*
+         // $($derived_constant:ident: $Derived:ident = $FirstType:ident $($op:tt $Type:ident)*);*;
+         $($derived_constant:ident: $Derived:ident = $e:expr;)*
      } ) => (
         #[allow(unused_imports)]
         use $crate::{Zero, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
@@ -139,13 +142,20 @@ macro_rules! make_units_adv {
         // $Type_Right or something, but as far as I can tell, that is not supported by Rust
         #[allow(non_camel_case_types)]
         impl<$($Type),*, $($constant),*> Same<$System<$($constant),*>> for $System<$($Type),*>
-            where $($Type: Peano + Same<$constant>),*, $($constant: Peano),*, $(<$Type as Same<$constant>>::Output: Peano),*
+            where $($Type: Peano + Same<$constant>),*,
+                  $($constant: Peano),*,
+                  $(<$Type as Same<$constant>>::Output: Peano),*,
+                  $System<$(<$Type as Same<$constant>>::Output),*>: Dimension,
         {
             type Output = $System<$(<$Type as Same<$constant>>::Output),*>;
         }
         #[allow(non_camel_case_types)]
-        impl<$($Type),*, $($constant),*> Mul<$System<$($constant),*>> for $System<$($Type),*> where
-            $($Type: Peano + Add<$constant>),*, $($constant: Peano),*, $(<$Type as Add<$constant>>::Output: Peano),* {
+        impl<$($Type),*, $($constant),*> Mul<$System<$($constant),*>> for $System<$($Type),*>
+            where $($Type: Peano + Add<$constant>),*,
+        $($constant: Peano),*,
+        $(<$Type as Add<$constant>>::Output: Peano),*,
+        $System<$(<$Type as Add<$constant>>::Output),*>: Dimension,
+        {
                 type Output = $System<$(<$Type as Add<$constant>>::Output),*>;
                 #[allow(unused_variables)]
                 fn mul(self, rhs: $System<$($constant),*>) -> Self::Output { unreachable!()  }
@@ -209,13 +219,11 @@ macro_rules! make_units_adv {
         #[allow(non_upper_case_globals)]
         pub const $one: Dim<$Unitless, $OneType> = Dim($val, PhantomData);
 
-        __make_types!($System, $($Type, $Root),+ |);
+        __make_base_types!($System, $($Type, $Root),+ |);
 
         $(#[allow(non_upper_case_globals)] pub const $constant: Dim<$Type, $OneType> = Dim($val, PhantomData));*;
 
-        // $(#[allow(non_upper_case_globals)] pub const $derived_constant: Dim<TYPEPEPEPE, f64> = $e;)*
-
-
+        // $(make_derived!($derived_constant: $Derived = $FirstType $($op $Type)*)*);
         );
 }
 
@@ -245,10 +253,10 @@ macro_rules! count_args {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __make_types {
+macro_rules! __make_base_types {
     ($System:ident, $Type:ident, $Root:ident, $($Types:ident, $Roots:ident),+ | $($Zeros:ident),*) => (
         pub type $Type = $System< $($Zeros,)* $Root>;
-        __make_types!($System, $($Types, $Roots),+ | Zero $(, $Zeros)*);
+        __make_base_types!($System, $($Types, $Roots),+ | Zero $(, $Zeros)*);
         );
     ($System:ident, $Type:ident, $Root:ident | $($Zeros:ident),*) => (
         pub type $Type = $System<$($Zeros,)* $Root>;
@@ -256,16 +264,15 @@ macro_rules! __make_types {
 }
 
 // #[macro_export]
-// macro_rules! __make_derived_type {
-//     ($D:ident, $e: expr) => (
-//         pub type $D = __convert_expression!($e);
+// macro_rules! make_derived {
+//     ($derived_constant:ident: $Derived:ident = $FirstType:ident $($op:tt $Type:ident)*) => (
+//         pub type $Derived = __convert_expression!($FirstType $($op $Type)*);
 //         );
 // }
 
 // #[macro_export]
 // macro_rules! __convert_expression {
-//     ($a:ident * $b: expr) => ($a as Mul<__convert_expression!($b)>>::Output);
-//     ($a:ident / $b: expr) => ($a as Div<__convert_expression!($b)>>::Output);
-//     ($a:ident) => ($a);
+//     ($a:ident * $NextType:ident $($op:tt $Type:ident)*) => (<$a as Mul<__convert_expression!($NextType $($op $Type)*)>>::Output);
+//     ($a:ident / $NextType:ident $($op:tt $Type:ident)*) => (<$a as Div<__convert_expression!($NextType $($op $Type)*)>>::Output);
+//     ($a:ty) => ($a);
 // }
-

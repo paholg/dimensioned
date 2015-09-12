@@ -11,6 +11,7 @@ For in depth tutorials, check [here](http://paholg.com/dimensioned).
 #![warn(missing_docs)]
 
 #![feature(optin_builtin_traits, zero_one, const_fn)]
+#![feature(type_macros)]
 
 
 extern crate num;
