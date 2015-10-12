@@ -17,7 +17,7 @@ script:
     travis-cargo doc
 
 after_success:
-  - travis-cargo --only stable doc-upload
+  - travis-cargo doc-upload
   - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && cargo publish --token ${CRATESIO_TOKEN}
 
 env:
