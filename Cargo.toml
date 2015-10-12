@@ -12,7 +12,6 @@ license = "MIT/Apache-2.0"
 
 [lib]
 name = "dimensioned"
-plugin = true
 
 [dependencies]
   num = "*"
