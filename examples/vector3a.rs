@@ -1,11 +1,13 @@
+extern crate peano;
 #[macro_use]
 extern crate dimensioned;
 
 use vector3a::Vector3;
 
+use peano::Same;
 use std::ops::{Mul};
 use dimensioned::si::{one, m, kg, s};
-use dimensioned::{Dim, Dimension, Same};
+use dimensioned::{Dim, Dimension};
 
 dim_impl_unary!(Norm, norm, Same, Vector3 => f64);
 dim_impl_unary!(Norm2, norm2, Mul, Vector3 => f64);

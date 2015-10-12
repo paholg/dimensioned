@@ -8,9 +8,8 @@ aid in generic programming and should not be implemented for anything outside th
 module. They are `Dimension`, `Dimensionless`, and `DimToString`.
 */
 
-pub use peano::{Same, Zero, Succ, Pred};
-pub use peano::{P1, P2, P3, P4, P5, P6, P7, P8, P9};
-pub use peano::{N1, N2, N3, N4, N5, N6, N7, N8, N9};
+use peano::{Same};
+use peano::{P2, P3};
 
 use peano::{Peano, ToInt};
 use std::marker::PhantomData;
@@ -135,12 +134,16 @@ pub trait Cbrt {
     Take a cube root.
     # Example
     ```
+    # extern crate peano;
+    # extern crate dimensioned;
     use dimensioned::si::m;
     use dimensioned::Cbrt;
 
+    # fn main() {
     let x = 2.0*m;
     let y = 8.0*m*m*m;
     assert_eq!(x, y.cbrt());
+    # }
     ```
      */
     fn cbrt(self) -> Self::Output;
@@ -167,12 +170,18 @@ pub trait Root<Radicand> {
     /**
     # Example
     ```
-    use dimensioned::si::m;
-    use dimensioned::{P4, Root};
+    # extern crate peano;
+    # extern crate dimensioned;
 
+    use dimensioned::si::m;
+    use dimensioned::Root;
+    use peano::P4;
+
+    # fn main() {
     let x = 2.0*m;
     let y = 16.0*m*m*m*m;
     assert_eq!(x, P4::root(x*x*x*x));
+    # }
     ```
     */
     fn root(radicand: Radicand) -> Self::Output;
@@ -199,12 +208,18 @@ pub trait Pow<Base> {
     /**
     # Example
     ```
-    use dimensioned::si::m;
-    use dimensioned::{P3, Pow};
+    # extern crate peano;
+    # extern crate dimensioned;
 
+    use dimensioned::si::m;
+    use dimensioned::Pow;
+    use peano::P3;
+
+    # fn main() {
     let x = 2.0*m;
     let y = 8.0*m*m*m;
     assert_eq!(P3::pow(x), y);
+    # }
     ```
     */
     fn pow(base: Base) -> Self::Output;
@@ -271,9 +286,12 @@ Note: This macro requires that `Dim` and `Dimension` be imported.
 
 # Example
 ```rust
+extern crate peano;
 #[macro_use]
 extern crate dimensioned;
-use dimensioned::{Dim, Dimension, Same};
+
+use peano::Same;
+use dimensioned::{Dim, Dimension};
 use dimensioned::si::m;
 use std::ops::Mul;
 

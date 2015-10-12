@@ -14,12 +14,12 @@ For in depth tutorials, check [here](http://paholg.com/dimensioned).
 #![feature(type_macros)]
 
 
+extern crate peano;
 extern crate num;
 
 
 pub use dimensioned::*;
 
-pub mod peano;
 #[macro_use]
 pub mod dimensioned;
 #[macro_use]
