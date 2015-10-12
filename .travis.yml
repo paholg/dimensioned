@@ -1,17 +1,23 @@
 language: rust
-rust: nightly
+sudo: false
+rust:
+  - nightly
 
 notifications:
   email:
     recipients: paho@paholg.com
 
+before_script:
+  - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
+  - export TRAVIS_CARGO_NIGHTLY_FEATURE=""
 script:
-  - cargo build
-  - cargo test
-  - cargo doc
+  - |
+    travis-cargo build &&
+    travis-cargo test &&
+    travis-cargo doc
 
 after_success:
-  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash update_doc.sh
+  - travis-cargo --only stable doc-upload
   - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && cargo publish --token ${CRATESIO_TOKEN}
 
 env:
