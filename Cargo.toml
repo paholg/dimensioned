@@ -4,8 +4,8 @@ name = "dimensioned"
 version = "0.3.2"
 authors = ["Paho Lurie-Gregg <paho@paholg.com>"]
 description = "Compile-time type checking of arbitrary unit systems."
-homepage = "http://paholg.com/dimensioned"
-documentation = "http://paholg.com/doc/dimensioned"
+homepage = "http://paholg.com/project/dimensioned"
+documentation = "http://paholg.com/dimensioned"
 repository = "https://github.com/paholg/dimensioned"
 readme = "README.md"
 license = "MIT/Apache-2.0"
@@ -14,4 +14,4 @@ license = "MIT/Apache-2.0"
 name = "dimensioned"
 
 [dependencies]
-  num = "*"
+num = "*"
