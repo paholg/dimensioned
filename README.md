@@ -5,7 +5,7 @@ Dimensioned
 =====
 
 Dimensioned is a Rust library for compile-time type checking of arbitrary unit systems. It
-has its own [website](http://paholg.com/dimensioned/).
+has its own [website](http://paholg.com/projects/dimensioned/).
 
 Here is a short example of its use:
 
