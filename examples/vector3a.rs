@@ -1,10 +1,10 @@
-extern crate peano;
+extern crate typenum;
 #[macro_use]
 extern crate dimensioned;
 
 use vector3a::Vector3;
 
-use peano::Same;
+use typenum::Same;
 use std::ops::{Mul};
 use dimensioned::si::{one, m, kg, s};
 use dimensioned::{Dim, Dimension};

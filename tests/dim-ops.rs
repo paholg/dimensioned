@@ -1,7 +1,7 @@
-extern crate peano;
+extern crate typenum;
 extern crate dimensioned as dim;
 
-use peano::{P2, P3, P6};
+use typenum::consts::{P2, P3, P6};
 use dim::si::{m};
 use dim::{Pow, Root, Sqrt, Cbrt};
 
