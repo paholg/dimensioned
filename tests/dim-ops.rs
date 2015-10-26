@@ -14,3 +14,8 @@ fn pows() {
     assert_eq!(x, P6::root(P6::pow(x)));
     println!("{}, {}", x, x*x);
 }
+
+#[test]
+fn rhs_multiplication() {
+    let x = m*2.0;
+}
