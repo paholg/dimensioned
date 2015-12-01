@@ -8,7 +8,7 @@ Note that it has some imports from the peano crate, so it must be included.
 
 # Example
 ```rust
-extern crate peano;
+extern crate typenum;
 #[macro_use]
 extern crate dimensioned;
 
@@ -79,7 +79,7 @@ inside of its own module.
 Here we define the **CGS** unit system.
 
 ```rust
-extern crate peano;
+extern crate typenum;
 #[macro_use]
 extern crate dimensioned;
 
@@ -110,7 +110,7 @@ Once associated constants hit, `std::num::One` will be used to determine the ini
 The `base` block is used to define the base units of this system. The line `P2,
 Centimeter, cm, cm;` creates the unit `Centimeter`, the corresponding constant `cm`, and
 will use the token "cm" to print `Centimeter`s. It also states that square roots will be
-allowed for `Centimeter`s; the `P2` is the Peano number for 2 and dictates the highest
+allowed for `Centimeter`s; the `P2` is the typenum number for 2 and dictates the highest
 root allowed. You will almost always want this to be `P1`. For `CGS`, though, some
 derived units are defined in terms of square roots of base units, so they are necessary
 to allow.
@@ -130,34 +130,35 @@ macro_rules! make_units_adv {
          $($derived_constant:ident: $Derived:ident = $e:expr;)*
      } ) => (
         #[allow(unused_imports)]
-        use peano::{Zero, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
-        use peano::{Peano, Same, ToInt};
+        use typenum::consts::{Z0, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
+        use typenum::Same;
+        use typenum::int::Integer;
         use $crate::{Dimension, Dimensionless, Dim, Pow, Root, Recip, DimToString};
         use ::std::ops::{Add, Neg, Sub, Mul, Div};
         use ::std::marker::PhantomData;
 
         #[derive(Copy, Clone)]
-        pub struct $System<$($Type: Peano = Zero),*> {
+        pub struct $System<$($Type: Integer = Z0),*> {
             $($constant: PhantomData<$Type>),*
         }
-        impl<$($Type: Peano),*> Dimension for $System<$($Type),*> {}
+        impl<$($Type: Integer),*> Dimension for $System<$($Type),*> {}
 
         // using $Type and $constant for these traits is confusing. It should really be $Type_Left and
         // $Type_Right or something, but as far as I can tell, that is not supported by Rust
         #[allow(non_camel_case_types)]
         impl<$($Type),*, $($constant),*> Same<$System<$($constant),*>> for $System<$($Type),*>
-            where $($Type: Peano + Same<$constant>),*,
-                  $($constant: Peano),*,
-                  $(<$Type as Same<$constant>>::Output: Peano),*,
+            where $($Type: Same<$constant>),*,
+                  $($constant: Integer),*,
+                  $(<$Type as Same<$constant>>::Output: Integer),*,
                   $System<$(<$Type as Same<$constant>>::Output),*>: Dimension,
         {
             type Output = $System<$(<$Type as Same<$constant>>::Output),*>;
         }
         #[allow(non_camel_case_types)]
         impl<$($Type),*, $($constant),*> Mul<$System<$($constant),*>> for $System<$($Type),*>
-            where $($Type: Peano + Add<$constant>),*,
-        $($constant: Peano),*,
-        $(<$Type as Add<$constant>>::Output: Peano),*,
+            where $($Type: Integer + Add<$constant>),*,
+        $($constant: Integer),*,
+        $(<$Type as Add<$constant>>::Output: Integer),*,
         $System<$(<$Type as Add<$constant>>::Output),*>: Dimension,
         {
                 type Output = $System<$(<$Type as Add<$constant>>::Output),*>;
@@ -166,25 +167,25 @@ macro_rules! make_units_adv {
             }
         #[allow(non_camel_case_types)]
         impl<$($Type),*, $($constant),*> Div<$System<$($constant),*>> for $System<$($Type),*> where
-            $($Type: Peano + Sub<$constant>),*, $($constant: Peano),*, $(<$Type as Sub<$constant>>::Output: Peano),* {
+            $($Type: Integer + Sub<$constant>),*, $($constant: Integer),*, $(<$Type as Sub<$constant>>::Output: Integer),* {
                 type Output = $System<$(<$Type as Sub<$constant>>::Output),*>;
                 #[allow(unused_variables)]
                 fn div(self, rhs: $System<$($constant),*>) -> Self::Output { unreachable!()  }
             }
         impl<$($Type),*, RHS> Pow<RHS> for $System<$($Type),*> where
-            $($Type: Peano + Mul<RHS>),*, RHS: Peano, $(<$Type as Mul<RHS>>::Output: Peano),* {
+            $($Type: Integer + Mul<RHS>),*, RHS: Integer, $(<$Type as Mul<RHS>>::Output: Integer),* {
                 type Output = $System<$(<$Type as Mul<RHS>>::Output),*>;
                 #[allow(unused_variables)]
                 fn pow(rhs: RHS) -> Self::Output { unreachable!() }
             }
         impl<$($Type),*, RHS> Root<RHS> for $System<$($Type),*> where
-            $($Type: Peano + Div<RHS>),*, RHS: Peano, $(<$Type as Div<RHS>>::Output: Peano),* {
+            $($Type: Integer + Div<RHS>),*, RHS: Integer, $(<$Type as Div<RHS>>::Output: Integer),* {
                 type Output = $System<$(<$Type as Div<RHS>>::Output),*>;
                 #[allow(unused_variables)]
                 fn root(radicand: RHS) -> Self::Output { unreachable!() }
             }
         impl<$($Type),*> Recip for $System<$($Type),*> where
-            $($Type: Peano + Neg),*, $(<$Type as Neg>::Output: Peano),* {
+            $($Type: Integer + Neg),*, $(<$Type as Neg>::Output: Integer),* {
                 type Output = $System<$(<$Type as Neg>::Output),*>;
                 fn recip(self) -> Self::Output { unreachable!() }
             }
@@ -194,8 +195,8 @@ macro_rules! make_units_adv {
             let mut __string = String::new();
             for ((&root, &exp), &token) in roots.iter().zip(exps.iter()).zip(tokens.iter()) {
                 let __temp: (&'static str, String) = match exp {
-                    0 => ("", "".to_string()),
-                    1 => (token, "*".to_string()),
+                    0 => ("", "".to_owned()),
+                    1 => (token, "*".to_owned()),
                     _ => (token, format!("^{}*", exp/root)),
                 };
                 __string = format!("{}{}{}", __string, __temp.0, __temp.1);
@@ -206,12 +207,12 @@ macro_rules! make_units_adv {
 
 
         impl<$($Type),*> DimToString for $System<$($Type),*>
-            where $($Type: ToInt),* {
+            where $($Type: Integer),* {
                 fn to_string() -> String {
                     // fixme: add #[allow(unused_variables)] lints for these. Not working
                     // for me for some reason.
-                    let allowed_roots = [$($Root::to_int()),*];
-                    let exponents = [$($Type::to_int()),*];
+                    let allowed_roots = [$($Root::to_i32()),*];
+                    let exponents = [$($Type::to_i32()),*];
                     let print_tokens = [$(stringify!($print_as)),*];
 
                     pretty_dim(allowed_roots, exponents, print_tokens)
@@ -260,7 +261,7 @@ macro_rules! count_args {
 macro_rules! __make_base_types {
     ($System:ident, $Type:ident, $Root:ident, $($Types:ident, $Roots:ident),+ | $($Zeros:ident),*) => (
         pub type $Type = $System< $($Zeros,)* $Root>;
-        __make_base_types!($System, $($Types, $Roots),+ | Zero $(, $Zeros)*);
+        __make_base_types!($System, $($Types, $Roots),+ | Z0 $(, $Zeros)*);
         );
     ($System:ident, $Type:ident, $Root:ident | $($Zeros:ident),*) => (
         pub type $Type = $System<$($Zeros,)* $Root>;

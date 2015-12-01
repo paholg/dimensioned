@@ -14,7 +14,7 @@ For in depth tutorials, check [here](http://paholg.com/project/dimensioned).
 #![feature(type_macros)]
 
 
-extern crate peano;
+extern crate typenum;
 extern crate num;
 
 

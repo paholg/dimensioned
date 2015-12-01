@@ -8,10 +8,9 @@ aid in generic programming and should not be implemented for anything outside th
 module. They are `Dimension`, `Dimensionless`, and `DimToString`.
 */
 
-use peano::{Same};
-use peano::{P2, P3};
-
-use peano::{Peano, ToInt};
+use typenum::Same;
+use typenum::consts::{P2, P3};
+use typenum::int::Integer;
 use std::marker::PhantomData;
 
 use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd, BitOr, BitXor, FnOnce, Not, Rem, Shl, Shr};
@@ -134,7 +133,7 @@ pub trait Cbrt {
     Take a cube root.
     # Example
     ```
-    # extern crate peano;
+    # extern crate typenum;
     # extern crate dimensioned;
     use dimensioned::si::m;
     use dimensioned::Cbrt;
@@ -159,7 +158,7 @@ impl<D, V> Cbrt for Dim<D, V> where D: Dimension + Root<P3>, V: Float, <D as Roo
 **Root<Radicand>** is used for implementing general integer roots for types that don't
 `impl Float` and whose type signature changes when taking a root, such as `Dim<D, V>`.
 
-It uses Peano numbers to specify the degree.
+It uses typenum numbers to specify the degree.
 
 The syntax is a little bit weird and may be subject to change.
 */
@@ -170,12 +169,12 @@ pub trait Root<Radicand> {
     /**
     # Example
     ```
-    # extern crate peano;
+    # extern crate typenum;
     # extern crate dimensioned;
 
     use dimensioned::si::m;
     use dimensioned::Root;
-    use peano::P4;
+    use typenum::consts::P4;
 
     # fn main() {
     let x = 2.0*m;
@@ -186,10 +185,10 @@ pub trait Root<Radicand> {
     */
     fn root(radicand: Radicand) -> Self::Output;
 }
-impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + Root<Degree>, V: Float, Degree: Peano + ToInt, <D as Root<Degree>>::Output: Dimension {
+impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + Root<Degree>, V: Float, Degree: Integer, <D as Root<Degree>>::Output: Dimension {
     type Output = Dim<<D as Root<Degree>>::Output, V>;
     fn root(base: Dim<D, V>) -> Self::Output {
-        let x: V = NumCast::from(Degree::to_int()).expect("Attempted to take nth root of a Dim<D, V>, but could not convert from i32 to V to compute n.");
+        let x: V = NumCast::from(Degree::to_i32()).expect("Attempted to take nth root of a Dim<D, V>, but could not convert from i32 to V to compute n.");
         Dim::new( (base.0).powf(x.recip()) )
     }
 }
@@ -198,7 +197,7 @@ impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + Root<Degree>,
 **Pow<Base>** is used for implementing general integer powers for types that don't `impl
 Float` and whose type signature changes when multiplying, such as `Dim<D, V>`.
 
-It uses Peano numbers to specify the degree.
+It uses typenum numbers to specify the degree.
 
 The syntax is a little bit weird and may be subject to change.
 */
@@ -208,12 +207,12 @@ pub trait Pow<Base> {
     /**
     # Example
     ```
-    # extern crate peano;
+    # extern crate typenum;
     # extern crate dimensioned;
 
     use dimensioned::si::m;
     use dimensioned::Pow;
-    use peano::P3;
+    use typenum::consts::P3;
 
     # fn main() {
     let x = 2.0*m;
@@ -224,10 +223,10 @@ pub trait Pow<Base> {
     */
     fn pow(base: Base) -> Self::Output;
 }
-impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Dimension + Pow<Exp>, V: Float, Exp: Peano + ToInt, <D as Pow<Exp>>::Output: Dimension {
+impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Dimension + Pow<Exp>, V: Float, Exp: Integer, <D as Pow<Exp>>::Output: Dimension {
     type Output = Dim<<D as Pow<Exp>>::Output, V>;
     fn pow(base: Dim<D, V>) -> Self::Output {
-        Dim::new( (base.0).powi(Exp::to_int()) )
+        Dim::new( (base.0).powi(Exp::to_i32()) )
     }
 }
 
@@ -277,8 +276,8 @@ one of:
 * `Mul`: Multiplies `Self` by `Self`. The same as `Pow<P2>`.
 * `Div`: Divides `Self` by `Self`. The same as `Pow<Zero>`.
 * `Recip`: Gives the reciprocal of `Self`.
-* `Pow<N>`: Raises `Self` to the exponent `N` where `N` is a Peano number.
-* `Root<N>`: Takes the `N`th root of `Self` where `N` is a Peano number.
+* `Pow<N>`: Raises `Self` to the exponent `N` where `N` is a Typenum number.
+* `Root<N>`: Takes the `N`th root of `Self` where `N` is a Typenum number.
 * `Sqrt`: Takes the square root of `Self`. The same as `Root<P2>`.
 * `Cbrt`: Takes the cube root of `Self`. The same as `Root<P3>`.
 
@@ -286,11 +285,11 @@ Note: This macro requires that `Dim` and `Dimension` be imported.
 
 # Example
 ```rust
-extern crate peano;
+extern crate typenum;
 #[macro_use]
 extern crate dimensioned;
 
-use peano::Same;
+use typenum::Same;
 use dimensioned::{Dim, Dimension};
 use dimensioned::si::m;
 use std::ops::Mul;
