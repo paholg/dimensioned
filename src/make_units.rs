@@ -146,15 +146,6 @@ macro_rules! make_units_adv {
         // using $Type and $constant for these traits is confusing. It should really be $Type_Left and
         // $Type_Right or something, but as far as I can tell, that is not supported by Rust
         #[allow(non_camel_case_types)]
-        impl<$($Type),*, $($constant),*> Same<$System<$($constant),*>> for $System<$($Type),*>
-            where $($Type: Same<$constant>),*,
-                  $($constant: Integer),*,
-                  $(<$Type as Same<$constant>>::Output: Integer),*,
-                  $System<$(<$Type as Same<$constant>>::Output),*>: Dimension,
-        {
-            type Output = $System<$(<$Type as Same<$constant>>::Output),*>;
-        }
-        #[allow(non_camel_case_types)]
         impl<$($Type),*, $($constant),*> Mul<$System<$($constant),*>> for $System<$($Type),*>
             where $($Type: Integer + Add<$constant>),*,
         $($constant: Integer),*,
