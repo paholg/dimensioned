@@ -195,8 +195,8 @@ macro_rules! make_units_adv {
             let mut __string = String::new();
             for ((&root, &exp), &token) in roots.iter().zip(exps.iter()).zip(tokens.iter()) {
                 let __temp: (&'static str, String) = match exp {
-                    0 => ("", "".to_string()),
-                    1 => (token, "*".to_string()),
+                    0 => ("", "".to_owned()),
+                    1 => (token, "*".to_owned()),
                     _ => (token, format!("^{}*", exp/root)),
                 };
                 __string = format!("{}{}{}", __string, __temp.0, __temp.1);
