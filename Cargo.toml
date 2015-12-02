@@ -1,6 +1,6 @@
 [package]
   name = "dimensioned"
-  version = "0.4.0"
+  version = "0.5.0"
   authors = ["Paho Lurie-Gregg <paho@paholg.com>"]
   description = "Compile-time type checking of arbitrary unit systems."
   homepage = "http://paholg.com/project/dimensioned"
