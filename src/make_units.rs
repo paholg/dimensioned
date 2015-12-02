@@ -131,7 +131,6 @@ macro_rules! make_units_adv {
      } ) => (
         #[allow(unused_imports)]
         use typenum::consts::{Z0, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
-        use typenum::Same;
         use typenum::int::Integer;
         use $crate::{Dimension, Dimensionless, Dim, Pow, Root, Recip, DimToString};
         use ::std::ops::{Add, Neg, Sub, Mul, Div};
@@ -145,15 +144,6 @@ macro_rules! make_units_adv {
 
         // using $Type and $constant for these traits is confusing. It should really be $Type_Left and
         // $Type_Right or something, but as far as I can tell, that is not supported by Rust
-        #[allow(non_camel_case_types)]
-        impl<$($Type),*, $($constant),*> Same<$System<$($constant),*>> for $System<$($Type),*>
-            where $($Type: Integer + Same<$constant>),*,
-                  $($constant: Integer),*,
-                  $(<$Type as Same<$constant>>::Output: Integer),*,
-                  $System<$(<$Type as Same<$constant>>::Output),*>: Dimension,
-        {
-            type Output = $System<$(<$Type as Same<$constant>>::Output),*>;
-        }
         #[allow(non_camel_case_types)]
         impl<$($Type),*, $($constant),*> Mul<$System<$($constant),*>> for $System<$($Type),*>
             where $($Type: Integer + Add<$constant>),*,
