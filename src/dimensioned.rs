@@ -9,8 +9,9 @@ module. They are `Dimension`, `Dimensionless`, and `DimToString`.
 */
 
 use typenum::Same;
-use typenum::consts::{P2, P3};
 use typenum::int::Integer;
+use typenum::consts::{P2, P3};
+
 use std::marker::PhantomData;
 
 use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd, BitOr, BitXor, FnOnce, Not, Rem, Shl, Shr};
@@ -46,8 +47,14 @@ pub trait DimToString: Dimension {
 }
 
 /// This is the primary struct that users of this library will interact with.
-#[derive(Copy, Clone)]
 pub struct Dim<D: Dimension, V>(pub V, pub PhantomData<D>);
+
+use std::clone::Clone;
+use std::marker::Copy;
+impl<D: Dimension, V: Clone> Clone for Dim<D, V> {
+    fn clone(&self) -> Self { Dim::new(self.0.clone()) }
+}
+impl<D: Dimension, V: Copy> Copy for Dim<D, V> {}
 
 impl<D: Dimension, V> Dim<D, V> {
     /**
@@ -158,7 +165,7 @@ impl<D, V> Cbrt for Dim<D, V> where D: Dimension + Root<P3>, V: Float, <D as Roo
 **Root<Radicand>** is used for implementing general integer roots for types that don't
 `impl Float` and whose type signature changes when taking a root, such as `Dim<D, V>`.
 
-It uses typenum numbers to specify the degree.
+It uses type numbers to specify the degree.
 
 The syntax is a little bit weird and may be subject to change.
 */
@@ -197,7 +204,7 @@ impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + Root<Degree>,
 **Pow<Base>** is used for implementing general integer powers for types that don't `impl
 Float` and whose type signature changes when multiplying, such as `Dim<D, V>`.
 
-It uses typenum numbers to specify the degree.
+It uses type numbers to specify the degree.
 
 The syntax is a little bit weird and may be subject to change.
 */
@@ -276,8 +283,8 @@ one of:
 * `Mul`: Multiplies `Self` by `Self`. The same as `Pow<P2>`.
 * `Div`: Divides `Self` by `Self`. The same as `Pow<Zero>`.
 * `Recip`: Gives the reciprocal of `Self`.
-* `Pow<N>`: Raises `Self` to the exponent `N` where `N` is a Typenum number.
-* `Root<N>`: Takes the `N`th root of `Self` where `N` is a Typenum number.
+* `Pow<N>`: Raises `Self` to the exponent `N` where `N` is a type number.
+* `Root<N>`: Takes the `N`th root of `Self` where `N` is a type number.
 * `Sqrt`: Takes the square root of `Self`. The same as `Root<P2>`.
 * `Cbrt`: Takes the cube root of `Self`. The same as `Root<P3>`.
 

@@ -1,4 +1,4 @@
-extern crate peano;
+extern crate typenum;
 #[macro_use]
 extern crate dimensioned;
 

@@ -110,7 +110,7 @@ Once associated constants hit, `std::num::One` will be used to determine the ini
 The `base` block is used to define the base units of this system. The line `P2,
 Centimeter, cm, cm;` creates the unit `Centimeter`, the corresponding constant `cm`, and
 will use the token "cm" to print `Centimeter`s. It also states that square roots will be
-allowed for `Centimeter`s; the `P2` is the typenum number for 2 and dictates the highest
+allowed for `Centimeter`s; the `P2` is the type number for 2 and dictates the highest
 root allowed. You will almost always want this to be `P1`. For `CGS`, though, some
 derived units are defined in terms of square roots of base units, so they are necessary
 to allow.
@@ -131,7 +131,6 @@ macro_rules! make_units_adv {
      } ) => (
         #[allow(unused_imports)]
         use typenum::consts::{Z0, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
-        use typenum::Same;
         use typenum::int::Integer;
         use $crate::{Dimension, Dimensionless, Dim, Pow, Root, Recip, DimToString};
         use ::std::ops::{Add, Neg, Sub, Mul, Div};
