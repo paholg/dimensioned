@@ -6,11 +6,9 @@ many traits from `std` as generically as possible.
 Among the included traits in **dimensioned**, there are a few that are used solely to
 aid in generic programming and should not be implemented for anything outside this
 module. They are `Dimension`, `Dimensionless`, and `DimToString`.
-*/
+ */
 
-use typenum::Same;
-use typenum::int::Integer;
-use typenum::consts::{P2, P3};
+use {Same, Integer, P2, P3};
 
 use std::marker::PhantomData;
 
@@ -140,16 +138,12 @@ pub trait Cbrt {
     Take a cube root.
     # Example
     ```
-    # extern crate typenum;
-    # extern crate dimensioned;
     use dimensioned::si::m;
     use dimensioned::Cbrt;
 
-    # fn main() {
     let x = 2.0*m;
     let y = 8.0*m*m*m;
     assert_eq!(x, y.cbrt());
-    # }
     ```
      */
     fn cbrt(self) -> Self::Output;
@@ -176,18 +170,13 @@ pub trait Root<Radicand> {
     /**
     # Example
     ```
-    # extern crate typenum;
-    # extern crate dimensioned;
-
     use dimensioned::si::m;
     use dimensioned::Root;
-    use typenum::consts::P4;
+    use dimensioned::P4;
 
-    # fn main() {
     let x = 2.0*m;
     let y = 16.0*m*m*m*m;
     assert_eq!(x, P4::root(x*x*x*x));
-    # }
     ```
     */
     fn root(radicand: Radicand) -> Self::Output;
@@ -214,18 +203,13 @@ pub trait Pow<Base> {
     /**
     # Example
     ```
-    # extern crate typenum;
-    # extern crate dimensioned;
-
     use dimensioned::si::m;
     use dimensioned::Pow;
-    use typenum::consts::P3;
+    use dimensioned::P3;
 
-    # fn main() {
     let x = 2.0*m;
     let y = 8.0*m*m*m;
     assert_eq!(P3::pow(x), y);
-    # }
     ```
     */
     fn pow(base: Base) -> Self::Output;
@@ -292,11 +276,10 @@ Note: This macro requires that `Dim` and `Dimension` be imported.
 
 # Example
 ```rust
-extern crate typenum;
 #[macro_use]
 extern crate dimensioned;
 
-use typenum::Same;
+use dimensioned::Same;
 use dimensioned::{Dim, Dimension};
 use dimensioned::si::m;
 use std::ops::Mul;

@@ -17,6 +17,9 @@ For in depth tutorials, check [here](http://paholg.com/project/dimensioned).
 extern crate typenum;
 extern crate num;
 
+pub use typenum::Same;
+pub use typenum::int::Integer;
+pub use typenum::consts::{N9, N8, N7, N6, N5, N4, N3, N2, N1, Z0, P1, P2, P3, P4, P5, P6, P7, P8, P9};
 
 pub use dimensioned::*;
 
