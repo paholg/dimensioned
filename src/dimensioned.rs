@@ -6,12 +6,10 @@ many traits from `std` as generically as possible.
 Among the included traits in **dimensioned**, there are a few that are used solely to
 aid in generic programming and should not be implemented for anything outside this
 module. They are `Dimension`, `Dimensionless`, and `DimToString`.
-*/
+ */
 
-use peano::{Same};
-use peano::{P2, P3};
+use {Same, Integer, P2, P3};
 
-use peano::{Peano, ToInt};
 use std::marker::PhantomData;
 
 use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd, BitOr, BitXor, FnOnce, Not, Rem, Shl, Shr};
@@ -47,8 +45,14 @@ pub trait DimToString: Dimension {
 }
 
 /// This is the primary struct that users of this library will interact with.
-#[derive(Copy, Clone)]
 pub struct Dim<D: Dimension, V>(pub V, pub PhantomData<D>);
+
+use std::clone::Clone;
+use std::marker::Copy;
+impl<D: Dimension, V: Clone> Clone for Dim<D, V> {
+    fn clone(&self) -> Self { Dim::new(self.0.clone()) }
+}
+impl<D: Dimension, V: Copy> Copy for Dim<D, V> {}
 
 impl<D: Dimension, V> Dim<D, V> {
     /**
@@ -134,16 +138,12 @@ pub trait Cbrt {
     Take a cube root.
     # Example
     ```
-    # extern crate peano;
-    # extern crate dimensioned;
     use dimensioned::si::m;
     use dimensioned::Cbrt;
 
-    # fn main() {
     let x = 2.0*m;
     let y = 8.0*m*m*m;
     assert_eq!(x, y.cbrt());
-    # }
     ```
      */
     fn cbrt(self) -> Self::Output;
@@ -159,7 +159,7 @@ impl<D, V> Cbrt for Dim<D, V> where D: Dimension + Root<P3>, V: Float, <D as Roo
 **Root<Radicand>** is used for implementing general integer roots for types that don't
 `impl Float` and whose type signature changes when taking a root, such as `Dim<D, V>`.
 
-It uses Peano numbers to specify the degree.
+It uses type numbers to specify the degree.
 
 The syntax is a little bit weird and may be subject to change.
 */
@@ -170,26 +170,21 @@ pub trait Root<Radicand> {
     /**
     # Example
     ```
-    # extern crate peano;
-    # extern crate dimensioned;
-
     use dimensioned::si::m;
     use dimensioned::Root;
-    use peano::P4;
+    use dimensioned::P4;
 
-    # fn main() {
     let x = 2.0*m;
     let y = 16.0*m*m*m*m;
     assert_eq!(x, P4::root(x*x*x*x));
-    # }
     ```
     */
     fn root(radicand: Radicand) -> Self::Output;
 }
-impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + Root<Degree>, V: Float, Degree: Peano + ToInt, <D as Root<Degree>>::Output: Dimension {
+impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + Root<Degree>, V: Float, Degree: Integer, <D as Root<Degree>>::Output: Dimension {
     type Output = Dim<<D as Root<Degree>>::Output, V>;
     fn root(base: Dim<D, V>) -> Self::Output {
-        let x: V = NumCast::from(Degree::to_int()).expect("Attempted to take nth root of a Dim<D, V>, but could not convert from i32 to V to compute n.");
+        let x: V = NumCast::from(Degree::to_i32()).expect("Attempted to take nth root of a Dim<D, V>, but could not convert from i32 to V to compute n.");
         Dim::new( (base.0).powf(x.recip()) )
     }
 }
@@ -198,7 +193,7 @@ impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + Root<Degree>,
 **Pow<Base>** is used for implementing general integer powers for types that don't `impl
 Float` and whose type signature changes when multiplying, such as `Dim<D, V>`.
 
-It uses Peano numbers to specify the degree.
+It uses type numbers to specify the degree.
 
 The syntax is a little bit weird and may be subject to change.
 */
@@ -208,26 +203,21 @@ pub trait Pow<Base> {
     /**
     # Example
     ```
-    # extern crate peano;
-    # extern crate dimensioned;
-
     use dimensioned::si::m;
     use dimensioned::Pow;
-    use peano::P3;
+    use dimensioned::P3;
 
-    # fn main() {
     let x = 2.0*m;
     let y = 8.0*m*m*m;
     assert_eq!(P3::pow(x), y);
-    # }
     ```
     */
     fn pow(base: Base) -> Self::Output;
 }
-impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Dimension + Pow<Exp>, V: Float, Exp: Peano + ToInt, <D as Pow<Exp>>::Output: Dimension {
+impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Dimension + Pow<Exp>, V: Float, Exp: Integer, <D as Pow<Exp>>::Output: Dimension {
     type Output = Dim<<D as Pow<Exp>>::Output, V>;
     fn pow(base: Dim<D, V>) -> Self::Output {
-        Dim::new( (base.0).powi(Exp::to_int()) )
+        Dim::new( (base.0).powi(Exp::to_i32()) )
     }
 }
 
@@ -277,8 +267,8 @@ one of:
 * `Mul`: Multiplies `Self` by `Self`. The same as `Pow<P2>`.
 * `Div`: Divides `Self` by `Self`. The same as `Pow<Zero>`.
 * `Recip`: Gives the reciprocal of `Self`.
-* `Pow<N>`: Raises `Self` to the exponent `N` where `N` is a Peano number.
-* `Root<N>`: Takes the `N`th root of `Self` where `N` is a Peano number.
+* `Pow<N>`: Raises `Self` to the exponent `N` where `N` is a type number.
+* `Root<N>`: Takes the `N`th root of `Self` where `N` is a type number.
 * `Sqrt`: Takes the square root of `Self`. The same as `Root<P2>`.
 * `Cbrt`: Takes the cube root of `Self`. The same as `Root<P3>`.
 
@@ -286,11 +276,10 @@ Note: This macro requires that `Dim` and `Dimension` be imported.
 
 # Example
 ```rust
-extern crate peano;
 #[macro_use]
 extern crate dimensioned;
 
-use peano::Same;
+use dimensioned::Same;
 use dimensioned::{Dim, Dimension};
 use dimensioned::si::m;
 use std::ops::Mul;
