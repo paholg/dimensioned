@@ -8,7 +8,6 @@ Note that it has some imports from the peano crate, so it must be included.
 
 # Example
 ```rust
-extern crate typenum;
 #[macro_use]
 extern crate dimensioned;
 
@@ -79,7 +78,6 @@ inside of its own module.
 Here we define the **CGS** unit system.
 
 ```rust
-extern crate typenum;
 #[macro_use]
 extern crate dimensioned;
 
@@ -130,8 +128,8 @@ macro_rules! make_units_adv {
          $($derived_constant:ident: $Derived:ident = $e:expr;)*
      } ) => (
         #[allow(unused_imports)]
-        use typenum::consts::{Z0, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
-        use typenum::int::Integer;
+        use $crate::{Z0, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
+        use $crate::Integer;
         use $crate::{Dimension, Dimensionless, Dim, Pow, Root, Recip, DimToString};
         use ::std::ops::{Add, Neg, Sub, Mul, Div};
         use ::std::marker::PhantomData;
