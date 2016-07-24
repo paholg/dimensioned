@@ -45,16 +45,16 @@ pub trait DimToString: Dimension {
 }
 
 /// This is the primary struct that users of this library will interact with.
-pub struct Dim<D: Dimension, V>(pub V, pub PhantomData<D>);
+pub struct Dim<D, V>(pub V, pub PhantomData<D>);
 
 use std::clone::Clone;
 use std::marker::Copy;
-impl<D: Dimension, V: Clone> Clone for Dim<D, V> {
+impl<D, V: Clone> Clone for Dim<D, V> {
     fn clone(&self) -> Self { Dim::new(self.0.clone()) }
 }
-impl<D: Dimension, V: Copy> Copy for Dim<D, V> {}
+impl<D, V: Copy> Copy for Dim<D, V> {}
 
-impl<D: Dimension, V> Dim<D, V> {
+impl<D, V> Dim<D, V> {
     /**
     Construct a new `Dim` object.
 
@@ -103,7 +103,7 @@ This trait is implemented by default for everything that is not Dim<D, V>. It al
 #[doc(hidden)]
 pub trait NotDim {}
 impl NotDim for .. {}
-impl<D: Dimension, V> !NotDim for Dim<D, V> {}
+impl<D, V> !NotDim for Dim<D, V> {}
 
 /// **Sqrt** is used for implementing a `sqrt()` member for types that don't `impl Float`.
 pub trait Sqrt {
@@ -124,7 +124,7 @@ pub trait Sqrt {
     fn sqrt(self) -> Self::Output;
 }
 
-impl<D, V> Sqrt for Dim<D, V> where D: Dimension + Root<P2>, V: Float, <D as Root<P2>>::Output: Dimension {
+impl<D, V> Sqrt for Dim<D, V> where D: Root<P2>, V: Float, <D as Root<P2>>::Output: Dimension {
     type Output = Dim<<D as Root<P2>>::Output, V>;
     #[inline]
     fn sqrt(self) -> Self::Output { Dim( (self.0).sqrt(), PhantomData) }
@@ -149,7 +149,7 @@ pub trait Cbrt {
     fn cbrt(self) -> Self::Output;
 }
 
-impl<D, V> Cbrt for Dim<D, V> where D: Dimension + Root<P3>, V: Float, <D as Root<P3>>::Output: Dimension {
+impl<D, V> Cbrt for Dim<D, V> where D: Root<P3>, V: Float, <D as Root<P3>>::Output: Dimension {
     type Output = Dim<<D as Root<P3>>::Output, V>;
     #[inline]
     fn cbrt(self) -> Self::Output { Dim( (self.0).cbrt(), PhantomData) }
@@ -181,7 +181,7 @@ pub trait Root<Radicand> {
     */
     fn root(radicand: Radicand) -> Self::Output;
 }
-impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Dimension + Root<Degree>, V: Float, Degree: Integer, <D as Root<Degree>>::Output: Dimension {
+impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Root<Degree>, V: Float, Degree: Integer, <D as Root<Degree>>::Output: Dimension {
     type Output = Dim<<D as Root<Degree>>::Output, V>;
     fn root(base: Dim<D, V>) -> Self::Output {
         let x: V = NumCast::from(Degree::to_i32()).expect("Attempted to take nth root of a Dim<D, V>, but could not convert from i32 to V to compute n.");
@@ -214,7 +214,7 @@ pub trait Pow<Base> {
     */
     fn pow(base: Base) -> Self::Output;
 }
-impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Dimension + Pow<Exp>, V: Float, Exp: Integer, <D as Pow<Exp>>::Output: Dimension {
+impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Pow<Exp>, V: Float, Exp: Integer, <D as Pow<Exp>>::Output: Dimension {
     type Output = Dim<<D as Pow<Exp>>::Output, V>;
     fn pow(base: Dim<D, V>) -> Self::Output {
         Dim::new( (base.0).powi(Exp::to_i32()) )
@@ -238,12 +238,72 @@ pub trait Recip {
      */
     fn recip(self) -> Self::Output;
 }
-impl<D, V> Recip for Dim<D, V> where D: Dimension + Recip, V: Float, <D as Recip>::Output: Dimension {
+impl<D, V> Recip for Dim<D, V> where D: Recip, V: Float, <D as Recip>::Output: Dimension {
     type Output = Dim<<D as Recip>::Output, V>;
     fn recip(self) -> Self::Output {
         Dim::new( (self.0).recip() )
     }
 }
+
+// /**
+// **Convert** provides a useful trait for allowing unit conversions. The trait `std::convert::From` can't be used because it doesn't have an associated type.
+
+// # Example
+// ```
+// #[macro_use]
+// extern crate dimensioned as dim;
+// extern crate typenum;
+
+// use dim::{Dim, FromDim};
+// use dim::cgs::{self, CGS};
+// use typenum::int::Integer;
+// use typenum::consts::P2;
+
+// use std::ops::{Mul, Div};
+
+// type Quot<A, B> = <A as Div<B>>::Output;
+
+// mod mks {
+// make_units_adv! {
+// CGS, Unitless, one, f64, 1.0;
+// base {
+// P2, Centimeter, cm, cm;
+// P2, Gram, g, g;
+// P1, Second, s, s;
+//     }
+//     derived {
+//     }
+// }
+// }
+// use mks::MKS;
+
+// impl<V, CM, G, S> FromDim<Dim<CGS<CM, G, S>, V>> for MKS<Quot<CM, P2>, Quot<G, P2>, S>
+//     where V: Mul<f64, Output=V>, CM: Integer + Div<P2>, G: Integer + Div<P2>, S: Integer,
+//           Quot<CM, P2>: Integer, Quot<G, P2>: Integer,
+// {
+//     type Output = Dim<Self, V>;
+//     fn from_dim(origin: Dim<CGS<CM, G, S>, V>) -> Self::Output {
+//         Dim::new( origin.0 * 0.01f64.powi(CM::to_i32()) * 0.001f64.powi(G::to_i32()) )
+//     }
+// }
+
+
+// fn main() {
+//     let speed = 35.0 * cgs::cm / cgs::s;
+
+//     println!("I was going {}, which is {}.", speed, MKS::from_dim(speed));
+// }
+
+// ```
+// */
+// pub trait ConvertFrom<D, V> where Self: Sized {
+//     fn convert_from(from: Dim<D, V>) -> Dim<Self, V>;
+// }
+// pub trait ConvertTo<D> {
+//     type Output;
+//     fn convert_to(self) -> Self::Output;
+// }
+
 
 /**
 Used for implementing unary members of `V` for `Dim<D, V>`
@@ -312,7 +372,7 @@ macro_rules! dim_impl_unary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $O
         type Output;
         fn $fun(self) -> Self::Output;
     }
-    impl<D> $Trait for Dim<D, $In> where D: Dimension + $op, <D as $op>::Output: Dimension {
+    impl<D> $Trait for Dim<D, $In> where D: $op, <D as $op>::Output: Dimension {
         type Output = Dim<<D as $op>::Output, $Out>;
         fn $fun(self) -> Self::Output { Dim::new( (self.0).$fun() ) }
     }
@@ -409,7 +469,7 @@ dim_fmt!(UpperExp, "{:E} {}");
 //------------------------------------------------------------------------------
 // Traits from std::cmp
 //------------------------------------------------------------------------------
-impl<Dl, Dr, Vl, Vr> PartialEq<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension + Same<Dr>, Dr: Dimension, Vl: PartialEq<Vr> {
+impl<Dl, Dr, Vl, Vr> PartialEq<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Same<Dr>, Vl: PartialEq<Vr> {
     fn eq(&self, other: &Dim<Dr, Vr>) -> bool {
         (self.0).eq(&(other.0))
     }
@@ -417,9 +477,9 @@ impl<Dl, Dr, Vl, Vr> PartialEq<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension 
         (self.0).ne(&(other.0))
     }
 }
-impl<D: Dimension + Same, V: Eq> Eq for Dim<D, V> {}
+impl<D: Same, V: Eq> Eq for Dim<D, V> {}
 
-impl<Dl, Dr, Vl, Vr> PartialOrd<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension + Same<Dr>, Dr: Dimension, Vl: PartialOrd<Vr> {
+impl<Dl, Dr, Vl, Vr> PartialOrd<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Same<Dr>, Vl: PartialOrd<Vr> {
     fn partial_cmp(&self, other: &Dim<Dr, Vr>) -> Option<Ordering> {
         (self.0).partial_cmp(&(other.0))
     }
@@ -436,7 +496,7 @@ impl<Dl, Dr, Vl, Vr> PartialOrd<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Dimension
         (self.0).ge(&(other.0))
     }
 }
-impl<D: Dimension + Same, V: Ord> Ord for Dim<D, V> {
+impl<D: Same, V: Ord> Ord for Dim<D, V> {
     fn cmp(&self, other: &Self) -> Ordering {
         (self.0).cmp(&(other.0))
     }
@@ -447,36 +507,35 @@ impl<D: Dimension + Same, V: Ord> Ord for Dim<D, V> {
 
 /// Multiplying!
 impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
-    where Dl: Dimension + Mul<Dr>, Dr: Dimension, Vl: Mul<Vr>, <Dl as Mul<Dr>>::Output: Dimension {
-        type Output = Dim<<Dl as Mul<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
+    where Dl: Dimension + Mul<Dr>, Dr: Dimension, Vl: Mul<Vr>, <Dl as Mul<Dr>>::Output: Dimension
+{
+    type Output = Dim<<Dl as Mul<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
 
-        #[inline]
-        fn mul(self, rhs: Dim<Dr, Vr>) -> Self::Output {
-            Dim::new(self.0 * rhs.0)
-        }
+    #[inline]
+    fn mul(self, rhs: Dim<Dr, Vr>) -> Self::Output {
+        Dim::new(self.0 * rhs.0)
+    }
 }
 
 /// Scalar multiplication (with scalar on RHS)!
-impl<D, V, RHS> Mul<RHS> for Dim<D, V>
-    where D: Dimension, V: Mul<RHS>, RHS: NotDim {
-        type Output = Dim<D, <V as Mul<RHS>>::Output>;
-        #[inline]
-        fn mul(self, rhs: RHS) -> Dim<D, <V as Mul<RHS>>::Output> {
-            Dim(self.0 * rhs, PhantomData)
-        }
+impl<D, V, RHS> Mul<RHS> for Dim<D, V> where V: Mul<RHS>, RHS: NotDim {
+    type Output = Dim<D, <V as Mul<RHS>>::Output>;
+    #[inline]
+    fn mul(self, rhs: RHS) -> Dim<D, <V as Mul<RHS>>::Output> {
+        Dim(self.0 * rhs, PhantomData)
     }
+}
 
 /// Scalar multiplication (with scalar on LHS)!
 macro_rules! dim_lhs_mult {
     ($t: ty) => (
-        impl<D, V: Mul<$t>> Mul<Dim<D, V>> for $t
-            where D: Dimension {
-                type Output = Dim<D, <V as Mul<$t>>::Output>;
-                #[inline]
-                fn mul(self, rhs: Dim<D, V>) -> Self::Output {
-                    Dim( rhs.0 * self, PhantomData )
-                }
+        impl<D, V> Mul<Dim<D, V>> for $t where $t: Mul<V> {
+            type Output = Dim<D, <$t as Mul<V>>::Output>;
+            #[inline]
+            fn mul(self, rhs: Dim<D, V>) -> Self::Output {
+                Dim( self * rhs.0, PhantomData )
             }
+        }
         );
 }
 dim_lhs_mult!(f32);
@@ -495,36 +554,34 @@ dim_lhs_mult!(usize);
 
 /// Dividing!
 impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
-    where Dl: Dimension + Div<Dr>, Dr: Dimension, Vl: Div<Vr>, <Dl as Div<Dr>>::Output: Dimension {
-        type Output = Dim<<Dl as Div<Dr>>::Output, <Vl as Div<Vr>>::Output>;
-        #[inline]
-        fn div(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as Div<Dr>>::Output, <Vl as Div<Vr>>::Output> {
-            Dim(self.0 / rhs.0, PhantomData)
-        }
+    where Dl: Dimension + Div<Dr>, Dr: Dimension, Vl: Div<Vr>, <Dl as Div<Dr>>::Output: Dimension
+{
+    type Output = Dim<<Dl as Div<Dr>>::Output, <Vl as Div<Vr>>::Output>;
+    #[inline]
+    fn div(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as Div<Dr>>::Output, <Vl as Div<Vr>>::Output> {
+        Dim(self.0 / rhs.0, PhantomData)
     }
+}
 
 /// Scalar division (with scalar on RHS)!
-impl<D, V, RHS> Div<RHS> for Dim<D, V>
-    where D: Dimension, V: Div<RHS>, RHS: NotDim {
-        type Output = Dim<D, <V as Div<RHS>>::Output>;
-        #[inline]
-        fn div(self, rhs: RHS) -> Dim<D, <V as Div<RHS>>::Output> {
-            Dim(self.0 / rhs, PhantomData)
-        }
+impl<D, V, RHS> Div<RHS> for Dim<D, V> where V: Div<RHS>, RHS: NotDim {
+    type Output = Dim<D, <V as Div<RHS>>::Output>;
+    #[inline]
+    fn div(self, rhs: RHS) -> Dim<D, <V as Div<RHS>>::Output> {
+        Dim(self.0 / rhs, PhantomData)
     }
+}
 
 /// Scalar division (with scalar on LHS)!
-// fixme: Switch to Dim<D, V>'s impl of Recip?
 macro_rules! dim_lhs_div {
     ($t: ty) => (
-        impl<D> Div<Dim<D, $t>> for $t
-            where D: Dimension + Recip, <D as Recip>::Output: Dimension {
-                type Output = Dim<<D as Recip>::Output, <$t as Div>::Output>;
-                #[inline]
-                fn div(self, rhs: Dim<D, $t>) -> Self::Output {
-                    Dim( self / rhs.0, PhantomData )
-                }
+        impl<D, V> Div<Dim<D, V>> for $t where D: Recip, <D as Recip>::Output: Dimension, $t: Div<V> {
+            type Output = Dim<<D as Recip>::Output, <$t as Div<V>>::Output>;
+            #[inline]
+            fn div(self, rhs: Dim<D, V>) -> Self::Output {
+                Dim( self / rhs.0, PhantomData )
             }
+        }
         );
 }
 dim_lhs_div!(f32);
@@ -545,7 +602,7 @@ dim_lhs_div!(usize);
 macro_rules! dim_unary {
     ($Trait:ident, $op: ident, $($fun:ident),*) => (
         impl<D, V> $Trait for Dim<D, V>
-            where D: Dimension + $op<D>, V: $Trait, <D as $op<D>>::Output: Dimension {
+            where D:$op<D>, V: $Trait, <D as $op<D>>::Output: Dimension {
                 type Output = Dim<<D as $op<D>>::Output, <V as $Trait>::Output>;
                 #[inline]
                 $(fn $fun(self) -> Dim<<D as $op<D>>::Output, <V as $Trait>::Output> {
@@ -601,7 +658,7 @@ macro_rules! cast_from {
         );
 }
 
-impl<D, V> FromPrimitive for Dim<D, V> where D: Dimension, V: FromPrimitive {
+impl<D, V> FromPrimitive for Dim<D, V> where V: FromPrimitive {
     cast_from!(from_i64, i64);
     cast_from!(from_u64, u64);
     cast_from!(from_isize, isize);
@@ -624,7 +681,7 @@ macro_rules! cast_to {
         );
 }
 
-impl<D, V> ToPrimitive for Dim<D, V> where D: Dimension, V: ToPrimitive {
+impl<D, V> ToPrimitive for Dim<D, V> where V: ToPrimitive {
     cast_to!(to_i64, i64);
     cast_to!(to_u64, u64);
     cast_to!(to_isize, isize);
@@ -639,7 +696,7 @@ impl<D, V> ToPrimitive for Dim<D, V> where D: Dimension, V: ToPrimitive {
     cast_to!(to_f64, f64);
 }
 
-impl<D, V> NumCast for Dim<D, V> where D: Dimension, V: NumCast {
+impl<D, V> NumCast for Dim<D, V> where V: NumCast {
     #[inline]
     fn from<N>(n: N) -> Option<Self> where N: ToPrimitive {
         match NumCast::from(n) {
@@ -650,20 +707,20 @@ impl<D, V> NumCast for Dim<D, V> where D: Dimension, V: NumCast {
 }
 
 //------------------------------------------------------------------------------
-impl<D, V> ::std::num::Zero for Dim<D, V> where D: Dimension, V: ::std::num::Zero {
-    fn zero() -> Self {
-        Dim::new(V::zero())
-    }
-}
+// impl<D, V> ::std::num::Zero for Dim<D, V> where V: ::std::num::Zero {
+//     fn zero() -> Self {
+//         Dim::new(V::zero())
+//     }
+// }
 
 //------------------------------------------------------------------------------
 // DIMENSIONLESS THINGS HERE
 //------------------------------------------------------------------------------
-impl<D, V> ::std::num::One for Dim<D, V> where D: Dimensionless + Mul<D>, V: ::std::num::One + Mul {
-    fn one() -> Self {
-        Dim::new(V::one())
-    }
-}
+// impl<D, V> ::std::num::One for Dim<D, V> where D: Dimensionless + Mul<D>, V: ::std::num::One + Mul {
+//     fn one() -> Self {
+//         Dim::new(V::one())
+//     }
+// }
 
 //------------------------------------------------------------------------------
 // Num
@@ -742,4 +799,5 @@ impl<D, V> ::std::num::One for Dim<D, V> where D: Dimensionless + Mul<D>, V: ::s
 //         dim_unary_float!(integer_decode, (u64, i16, i8));
 
 //     }
+
 
