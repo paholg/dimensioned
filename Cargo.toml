@@ -13,5 +13,5 @@
   name = "dimensioned"
 
 [dependencies]
-  num = "0.1.28"
-  typenum = "1.1.0"
+  num = "0.1.34"
+  typenum = "1.3.2"

@@ -3,8 +3,6 @@ extern crate num;
 
 use vector3b::{Vector3, Norm2, Cross};
 
-use num::Float;
-
 use dim::Sqrt;
 use dim::si::{one, m, kg, s};
 
@@ -56,7 +54,7 @@ fn main() {
 }
 
 mod vector3b {
-    use num::traits::Float;
+    use num::Float;
     use std::ops::{Add, Sub, Mul, Div};
     use std::fmt::{self, Display};
 

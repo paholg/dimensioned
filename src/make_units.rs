@@ -141,7 +141,7 @@ macro_rules! make_units_adv {
         impl<$($Type: Integer),*> Dimension for $System<$($Type),*> {}
 
         // using $Type and $constant for these traits is confusing. It should really be $Type_Left and
-        // $Type_Right or something, but as far as I can tell, that is not supported by Rust
+        // $Type_Right or something, but that is not yet supported by Rust
         #[allow(non_camel_case_types)]
         impl<$($Type),*, $($constant),*> Mul<$System<$($constant),*>> for $System<$($Type),*>
             where $($Type: Integer + Add<$constant>),*,
@@ -149,34 +149,34 @@ macro_rules! make_units_adv {
         $(<$Type as Add<$constant>>::Output: Integer),*,
         $System<$(<$Type as Add<$constant>>::Output),*>: Dimension,
         {
-                type Output = $System<$(<$Type as Add<$constant>>::Output),*>;
-                #[allow(unused_variables)]
-                fn mul(self, rhs: $System<$($constant),*>) -> Self::Output { unreachable!()  }
-            }
+            type Output = $System<$(<$Type as Add<$constant>>::Output),*>;
+            #[allow(unused_variables)]
+            fn mul(self, rhs: $System<$($constant),*>) -> Self::Output { unreachable!()  }
+        }
         #[allow(non_camel_case_types)]
         impl<$($Type),*, $($constant),*> Div<$System<$($constant),*>> for $System<$($Type),*> where
             $($Type: Integer + Sub<$constant>),*, $($constant: Integer),*, $(<$Type as Sub<$constant>>::Output: Integer),* {
-                type Output = $System<$(<$Type as Sub<$constant>>::Output),*>;
-                #[allow(unused_variables)]
-                fn div(self, rhs: $System<$($constant),*>) -> Self::Output { unreachable!()  }
-            }
+            type Output = $System<$(<$Type as Sub<$constant>>::Output),*>;
+            #[allow(unused_variables)]
+            fn div(self, rhs: $System<$($constant),*>) -> Self::Output { unreachable!()  }
+        }
         impl<$($Type),*, RHS> Pow<RHS> for $System<$($Type),*> where
             $($Type: Integer + Mul<RHS>),*, RHS: Integer, $(<$Type as Mul<RHS>>::Output: Integer),* {
-                type Output = $System<$(<$Type as Mul<RHS>>::Output),*>;
-                #[allow(unused_variables)]
-                fn pow(rhs: RHS) -> Self::Output { unreachable!() }
-            }
+            type Output = $System<$(<$Type as Mul<RHS>>::Output),*>;
+            #[allow(unused_variables)]
+            fn pow(rhs: RHS) -> Self::Output { unreachable!() }
+        }
         impl<$($Type),*, RHS> Root<RHS> for $System<$($Type),*> where
             $($Type: Integer + Div<RHS>),*, RHS: Integer, $(<$Type as Div<RHS>>::Output: Integer),* {
-                type Output = $System<$(<$Type as Div<RHS>>::Output),*>;
-                #[allow(unused_variables)]
-                fn root(radicand: RHS) -> Self::Output { unreachable!() }
-            }
+            type Output = $System<$(<$Type as Div<RHS>>::Output),*>;
+            #[allow(unused_variables)]
+            fn root(radicand: RHS) -> Self::Output { unreachable!() }
+        }
         impl<$($Type),*> Recip for $System<$($Type),*> where
             $($Type: Integer + Neg),*, $(<$Type as Neg>::Output: Integer),* {
-                type Output = $System<$(<$Type as Neg>::Output),*>;
-                fn recip(self) -> Self::Output { unreachable!() }
-            }
+            type Output = $System<$(<$Type as Neg>::Output),*>;
+            fn recip(self) -> Self::Output { unreachable!() }
+        }
 
 
         fn pretty_dim(roots: [i32; count_args!($($Type),*)], exps: [i32; count_args!($($Type),*)], tokens: [&'static str; count_args!($($Type),*)]) -> String {
@@ -184,8 +184,14 @@ macro_rules! make_units_adv {
             for ((&root, &exp), &token) in roots.iter().zip(exps.iter()).zip(tokens.iter()) {
                 let __temp: (&'static str, String) = match exp {
                     0 => ("", "".to_owned()),
-                    1 => (token, "*".to_owned()),
-                    _ => (token, format!("^{}*", exp/root)),
+                    _ if exp == root => (token, "*".to_owned()),
+                    _ => {
+                        if exp % root == 0 {
+                            (token, format!("^{}*", exp/root))
+                        } else {
+                            (token, format!("^{:.2}*", exp as f32/root as f32))
+                        }
+                    },
                 };
                 __string = format!("{}{}{}", __string, __temp.0, __temp.1);
             }
@@ -196,20 +202,20 @@ macro_rules! make_units_adv {
 
         impl<$($Type),*> DimToString for $System<$($Type),*>
             where $($Type: Integer),* {
-                fn to_string() -> String {
-                    // fixme: add #[allow(unused_variables)] lints for these. Not working
-                    // for me for some reason.
-                    let allowed_roots = [$($Root::to_i32()),*];
-                    let exponents = [$($Type::to_i32()),*];
-                    let print_tokens = [$(stringify!($print_as)),*];
+            fn to_string() -> String {
+                // fixme: add #[allow(unused_variables)] lints for these. Not working
+                // for me for some reason.
+                let allowed_roots = [$($Root::to_i32()),*];
+                let exponents = [$($Type::to_i32()),*];
+                let print_tokens = [$(stringify!($print_as)),*];
 
-                    pretty_dim(allowed_roots, exponents, print_tokens)
-                }
+                pretty_dim(allowed_roots, exponents, print_tokens)
             }
+        }
 
         pub type $Unitless = $System;
         impl Dimensionless for $Unitless {}
-        #[allow(non_upper_case_globals)]
+        #[allow(non_upper_case_globals, dead_code)]
         pub const $one: Dim<$Unitless, $OneType> = Dim($val, PhantomData);
 
         __make_base_types!($System, $($Type, $Root),+ |);

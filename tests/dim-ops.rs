@@ -17,5 +17,5 @@ fn pows() {
 
 #[test]
 fn rhs_multiplication() {
-    let x = m*2.0;
+    let _ = m*2.0;
 }
