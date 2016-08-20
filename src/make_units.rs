@@ -51,8 +51,7 @@ macro_rules! make_units {
          $($Type:ident, $constant:ident, $print_as:ident;)+
      }
      derived {
-         $($derived_constant:ident: $Derived:ident = $e:expr;)*
-         // $($derived_constant:ident: $Derived:ident = $FirstType:ident $($op:tt $Type:ident)*);*;
+         $($derived_constant:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
      } ) => (
         make_units_adv!{
             $System, $Unitless, $one, f64, 1.0;
@@ -60,8 +59,7 @@ macro_rules! make_units {
                 $(P1, $Type, $constant, $print_as;)*
             }
             derived {
-                $($derived_constant: $Derived = $e;)*
-                // $($derived_constant: $Derived = $FirstType $($op $Type)*);*;
+                $($derived_constant: $Derived = ($($derived_rhs)+);)*
             }
         }
 
@@ -124,8 +122,7 @@ macro_rules! make_units_adv {
          $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+
      }
      derived {
-         // $($derived_constant:ident: $Derived:ident = $FirstType:ident $($op:tt $Type:ident)*);*;
-         $($derived_constant:ident: $Derived:ident = $e:expr;)*
+         $($derived_constant:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
      } ) => (
         #[allow(unused_imports)]
         use $crate::{Z0, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
@@ -222,7 +219,10 @@ macro_rules! make_units_adv {
 
         $(#[allow(non_upper_case_globals)] pub const $constant: Dim<$Type, $OneType> = Dim($val, PhantomData));*;
 
-        // $(make_derived!($derived_constant: $Derived = $FirstType $($op $Type)*)*);
+        $(pub type $Derived = unit!($($derived_rhs)+);
+          #[allow(non_upper_case_globals)]
+          pub const $derived_constant: Dim<$Derived, $OneType> = Dim($val, PhantomData);
+        )*
         );
 }
 
@@ -232,7 +232,7 @@ macro_rules! make_units_adv {
 
 ```rust
 #[macro_use]
-extern crate dimensioned;
+extern crate dimensioned as dim;
 
 fn main() {
     let x = count_args!(a, b, cat, banana);
@@ -262,16 +262,37 @@ macro_rules! __make_base_types {
         );
 }
 
-// #[macro_export]
-// macro_rules! make_derived {
-//     ($derived_constant:ident: $Derived:ident = $FirstType:ident $($op:tt $Type:ident)*) => (
-//         pub type $Derived = __convert_expression!($FirstType $($op $Type)*);
-//         );
-// }
-
-// #[macro_export]
-// macro_rules! __convert_expression {
-//     ($a:ident * $NextType:ident $($op:tt $Type:ident)*) => (<$a as Mul<__convert_expression!($NextType $($op $Type)*)>>::Output);
-//     ($a:ident / $NextType:ident $($op:tt $Type:ident)*) => (<$a as Div<__convert_expression!($NextType $($op $Type)*)>>::Output);
-//     ($a:ty) => ($a);
-// }
+/// Creates a derived unit based on existing ones.
+/// Currently only supports the operations * and /.
+///
+/// The ideal way to create derived units is inside the make_units! macro (which calls this one),
+/// but this also lets you create derived units for systems that are already defined.
+///
+/// # Example
+/// ```rust
+/// #![feature(type_macros)]
+/// #[macro_use]
+/// extern crate dimensioned as dim;
+/// use std::ops::Div;
+/// use dim::{Dim};
+/// use dim::si::*;
+/// type MPS = unit!(Meter / Second);
+///
+/// fn speed(dist: Dim<Meter, f64>, time: Dim<Second, f64>) -> Dim<MPS, f64> {
+///     dist / time
+/// }
+///
+/// fn main() {
+///     let x = 5.0 * m;
+///     let t = 1.0 * s;
+///     let v = speed(x, t);
+///     assert_eq!(v, x/t);
+/// }
+/// ```
+#[macro_export]
+macro_rules! unit {
+    // { ( $($LHS:tt)+ ) } => { unit!($($LHS)+) };
+    { $LHS:tt * $($RHS:tt)+ } => { <unit!($LHS) as Mul<unit!($($RHS)+)>>::Output };
+    { $LHS:tt / $($RHS:tt)+ } => { <unit!($LHS) as Div<unit!($($RHS)+)>>::Output };
+    { $LHS:ty } => { $LHS };
+}
