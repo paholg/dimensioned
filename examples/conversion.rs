@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 #[macro_use]
 extern crate dimensioned as dim;
 extern crate typenum;
@@ -27,7 +29,7 @@ mod fps {
     }
 }
 
-use fps::{FPS, FromFPS};
+use fps::{FPS};
 
 impl<Centimeter, Gram, Second, V> FromCGS<Centimeter, Gram, Second, V> for FPS<Centimeter, Gram, Second>
     where V: Mul<f64, Output=V>, Centimeter: Integer, Gram: Integer, Second: Integer, {
@@ -38,7 +40,7 @@ impl<Centimeter, Gram, Second, V> FromCGS<Centimeter, Gram, Second, V> for FPS<C
 
 
 fn main() {
-    let speed = 35.0 * cgs::cm / cgs::s;
+    let _ = 35.0 * cgs::cm / cgs::s;
 
     let t2 = 10.0 * cgs::cm;
     let t2f = FPS::from_cgs(t2);

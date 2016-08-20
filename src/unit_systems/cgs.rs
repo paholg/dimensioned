@@ -15,6 +15,7 @@ make_units_adv! {
         P1, Second, s, s;
     }
     derived {
+        gal: Gal = (Centimeter * Centimeter / Second);
     }
 }
 
@@ -28,4 +29,13 @@ impl<Meter, Kilogram, Second, V> FromMKS<Meter, Kilogram, Second, V> for CGS<Met
     fn from_mks(from: Dim<MKS<Meter, Kilogram, Second>, V>) -> Dim<Self, V> {
         Dim::new( from.0 * 100f64.sqrt().powi(Meter::to_i32()) * 1000f64.sqrt().powi(Kilogram::to_i32()) )
     }
+}
+
+
+#[test]
+fn gal_test() {
+    let x = 3.0 * cm;
+    let t = 2.0 * s;
+    let a = 4.5 * gal;
+    assert_eq!(a, x*x/t);
 }
