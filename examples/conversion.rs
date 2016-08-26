@@ -4,7 +4,7 @@
 extern crate dimensioned as dim;
 extern crate typenum;
 
-use dim::{Dim};
+use dim::{Quantity};
 use dim::cgs::{self, CGS, FromCGS};
 use typenum::int::Integer;
 
@@ -25,7 +25,7 @@ mod fps {
         }
     }
     pub trait FromFPS<Foot: Integer, Pound: Integer, Second: Integer, V> where Self: Sized {
-        fn from_fps(from: Dim<FPS<Foot, Pound, Second>, V>) -> Dim<Self, V>;
+        fn from_fps(from: Quantity<FPS<Foot, Pound, Second>, V>) -> Quantity<Self, V>;
     }
 }
 
@@ -33,8 +33,8 @@ use fps::{FPS};
 
 impl<Centimeter, Gram, Second, V> FromCGS<Centimeter, Gram, Second, V> for FPS<Centimeter, Gram, Second>
     where V: Mul<f64, Output=V>, Centimeter: Integer, Gram: Integer, Second: Integer, {
-    fn from_cgs(from: Dim<CGS<Centimeter, Gram, Second>, V>) -> Dim<Self, V> {
-        Dim::new( from.0 * 0.0328084f64.sqrt().powi(Centimeter::to_i32()) * 0.00220462f64.sqrt().powi(Gram::to_i32()) )
+    fn from_cgs(from: Quantity<CGS<Centimeter, Gram, Second>, V>) -> Quantity<Self, V> {
+        Quantity::new( from.0 * 0.0328084f64.sqrt().powi(Centimeter::to_i32()) * 0.00220462f64.sqrt().powi(Gram::to_i32()) )
     }
 }
 

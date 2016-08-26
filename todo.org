@@ -8,7 +8,7 @@
 
 # Questions
 - make_units_adv! :: Allow custom print function?
-- Dim :: Decide on other traits to implement.
+- Quantity :: Decide on other traits to implement.
 - Macros :: Investigate more macros for implementing functions.
 
 # Future

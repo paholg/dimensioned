@@ -19,13 +19,13 @@ make_units_adv! {
 }
 
 pub trait FromMKS<Meter: Integer, Kilogram: Integer, Second: Integer, V> where Self: Sized {
-    fn from_mks(from: Dim<MKS<Meter, Kilogram, Second>, V>) -> Dim<Self, V>;
+    fn from_mks(from: Quantity<MKS<Meter, Kilogram, Second>, V>) -> Quantity<Self, V>;
 }
 
 use cgs::{CGS, FromCGS};
 impl<Centimeter, Gram, Second, V> FromCGS<Centimeter, Gram, Second, V> for MKS<Centimeter, Gram, Second>
     where V: Mul<f64, Output=V>, Centimeter: Integer, Gram: Integer, Second: Integer, {
-    fn from_cgs(from: Dim<CGS<Centimeter, Gram, Second>, V>) -> Dim<Self, V> {
-        Dim::new( from.0 * 0.01f64.sqrt().powi(Centimeter::to_i32()) * 0.001f64.sqrt().powi(Gram::to_i32()) )
+    fn from_cgs(from: Quantity<CGS<Centimeter, Gram, Second>, V>) -> Quantity<Self, V> {
+        Quantity::new( from.0 * 0.01f64.sqrt().powi(Centimeter::to_i32()) * 0.001f64.sqrt().powi(Gram::to_i32()) )
     }
 }
