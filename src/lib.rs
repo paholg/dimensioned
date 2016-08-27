@@ -14,8 +14,7 @@ For in depth tutorials, check [here](http://paholg.com/project/dimensioned).
 #![feature(type_macros)]
 
 
-extern crate typenum;
-extern crate num;
+pub extern crate typenum;
 
 #[macro_use]
 pub mod dim;

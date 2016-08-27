@@ -141,34 +141,42 @@ macro_rules! make_units_adv {
         // $Type_Right or something, but that is not yet supported by Rust
         #[allow(non_camel_case_types)]
         impl<$($Type),*, $($constant),*> Mul<$System<$($constant),*>> for $System<$($Type),*>
-            where $($Type: Integer + Add<$constant>),*,
-        $($constant: Integer),*,
-        $(<$Type as Add<$constant>>::Output: Integer),*,
-        $System<$(<$Type as Add<$constant>>::Output),*>: Dimension,
+        where $($Type: Integer + Add<$constant>),*,
+              $($constant: Integer),*,
+              $(<$Type as Add<$constant>>::Output: Integer),*,
+              $System<$(<$Type as Add<$constant>>::Output),*>: Dimension,
         {
             type Output = $System<$(<$Type as Add<$constant>>::Output),*>;
-            #[allow(unused_variables)]
-            fn mul(self, rhs: $System<$($constant),*>) -> Self::Output { unreachable!()  }
+            fn mul(self, _: $System<$($constant),*>) -> Self::Output { unreachable!()  }
         }
+
         #[allow(non_camel_case_types)]
-        impl<$($Type),*, $($constant),*> Div<$System<$($constant),*>> for $System<$($Type),*> where
-            $($Type: Integer + Sub<$constant>),*, $($constant: Integer),*, $(<$Type as Sub<$constant>>::Output: Integer),* {
+        impl<$($Type),*, $($constant),*> Div<$System<$($constant),*>> for $System<$($Type),*>
+            where $($Type: Integer + Sub<$constant>),*,
+                  $($constant: Integer),*,
+                  $(<$Type as Sub<$constant>>::Output: Integer),*
+        {
             type Output = $System<$(<$Type as Sub<$constant>>::Output),*>;
-            #[allow(unused_variables)]
-            fn div(self, rhs: $System<$($constant),*>) -> Self::Output { unreachable!()  }
+            fn div(self, _: $System<$($constant),*>) -> Self::Output { unreachable!()  }
         }
-        impl<$($Type),*, RHS> Pow<RHS> for $System<$($Type),*> where
-            $($Type: Integer + Mul<RHS>),*, RHS: Integer, $(<$Type as Mul<RHS>>::Output: Integer),* {
+
+        // Note that this is backwards from the definition of `Pow`. We should be doing:
+        // impl<$($Type),*, RHS> Pow<$System<$($Type),*>> for RHS
+        // as RHS is really the exponent, but it's in the place of the base. Rust won't let us do that
+        // generically, so we've switched them, as the operation on dimensions is multiplication so it's commutative.
+        impl<$($Type),*, RHS> Pow<RHS> for $System<$($Type),*>
+            where $($Type: Integer + Mul<RHS>),*, RHS: Integer, $(<$Type as Mul<RHS>>::Output: Integer),*
+        {
             type Output = $System<$(<$Type as Mul<RHS>>::Output),*>;
-            #[allow(unused_variables)]
-            fn pow(rhs: RHS) -> Self::Output { unreachable!() }
+            fn pow(_: RHS) -> Self::Output { unreachable!() }
         }
+
         impl<$($Type),*, RHS> Root<RHS> for $System<$($Type),*> where
             $($Type: Integer + Div<RHS>),*, RHS: Integer, $(<$Type as Div<RHS>>::Output: Integer),* {
             type Output = $System<$(<$Type as Div<RHS>>::Output),*>;
-            #[allow(unused_variables)]
-            fn root(radicand: RHS) -> Self::Output { unreachable!() }
+            fn root(_: RHS) -> Self::Output { unreachable!() }
         }
+
         impl<$($Type),*> Recip for $System<$($Type),*> where
             $($Type: Integer + Neg),*, $(<$Type as Neg>::Output: Integer),* {
             type Output = $System<$(<$Type as Neg>::Output),*>;
@@ -200,8 +208,6 @@ macro_rules! make_units_adv {
         impl<$($Type),*> DimToString for $System<$($Type),*>
             where $($Type: Integer),* {
             fn to_string() -> String {
-                // fixme: add #[allow(unused_variables)] lints for these. Not working
-                // for me for some reason.
                 let allowed_roots = [$($Root::to_i32()),*];
                 let exponents = [$($Type::to_i32()),*];
                 let print_tokens = [$(stringify!($print_as)),*];
@@ -217,7 +223,7 @@ macro_rules! make_units_adv {
 
         __make_base_types!($System, $($Type, $Root),+ |);
 
-        $(#[allow(non_upper_case_globals)] pub const $constant: Dim<$Type, $OneType> = Dim($val, PhantomData));*;
+        $(#[allow(non_upper_case_globals, dead_code)] pub const $constant: Dim<$Type, $OneType> = Dim($val, PhantomData));*;
 
         $(pub type $Derived = unit!($($derived_rhs)+);
           #[allow(non_upper_case_globals)]
