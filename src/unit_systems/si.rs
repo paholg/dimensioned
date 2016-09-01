@@ -28,7 +28,7 @@ make_units! {
 //     let mass = 3.0 * kg;
 //     let dist = 2.0 * m;
 //     let time = 2.0 * s;
-//     let f: Dim<Newton, f64> = Dim::new(1.5);
+//     let f: Quantity<Newton, f64> = Quantity::new(1.5);
 
 //     assert_eq!(f, mass * dist / time / time);
 // }

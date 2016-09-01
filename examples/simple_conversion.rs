@@ -2,7 +2,7 @@
 extern crate dimensioned as dim;
 extern crate typenum;
 
-use dim::Dim;
+use dim::Quantity;
 use typenum::Integer;
 use std::ops::Mul;
 
@@ -18,7 +18,7 @@ mod ms {
     }
 
     pub trait FromMS<Meter: Integer, Second: Integer, V> where Self: Sized {
-        fn from_ms(from: Dim<MS<Meter, Second>, V>) -> Dim<Self, V>;
+        fn from_ms(from: Quantity<MS<Meter, Second>, V>) -> Quantity<Self, V>;
     }
 }
 
@@ -35,19 +35,19 @@ mod fs {
     }
 
     pub trait FromFS<Foot: Integer, Second: Integer, V> where Self: Sized {
-        fn from_fs(from: Dim<FS<Foot, Second>, V>) -> Dim<Self, V>;
+        fn from_fs(from: Quantity<FS<Foot, Second>, V>) -> Quantity<Self, V>;
     }
 }
 
 impl<Meter: Integer, Second: Integer, V: Mul<f64, Output = V>> ms::FromMS<Meter, Second, V> for fs::FS<Meter, Second> {
-    fn from_ms(from: Dim<ms::MS<Meter, Second>, V>) -> Dim<Self, V> {
-        Dim::new(from.0 * 3.281)
+    fn from_ms(from: Quantity<ms::MS<Meter, Second>, V>) -> Quantity<Self, V> {
+        Quantity::new(from.0 * 3.281)
     }
 }
 
 impl<Foot: Integer, Second: Integer, V: Mul<f64, Output = V>> fs::FromFS<Foot, Second, V> for ms::MS<Foot, Second> {
-    fn from_fs(from: Dim<fs::FS<Foot, Second>, V>) -> Dim<Self, V> {
-        Dim::new(from.0 * 0.305)
+    fn from_fs(from: Quantity<fs::FS<Foot, Second>, V>) -> Quantity<Self, V> {
+        Quantity::new(from.0 * 0.305)
     }
 }
 

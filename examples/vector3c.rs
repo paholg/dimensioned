@@ -46,7 +46,7 @@ fn main() {
 //     use std::fmt::{self, Display};
 //     use std::marker::PhantomData;
 
-//     use dimensioned::{Dim, Dimension, MulDim, Sqrt, DimToString};
+//     use dimensioned::{Quantity, Dimension, MulQuantity, Sqrt, QuantityToString};
 
 //     #[derive(Copy, Clone)]
 //     pub struct Vector3<D: Dimension> {
@@ -67,8 +67,8 @@ fn main() {
 //         type Output;
 //         fn cross(self, rhs: RHS) -> Self::Output;
 //     }
-//     impl<Dl, Dr> Cross<Vector3<Dr>> for Vector3<Dl> where Dl: Dimension + MulDim<Dr>, Dr: Dimension, <Dl as MulDim<Dr>>::Output: Dimension {
-//         type Output = Vector3<<Dl as MulDim<Dr>>::Output>;
+//     impl<Dl, Dr> Cross<Vector3<Dr>> for Vector3<Dl> where Dl: Dimension + MulQuantity<Dr>, Dr: Dimension, <Dl as MulQuantity<Dr>>::Output: Dimension {
+//         type Output = Vector3<<Dl as MulQuantity<Dr>>::Output>;
 //         #[inline]
 //         fn cross(self, rhs: Vector3<Dr>) -> Self::Output {
 //             Vector3::new(self.y*rhs.z - self.z*rhs.y,
@@ -81,11 +81,11 @@ fn main() {
 //         type Output;
 //         fn dot(self, rhs: RHS) -> Self::Output;
 //     }
-//     impl<Dl, Dr> Dot<Vector3<Dr>> for Vector3<Dl> where Dl: Dimension + MulDim<Dr>, Dr: Dimension, <Dl as MulDim<Dr>>::Output: Dimension {
-//         type Output = Dim<<Dl as MulDim<Dr>>::Output, f64>;
+//     impl<Dl, Dr> Dot<Vector3<Dr>> for Vector3<Dl> where Dl: Dimension + MulQuantity<Dr>, Dr: Dimension, <Dl as MulQuantity<Dr>>::Output: Dimension {
+//         type Output = Quantity<<Dl as MulQuantity<Dr>>::Output, f64>;
 //         #[inline]
 //         fn dot(self, rhs: Vector3<Dr>) -> Self::Output {
-//             Dim::new( self.x*rhs.x + self.y*rhs.y + self.z*rhs.z )
+//             Quantity::new( self.x*rhs.x + self.y*rhs.y + self.z*rhs.z )
 //         }
 //     }
 
@@ -93,8 +93,8 @@ fn main() {
 //         type Output;
 //         fn norm2(self) -> <Self as Norm2>::Output;
 //     }
-//     impl<D> Norm2 for Vector3<D> where Vector3<D>: Copy, D: Dimension + MulDim, <D as MulDim>::Output: Dimension {
-//         type Output = Dim<<D as MulDim>::Output, f64>;
+//     impl<D> Norm2 for Vector3<D> where Vector3<D>: Copy, D: Dimension + MulQuantity, <D as MulQuantity>::Output: Dimension {
+//         type Output = Quantity<<D as MulQuantity>::Output, f64>;
 //         #[inline]
 //         fn norm2(self) -> <Self as Norm2>::Output {
 //             self.dot(self)
@@ -105,8 +105,8 @@ fn main() {
 //         type Output;
 //         fn norm(self) -> <Self as Norm>::Output;
 //     }
-//     impl<D> Norm for Vector3<D> where D: Dimension + MulDim + Copy, <D as MulDim>::Output: Dimension, Dim<<D as MulDim>::Output, f64>: Sqrt {
-//         type Output = <Dim<<D as MulDim>::Output, f64> as Sqrt>::Output;
+//     impl<D> Norm for Vector3<D> where D: Dimension + MulQuantity + Copy, <D as MulQuantity>::Output: Dimension, Quantity<<D as MulQuantity>::Output, f64>: Sqrt {
+//         type Output = <Quantity<<D as MulQuantity>::Output, f64> as Sqrt>::Output;
 //         #[inline]
 //         fn norm(self) -> <Self as Norm>::Output {
 //             self.norm2().sqrt()
@@ -159,7 +159,7 @@ fn main() {
 //         }
 //     }
 
-//     impl<D: Dimension + DimToString> Display for Vector3<D> {
+//     impl<D: Dimension + QuantityToString> Display for Vector3<D> {
 //         fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
 //             write!(f, "({}, {}, {}) {}", self.x, self.y, self.z, D::to_string())
 //         }

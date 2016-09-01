@@ -7,7 +7,7 @@ use vector3a::Vector3;
 use typenum::Same;
 use std::ops::{Mul};
 use dimensioned::si::{one, m, kg, s};
-use dimensioned::{Dim, Dimension};
+use dimensioned::{Quantity, Dimension};
 
 dim_impl_unary!(Norm, norm, Same, Vector3 => f64);
 dim_impl_unary!(Norm2, norm2, Mul, Vector3 => f64);

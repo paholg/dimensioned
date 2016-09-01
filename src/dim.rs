@@ -1,11 +1,11 @@
 /*!
-This module allows dimensioned to be very flexible. It creates the `Dim<D, V>` type,
+This module allows dimensioned to be very flexible. It creates the `Quantity<D, V>` type,
 which is the type that will be used for all dimensioned objects. It then implements as
 many traits from `std` as generically as possible.
 
 Among the included traits in **dimensioned**, there are a few that are used solely to
 aid in generic programming and should not be implemented for anything outside this
-module. They are `Dimension`, `Dimensionless`, and `DimToString`.
+module. They are `Dimension`, `Dimensionless`, and `QuantityToString`.
  */
 
 use {Same, Integer, P2, P3};
@@ -19,7 +19,7 @@ use std::fmt;
 
 /**
 All types created for a unit system will implement this trait. No other types should
-implement it. The struct `Dim<D, V>` requires that `D` implement `Dimension`.
+implement it. The struct `Quantity<D, V>` requires that `D` implement `Dimension`.
  */
 pub trait Dimension {}
 
@@ -39,44 +39,44 @@ implement the traits in **std::fmt**.
 All types created for a unit system will implement this trait. No other types should
 implement it.
 */
-pub trait DimToString: Dimension {
+pub trait QuantityToString: Dimension {
     /// Gives a human friendly `String` representation of a `Dimension` type.
     fn to_string() -> String;
 }
 
 /// This is the primary struct that users of this library will interact with.
-pub struct Dim<D, V>(pub V, pub PhantomData<D>);
+pub struct Quantity<D, V>(pub V, pub PhantomData<D>);
 
 use std::clone::Clone;
 use std::marker::Copy;
-impl<D, V: Clone> Clone for Dim<D, V> {
-    fn clone(&self) -> Self { Dim::new(self.0.clone()) }
+impl<D, V: Clone> Clone for Quantity<D, V> {
+    fn clone(&self) -> Self { Quantity::new(self.0.clone()) }
 }
-impl<D, V: Copy> Copy for Dim<D, V> {}
+impl<D, V: Copy> Copy for Quantity<D, V> {}
 
-impl<D, V> Dim<D, V> {
+impl<D, V> Quantity<D, V> {
     /**
-    Construct a new `Dim` object.
+    Construct a new `Quantity` object.
 
     It is recommened to use this only where necessary, and to generally use the
-    constants that ship with unit systems to create `Dim` objects.
+    constants that ship with unit systems to create `Quantity` objects.
 
     # Example
     ```
-    use dimensioned::Dim;
+    use dimensioned::Quantity;
     use dimensioned::si::{m, Meter};
 
-    let x: Dim<Meter, f64> = Dim::new(3.0);
+    let x: Quantity<Meter, f64> = Quantity::new(3.0);
     let y = 3.0*m;
     assert_eq!(x, y);
     ```
 
      */
-    pub const fn new(v: V) -> Dim<D, V> {
-        Dim(v, PhantomData)
+    pub const fn new(v: V) -> Quantity<D, V> {
+        Quantity(v, PhantomData)
     }
     /**
-    Map a `Dim<D, V>` to `Dim<D, O>` by applying function `f` to the contained value
+    Map a `Quantity<D, V>` to `Quantity<D, O>` by applying function `f` to the contained value
     # Example
     ```
     # extern crate dimensioned;
@@ -91,19 +91,19 @@ impl<D, V> Dim<D, V> {
     # }
     ```
      */
-    pub fn map<O, F: FnOnce(V) -> O>(self, f: F) -> Dim<D, O> {
-        Dim(f(self.0), PhantomData)
+    pub fn map<O, F: FnOnce(V) -> O>(self, f: F) -> Quantity<D, O> {
+        Quantity(f(self.0), PhantomData)
     }
 }
 
 /**
-This trait is implemented by default for everything that is not Dim<D, V>. It allows a
+This trait is implemented by default for everything that is not Quantity<D, V>. It allows a
  greater level of generic operator overloading than would be possible otherwise.
 */
 #[doc(hidden)]
-pub trait NotDim {}
-impl NotDim for .. {}
-impl<D, V> !NotDim for Dim<D, V> {}
+pub trait NotQuantity {}
+impl NotQuantity for .. {}
+impl<D, V> !NotQuantity for Quantity<D, V> {}
 
 /// **Sqrt** is used for implementing a `sqrt()` member for types that don't `impl Float`.
 pub trait Sqrt {
@@ -124,10 +124,10 @@ pub trait Sqrt {
     fn sqrt(self) -> Self::Output;
 }
 
-impl<D, V> Sqrt for Dim<D, V> where D: Root<P2>, V: Float, <D as Root<P2>>::Output: Dimension {
-    type Output = Dim<<D as Root<P2>>::Output, V>;
+impl<D, V> Sqrt for Quantity<D, V> where D: Root<P2>, V: Float, <D as Root<P2>>::Output: Dimension {
+    type Output = Quantity<<D as Root<P2>>::Output, V>;
     #[inline]
-    fn sqrt(self) -> Self::Output { Dim( (self.0).sqrt(), PhantomData) }
+    fn sqrt(self) -> Self::Output { Quantity( (self.0).sqrt(), PhantomData) }
 }
 
 /// **Cbrt** is used for implementing a `cbrt()` member for types that don't `impl Float`.
@@ -149,15 +149,15 @@ pub trait Cbrt {
     fn cbrt(self) -> Self::Output;
 }
 
-impl<D, V> Cbrt for Dim<D, V> where D: Root<P3>, V: Float, <D as Root<P3>>::Output: Dimension {
-    type Output = Dim<<D as Root<P3>>::Output, V>;
+impl<D, V> Cbrt for Quantity<D, V> where D: Root<P3>, V: Float, <D as Root<P3>>::Output: Dimension {
+    type Output = Quantity<<D as Root<P3>>::Output, V>;
     #[inline]
-    fn cbrt(self) -> Self::Output { Dim( (self.0).cbrt(), PhantomData) }
+    fn cbrt(self) -> Self::Output { Quantity( (self.0).cbrt(), PhantomData) }
 }
 
 /**
 **Root<Radicand>** is used for implementing general integer roots for types that don't
-`impl Float` and whose type signature changes when taking a root, such as `Dim<D, V>`.
+`impl Float` and whose type signature changes when taking a root, such as `Quantity<D, V>`.
 
 It uses type numbers to specify the degree.
 
@@ -181,17 +181,17 @@ pub trait Root<Radicand> {
     */
     fn root(radicand: Radicand) -> Self::Output;
 }
-impl<D, V, Degree> Root<Dim<D, V>> for Degree where D: Root<Degree>, V: Float, Degree: Integer, <D as Root<Degree>>::Output: Dimension {
-    type Output = Dim<<D as Root<Degree>>::Output, V>;
-    fn root(base: Dim<D, V>) -> Self::Output {
-        let x: V = NumCast::from(Degree::to_i32()).expect("Attempted to take nth root of a Dim<D, V>, but could not convert from i32 to V to compute n.");
-        Dim::new( (base.0).powf(x.recip()) )
+impl<D, V, Degree> Root<Quantity<D, V>> for Degree where D: Root<Degree>, V: Float, Degree: Integer, <D as Root<Degree>>::Output: Dimension {
+    type Output = Quantity<<D as Root<Degree>>::Output, V>;
+    fn root(base: Quantity<D, V>) -> Self::Output {
+        let x: V = NumCast::from(Degree::to_i32()).expect("Attempted to take nth root of a Quantity<D, V>, but could not convert from i32 to V to compute n.");
+        Quantity::new( (base.0).powf(x.recip()) )
     }
 }
 
 /**
 **Pow<Base>** is used for implementing general integer powers for types that don't `impl
-Float` and whose type signature changes when multiplying, such as `Dim<D, V>`.
+Float` and whose type signature changes when multiplying, such as `Quantity<D, V>`.
 
 It uses type numbers to specify the degree.
 
@@ -214,10 +214,10 @@ pub trait Pow<Base> {
     */
     fn pow(base: Base) -> Self::Output;
 }
-impl<D, V, Exp> Pow<Dim<D, V>> for Exp where D: Pow<Exp>, V: Float, Exp: Integer, <D as Pow<Exp>>::Output: Dimension {
-    type Output = Dim<<D as Pow<Exp>>::Output, V>;
-    fn pow(base: Dim<D, V>) -> Self::Output {
-        Dim::new( (base.0).powi(Exp::to_i32()) )
+impl<D, V, Exp> Pow<Quantity<D, V>> for Exp where D: Pow<Exp>, V: Float, Exp: Integer, <D as Pow<Exp>>::Output: Dimension {
+    type Output = Quantity<<D as Pow<Exp>>::Output, V>;
+    fn pow(base: Quantity<D, V>) -> Self::Output {
+        Quantity::new( (base.0).powi(Exp::to_i32()) )
     }
 }
 
@@ -238,10 +238,10 @@ pub trait Recip {
      */
     fn recip(self) -> Self::Output;
 }
-impl<D, V> Recip for Dim<D, V> where D: Recip, V: Float, <D as Recip>::Output: Dimension {
-    type Output = Dim<<D as Recip>::Output, V>;
+impl<D, V> Recip for Quantity<D, V> where D: Recip, V: Float, <D as Recip>::Output: Dimension {
+    type Output = Quantity<<D as Recip>::Output, V>;
     fn recip(self) -> Self::Output {
-        Dim::new( (self.0).recip() )
+        Quantity::new( (self.0).recip() )
     }
 }
 
@@ -254,7 +254,7 @@ impl<D, V> Recip for Dim<D, V> where D: Recip, V: Float, <D as Recip>::Output: D
 // extern crate dimensioned as dim;
 // extern crate typenum;
 
-// use dim::{Dim, FromDim};
+// use dim::{Quantity, FromQuantity};
 // use dim::cgs::{self, CGS};
 // use typenum::int::Integer;
 // use typenum::consts::P2;
@@ -277,13 +277,13 @@ impl<D, V> Recip for Dim<D, V> where D: Recip, V: Float, <D as Recip>::Output: D
 // }
 // use mks::MKS;
 
-// impl<V, CM, G, S> FromDim<Dim<CGS<CM, G, S>, V>> for MKS<Quot<CM, P2>, Quot<G, P2>, S>
+// impl<V, CM, G, S> FromQuantity<Quantity<CGS<CM, G, S>, V>> for MKS<Quot<CM, P2>, Quot<G, P2>, S>
 //     where V: Mul<f64, Output=V>, CM: Integer + Div<P2>, G: Integer + Div<P2>, S: Integer,
 //           Quot<CM, P2>: Integer, Quot<G, P2>: Integer,
 // {
-//     type Output = Dim<Self, V>;
-//     fn from_dim(origin: Dim<CGS<CM, G, S>, V>) -> Self::Output {
-//         Dim::new( origin.0 * 0.01f64.powi(CM::to_i32()) * 0.001f64.powi(G::to_i32()) )
+//     type Output = Quantity<Self, V>;
+//     fn from_dim(origin: Quantity<CGS<CM, G, S>, V>) -> Self::Output {
+//         Quantity::new( origin.0 * 0.01f64.powi(CM::to_i32()) * 0.001f64.powi(G::to_i32()) )
 //     }
 // }
 
@@ -297,7 +297,7 @@ impl<D, V> Recip for Dim<D, V> where D: Recip, V: Float, <D as Recip>::Output: D
 // ```
 // */
 // pub trait ConvertFrom<D, V> where Self: Sized {
-//     fn convert_from(from: Dim<D, V>) -> Dim<Self, V>;
+//     fn convert_from(from: Quantity<D, V>) -> Quantity<Self, V>;
 // }
 // pub trait ConvertTo<D> {
 //     type Output;
@@ -306,12 +306,12 @@ impl<D, V> Recip for Dim<D, V> where D: Recip, V: Float, <D as Recip>::Output: D
 
 
 /**
-Used for implementing unary members of `V` for `Dim<D, V>`
+Used for implementing unary members of `V` for `Quantity<D, V>`
 
 Assume you have some type `V` with a member function `fun` that takes no arguments
 and has output of type `Out`.
 
-Then, you can implement `fun` as a member for `Dim<D, V>` with the macro invocation:
+Then, you can implement `fun` as a member for `Quantity<D, V>` with the macro invocation:
 
 ```ignore
 dim_impl_unary!(Trait, fun, Op, V => Out);
@@ -332,7 +332,7 @@ one of:
 * `Sqrt`: Takes the square root of `Self`. The same as `Root<P2>`.
 * `Cbrt`: Takes the cube root of `Self`. The same as `Root<P3>`.
 
-Note: This macro requires that `Dim` and `Dimension` be imported.
+Note: This macro requires that `Quantity` and `Dimension` be imported.
 
 # Example
 ```rust
@@ -340,7 +340,7 @@ Note: This macro requires that `Dim` and `Dimension` be imported.
 extern crate dimensioned;
 
 use dimensioned::Same;
-use dimensioned::{Dim, Dimension};
+use dimensioned::{Quantity, Dimension};
 use dimensioned::si::m;
 use std::ops::Mul;
 
@@ -372,20 +372,20 @@ macro_rules! dim_impl_unary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $O
         type Output;
         fn $fun(self) -> Self::Output;
     }
-    impl<D> $Trait for Dim<D, $In> where D: $op, <D as $op>::Output: Dimension {
-        type Output = Dim<<D as $op>::Output, $Out>;
-        fn $fun(self) -> Self::Output { Dim::new( (self.0).$fun() ) }
+    impl<D> $Trait for Quantity<D, $In> where D: $op, <D as $op>::Output: Dimension {
+        type Output = Quantity<<D as $op>::Output, $Out>;
+        fn $fun(self) -> Self::Output { Quantity::new( (self.0).$fun() ) }
     }
     );
 }
 
 /**
-Used for implementing binary members of `V` for `Dim<D, V>`.
+Used for implementing binary members of `V` for `Quantity<D, V>`.
 
 Assume you have some type `V` with a member function `fun` that takes one argument also
 of type `V` and has output type `Out`.
 
-Then, you can implement `fun` as a member for `Dim<D, V>` with the macro invocation:
+Then, you can implement `fun` as a member for `Quantity<D, V>` with the macro invocation:
 
 ```ignore
 dim_impl_binary!(Trait, fun, Op, V => Out);
@@ -401,13 +401,13 @@ one of:
 * `Mul<RHS>`: Multiplies `Self` by `RHS`.
 * `Div<RHS>`: Divides `Self` by `RHS`.
 
-Note: This macro requires that `Dim` and `Dimension` be imported.
+Note: This macro requires that `Quantity` and `Dimension` be imported.
 
 # Example
 ```rust
 #[macro_use]
 extern crate dimensioned;
-use dimensioned::{Dim, Dimension};
+use dimensioned::{Quantity, Dimension};
 use dimensioned::si::m;
 use std::ops::Mul;
 
@@ -438,9 +438,9 @@ macro_rules! dim_impl_binary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $
         type Output;
         fn $fun(self, rhs: RHS) -> Self::Output;
     }
-    impl<Dl, Dr> $Trait<Dim<Dr, $In>> for Dim<Dl, $In> where Dl: Dimension + $op<Dr>, Dr: Dimension, <Dl as $op<Dr>>::Output: Dimension {
-        type Output = Dim<<Dl as $op<Dr>>::Output, $Out>;
-        fn $fun(self, rhs: Dim<Dr, $In>) -> Self::Output { Dim::new( (self.0).$fun(rhs.0) ) }
+    impl<Dl, Dr> $Trait<Quantity<Dr, $In>> for Quantity<Dl, $In> where Dl: Dimension + $op<Dr>, Dr: Dimension, <Dl as $op<Dr>>::Output: Dimension {
+        type Output = Quantity<<Dl as $op<Dr>>::Output, $Out>;
+        fn $fun(self, rhs: Quantity<Dr, $In>) -> Self::Output { Quantity::new( (self.0).$fun(rhs.0) ) }
     }
     );
 }
@@ -450,9 +450,9 @@ macro_rules! dim_impl_binary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $
 //------------------------------------------------------------------------------
 macro_rules! dim_fmt {
     ($Trait:ident, $str:expr) => (
-        impl<D, V> fmt::$Trait for Dim<D, V> where D: DimToString, V: fmt::$Trait {
+        impl<D, V> fmt::$Trait for Quantity<D, V> where D: QuantityToString, V: fmt::$Trait {
             fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-                write!(f, $str, self.0, <D as DimToString>::to_string())
+                write!(f, $str, self.0, <D as QuantityToString>::to_string())
             }
         }
         );
@@ -469,34 +469,34 @@ dim_fmt!(UpperExp, "{:E} {}");
 //------------------------------------------------------------------------------
 // Traits from std::cmp
 //------------------------------------------------------------------------------
-impl<Dl, Dr, Vl, Vr> PartialEq<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Same<Dr>, Vl: PartialEq<Vr> {
-    fn eq(&self, other: &Dim<Dr, Vr>) -> bool {
+impl<Dl, Dr, Vl, Vr> PartialEq<Quantity<Dr, Vr>> for Quantity<Dl, Vl> where Dl: Same<Dr>, Vl: PartialEq<Vr> {
+    fn eq(&self, other: &Quantity<Dr, Vr>) -> bool {
         (self.0).eq(&(other.0))
     }
-    fn ne(&self, other: &Dim<Dr, Vr>) -> bool {
+    fn ne(&self, other: &Quantity<Dr, Vr>) -> bool {
         (self.0).ne(&(other.0))
     }
 }
-impl<D: Same, V: Eq> Eq for Dim<D, V> {}
+impl<D: Same, V: Eq> Eq for Quantity<D, V> {}
 
-impl<Dl, Dr, Vl, Vr> PartialOrd<Dim<Dr, Vr>> for Dim<Dl, Vl> where Dl: Same<Dr>, Vl: PartialOrd<Vr> {
-    fn partial_cmp(&self, other: &Dim<Dr, Vr>) -> Option<Ordering> {
+impl<Dl, Dr, Vl, Vr> PartialOrd<Quantity<Dr, Vr>> for Quantity<Dl, Vl> where Dl: Same<Dr>, Vl: PartialOrd<Vr> {
+    fn partial_cmp(&self, other: &Quantity<Dr, Vr>) -> Option<Ordering> {
         (self.0).partial_cmp(&(other.0))
     }
-    fn lt(&self, other: &Dim<Dr, Vr>) -> bool {
+    fn lt(&self, other: &Quantity<Dr, Vr>) -> bool {
         (self.0).lt(&(other.0))
     }
-    fn le(&self, other: &Dim<Dr, Vr>) -> bool {
+    fn le(&self, other: &Quantity<Dr, Vr>) -> bool {
         (self.0).le(&(other.0))
     }
-    fn gt(&self, other: &Dim<Dr, Vr>) -> bool {
+    fn gt(&self, other: &Quantity<Dr, Vr>) -> bool {
         (self.0).gt(&(other.0))
     }
-    fn ge(&self, other: &Dim<Dr, Vr>) -> bool {
+    fn ge(&self, other: &Quantity<Dr, Vr>) -> bool {
         (self.0).ge(&(other.0))
     }
 }
-impl<D: Same, V: Ord> Ord for Dim<D, V> {
+impl<D: Same, V: Ord> Ord for Quantity<D, V> {
     fn cmp(&self, other: &Self) -> Ordering {
         (self.0).cmp(&(other.0))
     }
@@ -506,34 +506,34 @@ impl<D: Same, V: Ord> Ord for Dim<D, V> {
 //------------------------------------------------------------------------------
 
 /// Multiplying!
-impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
+impl<Dl, Dr, Vl, Vr> Mul<Quantity<Dr, Vr>> for Quantity<Dl, Vl>
     where Dl: Dimension + Mul<Dr>, Dr: Dimension, Vl: Mul<Vr>, <Dl as Mul<Dr>>::Output: Dimension
 {
-    type Output = Dim<<Dl as Mul<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
+    type Output = Quantity<<Dl as Mul<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
 
     #[inline]
-    fn mul(self, rhs: Dim<Dr, Vr>) -> Self::Output {
-        Dim::new(self.0 * rhs.0)
+    fn mul(self, rhs: Quantity<Dr, Vr>) -> Self::Output {
+        Quantity::new(self.0 * rhs.0)
     }
 }
 
 /// Scalar multiplication (with scalar on RHS)!
-impl<D, V, RHS> Mul<RHS> for Dim<D, V> where V: Mul<RHS>, RHS: NotDim {
-    type Output = Dim<D, <V as Mul<RHS>>::Output>;
+impl<D, V, RHS> Mul<RHS> for Quantity<D, V> where V: Mul<RHS>, RHS: NotQuantity {
+    type Output = Quantity<D, <V as Mul<RHS>>::Output>;
     #[inline]
-    fn mul(self, rhs: RHS) -> Dim<D, <V as Mul<RHS>>::Output> {
-        Dim(self.0 * rhs, PhantomData)
+    fn mul(self, rhs: RHS) -> Quantity<D, <V as Mul<RHS>>::Output> {
+        Quantity(self.0 * rhs, PhantomData)
     }
 }
 
 /// Scalar multiplication (with scalar on LHS)!
 macro_rules! dim_lhs_mult {
     ($t: ty) => (
-        impl<D, V> Mul<Dim<D, V>> for $t where $t: Mul<V> {
-            type Output = Dim<D, <$t as Mul<V>>::Output>;
+        impl<D, V> Mul<Quantity<D, V>> for $t where $t: Mul<V> {
+            type Output = Quantity<D, <$t as Mul<V>>::Output>;
             #[inline]
-            fn mul(self, rhs: Dim<D, V>) -> Self::Output {
-                Dim( self * rhs.0, PhantomData )
+            fn mul(self, rhs: Quantity<D, V>) -> Self::Output {
+                Quantity( self * rhs.0, PhantomData )
             }
         }
         );
@@ -553,33 +553,33 @@ dim_lhs_mult!(usize);
 
 
 /// Dividing!
-impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
+impl<Dl, Dr, Vl, Vr> Div<Quantity<Dr, Vr>> for Quantity<Dl, Vl>
     where Dl: Dimension + Div<Dr>, Dr: Dimension, Vl: Div<Vr>, <Dl as Div<Dr>>::Output: Dimension
 {
-    type Output = Dim<<Dl as Div<Dr>>::Output, <Vl as Div<Vr>>::Output>;
+    type Output = Quantity<<Dl as Div<Dr>>::Output, <Vl as Div<Vr>>::Output>;
     #[inline]
-    fn div(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as Div<Dr>>::Output, <Vl as Div<Vr>>::Output> {
-        Dim(self.0 / rhs.0, PhantomData)
+    fn div(self, rhs: Quantity<Dr, Vr>) -> Quantity<<Dl as Div<Dr>>::Output, <Vl as Div<Vr>>::Output> {
+        Quantity(self.0 / rhs.0, PhantomData)
     }
 }
 
 /// Scalar division (with scalar on RHS)!
-impl<D, V, RHS> Div<RHS> for Dim<D, V> where V: Div<RHS>, RHS: NotDim {
-    type Output = Dim<D, <V as Div<RHS>>::Output>;
+impl<D, V, RHS> Div<RHS> for Quantity<D, V> where V: Div<RHS>, RHS: NotQuantity {
+    type Output = Quantity<D, <V as Div<RHS>>::Output>;
     #[inline]
-    fn div(self, rhs: RHS) -> Dim<D, <V as Div<RHS>>::Output> {
-        Dim(self.0 / rhs, PhantomData)
+    fn div(self, rhs: RHS) -> Quantity<D, <V as Div<RHS>>::Output> {
+        Quantity(self.0 / rhs, PhantomData)
     }
 }
 
 /// Scalar division (with scalar on LHS)!
 macro_rules! dim_lhs_div {
     ($t: ty) => (
-        impl<D, V> Div<Dim<D, V>> for $t where D: Recip, <D as Recip>::Output: Dimension, $t: Div<V> {
-            type Output = Dim<<D as Recip>::Output, <$t as Div<V>>::Output>;
+        impl<D, V> Div<Quantity<D, V>> for $t where D: Recip, <D as Recip>::Output: Dimension, $t: Div<V> {
+            type Output = Quantity<<D as Recip>::Output, <$t as Div<V>>::Output>;
             #[inline]
-            fn div(self, rhs: Dim<D, V>) -> Self::Output {
-                Dim( self / rhs.0, PhantomData )
+            fn div(self, rhs: Quantity<D, V>) -> Self::Output {
+                Quantity( self / rhs.0, PhantomData )
             }
         }
         );
@@ -601,12 +601,12 @@ dim_lhs_div!(usize);
 // Unary operators:
 macro_rules! dim_unary {
     ($Trait:ident, $op: ident, $($fun:ident),*) => (
-        impl<D, V> $Trait for Dim<D, V>
+        impl<D, V> $Trait for Quantity<D, V>
             where D:$op<D>, V: $Trait, <D as $op<D>>::Output: Dimension {
-                type Output = Dim<<D as $op<D>>::Output, <V as $Trait>::Output>;
+                type Output = Quantity<<D as $op<D>>::Output, <V as $Trait>::Output>;
                 #[inline]
-                $(fn $fun(self) -> Dim<<D as $op<D>>::Output, <V as $Trait>::Output> {
-                    Dim( (self.0).$fun(), PhantomData )
+                $(fn $fun(self) -> Quantity<<D as $op<D>>::Output, <V as $Trait>::Output> {
+                    Quantity( (self.0).$fun(), PhantomData )
                 })*
             }
         )
@@ -617,12 +617,12 @@ dim_unary!(Not, Same, not);
 // Binary operators:
 macro_rules! dim_binary {
     ($Trait:ident, $op: ident, $($fun:ident),*) => (
-        impl<Dl, Vl, Dr, Vr> $Trait<Dim<Dr, Vr>> for Dim<Dl, Vl>
+        impl<Dl, Vl, Dr, Vr> $Trait<Quantity<Dr, Vr>> for Quantity<Dl, Vl>
             where Dl: Dimension + $op<Dr>, Dr: Dimension, Vl: $Trait<Vr>, <Dl as $op<Dr>>::Output: Dimension {
-                type Output = Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output>;
+                type Output = Quantity<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output>;
                 #[inline]
-                $(fn $fun(self, rhs: Dim<Dr, Vr>) -> Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output> {
-                    Dim( (self.0).$fun(rhs.0), PhantomData )
+                $(fn $fun(self, rhs: Quantity<Dr, Vr>) -> Quantity<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output> {
+                    Quantity( (self.0).$fun(rhs.0), PhantomData )
                 })*
             }
         )
@@ -637,10 +637,10 @@ dim_binary!(Shr, Same, shr);
 dim_binary!(Sub, Same, sub);
 
 // fixme: figure this out
-// impl<D, V, Idx> Index<Idx> for Dim<D, V> where D: Dimension, V: Index<Idx>, <V as Index<Idx>>::Output: Sized {
-//     type Output = Dim<D, <V as Index<Idx>>::Output>;
+// impl<D, V, Idx> Index<Idx> for Quantity<D, V> where D: Dimension, V: Index<Idx>, <V as Index<Idx>>::Output: Sized {
+//     type Output = Quantity<D, <V as Index<Idx>>::Output>;
 //     fn index<'a>(&'a self, index: Idx) -> &'a Self::Output {
-//         &Dim::new((self.0)[index])
+//         &Quantity::new((self.0)[index])
 //     }
 // }
 
@@ -651,14 +651,14 @@ macro_rules! cast_from {
         #[inline]
         fn $fun(n: $prim) -> Option<Self> {
             match FromPrimitive::$fun(n) {
-                Some(v) => Some( Dim(v, PhantomData) ),
+                Some(v) => Some( Quantity(v, PhantomData) ),
                 None => None
             }
         }
         );
 }
 
-impl<D, V> FromPrimitive for Dim<D, V> where V: FromPrimitive {
+impl<D, V> FromPrimitive for Quantity<D, V> where V: FromPrimitive {
     cast_from!(from_i64, i64);
     cast_from!(from_u64, u64);
     cast_from!(from_isize, isize);
@@ -681,7 +681,7 @@ macro_rules! cast_to {
         );
 }
 
-impl<D, V> ToPrimitive for Dim<D, V> where V: ToPrimitive {
+impl<D, V> ToPrimitive for Quantity<D, V> where V: ToPrimitive {
     cast_to!(to_i64, i64);
     cast_to!(to_u64, u64);
     cast_to!(to_isize, isize);
@@ -696,52 +696,52 @@ impl<D, V> ToPrimitive for Dim<D, V> where V: ToPrimitive {
     cast_to!(to_f64, f64);
 }
 
-impl<D, V> NumCast for Dim<D, V> where V: NumCast {
+impl<D, V> NumCast for Quantity<D, V> where V: NumCast {
     #[inline]
     fn from<N>(n: N) -> Option<Self> where N: ToPrimitive {
         match NumCast::from(n) {
-            Some(v) => Some(Dim(v, PhantomData)),
+            Some(v) => Some(Quantity(v, PhantomData)),
             None => None
         }
     }
 }
 
 //------------------------------------------------------------------------------
-// impl<D, V> ::std::num::Zero for Dim<D, V> where V: ::std::num::Zero {
+// impl<D, V> ::std::num::Zero for Quantity<D, V> where V: ::std::num::Zero {
 //     fn zero() -> Self {
-//         Dim::new(V::zero())
+//         Quantity::new(V::zero())
 //     }
 // }
 
 //------------------------------------------------------------------------------
 // DIMENSIONLESS THINGS HERE
 //------------------------------------------------------------------------------
-// impl<D, V> ::std::num::One for Dim<D, V> where D: Dimensionless + Mul<D>, V: ::std::num::One + Mul {
+// impl<D, V> ::std::num::One for Quantity<D, V> where D: Dimensionless + Mul<D>, V: ::std::num::One + Mul {
 //     fn one() -> Self {
-//         Dim::new(V::one())
+//         Quantity::new(V::one())
 //     }
 // }
 
 //------------------------------------------------------------------------------
 // Num
-// impl<D, V> Num for Dim<D, V>
+// impl<D, V> Num for Quantity<D, V>
 //     where D: Dimensionless + Same<D>, V: Float, <D as Same<D>>::Output: Dimensionless {
-//         type FromStrRadixErr = Dim<D, <V as Num>::FromStrRadixErr>;
+//         type FromStrRadixErr = Quantity<D, <V as Num>::FromStrRadixErr>;
 //         fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
-//             Dim( <V as Num>::from_str_radix(str, radix));
+//             Quantity( <V as Num>::from_str_radix(str, radix));
 //         }
 //     }
 //------------------------------------------------------------------------------
 // Float
 // macro_rules! dim_unary_float {
 //     ($fun:ident, $returns:ty) => (
-//         fn $fun(self) -> $returns { Dim( (self.0).$fun(), PhantomData) }
+//         fn $fun(self) -> $returns { Quantity( (self.0).$fun(), PhantomData) }
 //         )
 // }
 
-// impl<D, V> Float for Dim<D, V>
+// impl<D, V> Float for Quantity<D, V>
 //     where D: Dimensionless + Same<D>, V: Float, <D as Same<D>>::Output: Dimensionless {
-//         // fn nan(self) -> Dim<D, V> {Dim ( (self.0).nan() )}
+//         // fn nan(self) -> Quantity<D, V> {Quantity ( (self.0).nan() )}
 //         dim_unary_float!(nan, Self);
 //         dim_unary_float!(infinity, Self);
 //         dim_unary_float!(neg_infinity, Self);

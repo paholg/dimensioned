@@ -98,7 +98,7 @@ mod cgs {
 
 The line `CGS, Unitless, one, f64, 1.0;` names the unit system `CGS`, names its type for
 unitless data `Unitless` and creates the corresponding constant `one`. It also states
-that all constants will be of type `Dim<D, f64>` and will be initialized to a value of
+that all constants will be of type `Quantity<D, f64>` and will be initialized to a value of
 `1.0`.
 
 Once associated constants hit, `std::num::One` will be used to determine the initalize value.
@@ -127,7 +127,7 @@ macro_rules! make_units_adv {
         #[allow(unused_imports)]
         use $crate::{Z0, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
         use $crate::Integer;
-        use $crate::{Dimension, Dimensionless, Dim, Pow, Root, Recip, DimToString};
+        use $crate::{Dimension, Dimensionless, Quantity, Pow, Root, Recip, QuantityToString};
         use ::std::ops::{Add, Neg, Sub, Mul, Div};
         use ::std::marker::PhantomData;
 
@@ -197,7 +197,7 @@ macro_rules! make_units_adv {
         }
 
 
-        impl<$($Type),*> DimToString for $System<$($Type),*>
+        impl<$($Type),*> QuantityToString for $System<$($Type),*>
             where $($Type: Integer),* {
             fn to_string() -> String {
                 // fixme: add #[allow(unused_variables)] lints for these. Not working
@@ -213,15 +213,15 @@ macro_rules! make_units_adv {
         pub type $Unitless = $System;
         impl Dimensionless for $Unitless {}
         #[allow(non_upper_case_globals, dead_code)]
-        pub const $one: Dim<$Unitless, $OneType> = Dim($val, PhantomData);
+        pub const $one: Quantity<$Unitless, $OneType> = Quantity($val, PhantomData);
 
         __make_base_types!($System, $($Type, $Root),+ |);
 
-        $(#[allow(non_upper_case_globals)] pub const $constant: Dim<$Type, $OneType> = Dim($val, PhantomData));*;
+        $(#[allow(non_upper_case_globals)] pub const $constant: Quantity<$Type, $OneType> = Quantity($val, PhantomData));*;
 
         $(pub type $Derived = unit!($($derived_rhs)+);
           #[allow(non_upper_case_globals)]
-          pub const $derived_constant: Dim<$Derived, $OneType> = Dim($val, PhantomData);
+          pub const $derived_constant: Quantity<$Derived, $OneType> = Quantity($val, PhantomData);
         )*
         );
 }
@@ -274,11 +274,11 @@ macro_rules! __make_base_types {
 /// #[macro_use]
 /// extern crate dimensioned as dim;
 /// use std::ops::Div;
-/// use dim::{Dim};
+/// use dim::{Quantity};
 /// use dim::si::*;
 /// type MPS = unit!(Meter / Second);
 ///
-/// fn speed(dist: Dim<Meter, f64>, time: Dim<Second, f64>) -> Dim<MPS, f64> {
+/// fn speed(dist: Quantity<Meter, f64>, time: Quantity<Second, f64>) -> Quantity<MPS, f64> {
 ///     dist / time
 /// }
 ///

@@ -3,8 +3,9 @@
 This project follows semantic versioning.
 
 ### Unpublished
+- `[changed]` Renamed `Dim<D, V>` to `Quantity<D, V>`.
 - `[added]` Unit conversion example.
-- `[changed]` Removed `Dimensioned` constraint for `D` in `Dim<D, V>`. This enables derived types to work properly. It is a temporary change only until the bug with Rust is fixed. See [issue #6](https://github.com/paholg/dimensioned/issues/6).
+- `[changed]` Removed `Dimensioned` constraint for `D` in `Quantity<D, V>`. This enables derived types to work properly. It is a temporary change only until the bug with Rust is fixed. See [issue #6](https://github.com/paholg/dimensioned/issues/6).
 - `[added]` Macro for constructing derived units. The derived block of `make_units!` also now works.
 
 ### 0.5.0 (2015-12-02)
