@@ -286,7 +286,6 @@ macro_rules! __make_base_types {
 ///
 /// # Example
 /// ```rust
-/// #![feature(type_macros)]
 /// #[macro_use]
 /// extern crate dimensioned as dim;
 /// use std::ops::Div;
