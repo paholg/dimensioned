@@ -13,7 +13,8 @@
   name = "dimensioned"
 
 [features]
-  no_std = []
+  default = ["std"]
+  std = []
 
 [dependencies]
   typenum = "1.3.2"

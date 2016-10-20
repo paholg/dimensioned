@@ -1,4 +1,3 @@
-#![feature(type_macros)]
 #[macro_use]
 extern crate dimensioned as dim;
 
