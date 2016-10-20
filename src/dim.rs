@@ -590,8 +590,8 @@ macro_rules! dim_fmt {
     ($Trait:ident, $str:expr) => (
         impl<D, V> fmt::$Trait for Dim<D, V> where D: FmtDim, V: fmt::$Trait {
             fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-                write!(f, $str, self.0)?;
-                D::fmt(f)?;
+                try!(write!(f, $str, self.0));
+                try!(D::fmt(f));
                 Ok(())
             }
         }
