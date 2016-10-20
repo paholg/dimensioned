@@ -1,9 +1,8 @@
-/*!
-The **si** module provides a unit system for use with SI units. It was generated using
-the `make_units!` macro. See its documentation for more information.
-
-It will also define derived units, although this is not implemented yet.
-*/
+//! The **si** module provides a unit system for use with SI units. It was generated using
+//! the `make_units!` macro. See its documentation for more information.
+//!
+//! It will also define derived units, although this is not implemented yet.
+//!
 
 #![allow(missing_docs)]
 

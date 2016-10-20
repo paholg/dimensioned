@@ -14,6 +14,7 @@ script:
   - |
     travis-cargo build &&
     travis-cargo test &&
+    travis-cargo test -- --no-default-features &&
     travis-cargo doc
 
 after_success:

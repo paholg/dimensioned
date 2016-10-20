@@ -1,22 +1,8 @@
 extern crate dimensioned as dim;
-extern crate num;
 
-use vector3b::{Vector3, Norm2, Cross};
+use vector3b::{Vector3, Cross, Norm};
 
-use dim::Sqrt;
 use dim::si::{one, m, kg, s};
-
-pub trait Norm {
-    type Output;
-    fn norm(self) -> Self::Output;
-}
-
-impl<N> Norm for Vector3<N> where Vector3<N>: Norm2, <Vector3<N> as Norm2>::Output: Sqrt {
-    type Output = <<Vector3<N> as Norm2>::Output as Sqrt>::Output;
-    #[inline]
-    fn norm(self) -> Self::Output { self.norm2().sqrt() }
-}
-
 
 fn main() {
     let xhat = Vector3::new(one, 0.0*one, 0.0*one);
@@ -54,9 +40,9 @@ fn main() {
 }
 
 mod vector3b {
-    use num::Float;
     use std::ops::{Add, Sub, Mul, Div};
     use std::fmt::{self, Display};
+    use dim::Sqrt;
 
     #[derive(Copy, Clone)]
     pub struct Vector3<N> {
@@ -97,8 +83,8 @@ mod vector3b {
         fn norm(self) -> Self::Output;
     }
 
-    impl<N> Norm for Vector3<N> where Vector3<N>: Norm2, <Vector3<N> as Norm2>::Output: Float {
-        type Output = <Vector3<N> as Norm2>::Output;
+    impl<N> Norm for Vector3<N> where Vector3<N>: Norm2, <Vector3<N> as Norm2>::Output: Sqrt {
+        type Output = <<Vector3<N> as Norm2>::Output as Sqrt>::Output;
         #[inline]
         fn norm(self) -> Self::Output { self.norm2().sqrt() }
     }

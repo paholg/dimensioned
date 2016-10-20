@@ -12,6 +12,9 @@
 [lib]
   name = "dimensioned"
 
+[features]
+  default = ["std"]
+  std = []
+
 [dependencies]
-  num = "0.1.34"
   typenum = "1.3.2"

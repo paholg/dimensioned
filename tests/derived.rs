@@ -1,11 +1,9 @@
-#![feature(type_macros)]
 #[macro_use]
 extern crate dimensioned as dim;
 
 use dim::Dim;
 use dim::si::{Meter, Second};
 use std::ops::Div;
-use std::marker::PhantomData;
 
 type MPS = unit!(Meter / Second);
 
