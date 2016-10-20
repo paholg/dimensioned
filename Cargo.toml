@@ -13,8 +13,9 @@
   name = "dimensioned"
 
 [features]
-  default = ["std"]
+  default = ["std", "nightly"]
   std = []
+  nightly = []
 
 [dependencies]
   typenum = "1.3.2"

@@ -15,6 +15,7 @@ dim_impl_unary!(Norm2, norm2, Mul, Vector3 => f64);
 dim_impl_binary!(Dot, dot, Mul, Vector3 => f64);
 dim_impl_binary!(Cross, cross, Mul, Vector3 => Vector3);
 
+#[cfg(feature = "nightly")]
 fn main() {
     let xhat = one * Vector3::new(1.0, 0.0, 0.0);
     let yhat = one * Vector3::new(0.0, 1.0, 0.0);
@@ -48,6 +49,10 @@ fn main() {
     let r = end - center;
     let torque = r.cross(force);
     println!("That's a torque of {}!", torque);
+}
+
+#[cfg(not(feature = "nightly"))]
+fn main() {
 }
 
 
