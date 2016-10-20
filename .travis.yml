@@ -14,8 +14,10 @@ before_script:
 script:
   - |
     travis-cargo --only nightly test &&
-    travis-cargo test --only nightly -- --no-default-features --features nightly &&
-    travis-cargo test -- --no-default-features --features std &&
+    # test core
+    travis-cargo --only nightly test -- --no-default-features --features "nightly" &&
+    # test without nightly
+    travis-cargo test -- --no-default-features --features "std" &&
     travis-cargo --only nightly doc
 
 after_success:
