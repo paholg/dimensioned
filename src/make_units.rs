@@ -205,17 +205,17 @@ macro_rules! make_units_adv {
                     if first {
                         first = false;
                     } else if exp != 0 {
-                        write!(f, "*")?;
+                        try!(write!(f, "*"));
                     }
 
                     match exp {
                         0 => (),
-                        _ if exp == root => write!(f, "{}", token)?,
+                        _ if exp == root => try!(write!(f, "{}", token)),
                         _ => {
                             if exp % root == 0 {
-                                write!(f, "{}^{}", token, exp/root)?
+                                try!(write!(f, "{}^{}", token, exp/root))
                             } else {
-                                write!(f, "{}^{:.2}", token, exp as f32/root as f32)?
+                                try!(write!(f, "{}^{:.2}", token, exp as f32/root as f32))
                             }
                         },
                     }
@@ -286,7 +286,6 @@ macro_rules! __make_base_types {
 ///
 /// # Example
 /// ```rust
-/// #![feature(type_macros)]
 /// #[macro_use]
 /// extern crate dimensioned as dim;
 /// use std::ops::Div;

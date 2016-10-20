@@ -9,7 +9,7 @@
        html_root_url = "http://paholg.com/dimensioned")]
 #![warn(missing_docs)]
 
-#![feature(optin_builtin_traits, const_fn)]
+#![cfg_attr(feature = "nightly", feature(optin_builtin_traits))]
 #![cfg_attr(not(feature="std"), feature(core_float, core_intrinsics))]
 
 #![cfg_attr(not(feature="std"), no_std)]

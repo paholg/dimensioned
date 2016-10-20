@@ -77,7 +77,7 @@ impl<D, V> Dim<D, V> {
     ```
 
      */
-    pub const fn new(v: V) -> Dim<D, V> {
+    pub fn new(v: V) -> Dim<D, V> {
         Dim(v, PhantomData)
     }
     /**
@@ -104,8 +104,11 @@ This trait is implemented by default for everything that is not Dim<D, V>. It al
  greater level of generic operator overloading than would be possible otherwise.
 */
 #[doc(hidden)]
+#[cfg(feature = "nightly")]
 pub trait NotDim {}
+#[cfg(feature = "nightly")]
 impl NotDim for .. {}
+#[cfg(feature = "nightly")]
 impl<D, V> !NotDim for Dim<D, V> {}
 
 /// **Sqrt** provides a `sqrt` member function.
@@ -435,7 +438,7 @@ impl_recip!(f64);
 //     fn convert_to(self) -> Self::Output;
 // }
 
-
+// fixme: re-enable test when nightly flag is not needed for multiplication
 /**
 Used for implementing unary members of `V` for `Dim<D, V>`
 
@@ -466,7 +469,7 @@ one of:
 Note: This macro requires that `Dim` and `Dimension` be imported.
 
 # Example
-```rust
+```ignore
 #[macro_use]
 extern crate dimensioned;
 
@@ -509,7 +512,7 @@ macro_rules! dim_impl_unary { ($Trait:ident, $fun:ident, $op:ident, $In:ty => $O
     }
     );
 }
-
+// fixme: re-enable test when nightly flag is not needed for multiplication
 /**
 Used for implementing binary members of `V` for `Dim<D, V>`.
 
@@ -535,7 +538,7 @@ one of:
 Note: This macro requires that `Dim` and `Dimension` be imported.
 
 # Example
-```rust
+```ignore
 #[macro_use]
 extern crate dimensioned;
 use dimensioned::{Dim, Dimension};
@@ -587,8 +590,8 @@ macro_rules! dim_fmt {
     ($Trait:ident, $str:expr) => (
         impl<D, V> fmt::$Trait for Dim<D, V> where D: FmtDim, V: fmt::$Trait {
             fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-                write!(f, $str, self.0)?;
-                D::fmt(f)?;
+                try!(write!(f, $str, self.0));
+                try!(D::fmt(f));
                 Ok(())
             }
         }
@@ -648,7 +651,20 @@ impl<D: Same, V: Ord> Ord for Dim<D, V> {
 // Traits from std::ops
 // ------------------------------------------------------------------------------
 
-/// Multiplying!
+/// Scalar multiplication with scalar on RHS
+#[cfg(feature = "nightly")]
+impl<D, V, RHS> Mul<RHS> for Dim<D, V>
+    where V: Mul<RHS>,
+          RHS: NotDim
+{
+    type Output = Dim<D, <V as Mul<RHS>>::Output>;
+    #[inline]
+    fn mul(self, rhs: RHS) -> Self::Output {
+        Dim(self.0 * rhs, PhantomData)
+    }
+}
+
+/// Multiplying
 impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
     where Dl: Dimension + Mul<Dr>,
           Dr: Dimension,
@@ -656,28 +672,15 @@ impl<Dl, Dr, Vl, Vr> Mul<Dim<Dr, Vr>> for Dim<Dl, Vl>
           <Dl as Mul<Dr>>::Output: Dimension
 {
     type Output = Dim<<Dl as Mul<Dr>>::Output, <Vl as Mul<Vr>>::Output>;
-
     #[inline]
     fn mul(self, rhs: Dim<Dr, Vr>) -> Self::Output {
         Dim::new(self.0 * rhs.0)
     }
 }
 
-/// Scalar multiplication (with scalar on RHS)!
-impl<D, V, RHS> Mul<RHS> for Dim<D, V>
-    where V: Mul<RHS>,
-          RHS: NotDim
-{
-    type Output = Dim<D, <V as Mul<RHS>>::Output>;
-    #[inline]
-    fn mul(self, rhs: RHS) -> Dim<D, <V as Mul<RHS>>::Output> {
-        Dim(self.0 * rhs, PhantomData)
-    }
-}
-
-/// Scalar multiplication (with scalar on LHS)!
-macro_rules! dim_lhs_mult {
+macro_rules! dim_scalar_mult {
     ($t: ty) => (
+        /// Scalar multiplication with scalar on LHS
         impl<D, V> Mul<Dim<D, V>> for $t where $t: Mul<V> {
             type Output = Dim<D, <$t as Mul<V>>::Output>;
             #[inline]
@@ -685,24 +688,35 @@ macro_rules! dim_lhs_mult {
                 Dim( self * rhs.0, PhantomData )
             }
         }
-        );
+
+        /// Scalar multiplication with scalar on RHS
+        #[cfg(not(feature = "nightly"))]
+        impl<D, V> Mul<$t> for Dim<D, V> where V: Mul<$t> {
+            type Output = Dim<D, <V as Mul<$t>>::Output>;
+            #[inline]
+            fn mul(self, rhs: $t) -> Self::Output {
+                Dim( self.0 * rhs, PhantomData )
+            }
+        }
+
+    );
 }
 
-dim_lhs_mult!(f32);
-dim_lhs_mult!(f64);
-dim_lhs_mult!(i8);
-dim_lhs_mult!(i16);
-dim_lhs_mult!(i32);
-dim_lhs_mult!(i64);
-dim_lhs_mult!(isize);
-dim_lhs_mult!(u8);
-dim_lhs_mult!(u16);
-dim_lhs_mult!(u32);
-dim_lhs_mult!(u64);
-dim_lhs_mult!(usize);
+dim_scalar_mult!(f32);
+dim_scalar_mult!(f64);
+dim_scalar_mult!(i8);
+dim_scalar_mult!(i16);
+dim_scalar_mult!(i32);
+dim_scalar_mult!(i64);
+dim_scalar_mult!(isize);
+dim_scalar_mult!(u8);
+dim_scalar_mult!(u16);
+dim_scalar_mult!(u32);
+dim_scalar_mult!(u64);
+dim_scalar_mult!(usize);
 
 
-/// Dividing!
+/// Dividing
 impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
     where Dl: Dimension + Div<Dr>,
           Dr: Dimension,
@@ -716,7 +730,8 @@ impl<Dl, Dr, Vl, Vr> Div<Dim<Dr, Vr>> for Dim<Dl, Vl>
     }
 }
 
-/// Scalar division (with scalar on RHS)!
+/// Scalar division with scalar on RHS
+#[cfg(feature = "nightly")]
 impl<D, V, RHS> Div<RHS> for Dim<D, V>
     where V: Div<RHS>,
           RHS: NotDim
@@ -728,9 +743,9 @@ impl<D, V, RHS> Div<RHS> for Dim<D, V>
     }
 }
 
-/// Scalar division (with scalar on LHS)!
-macro_rules! dim_lhs_div {
+macro_rules! dim_scalar_div {
     ($t: ty) => (
+        /// Scalar division with scalar on LHS
         impl<D, V> Div<Dim<D, V>> for $t
             where D: Recip,
                   <D as Recip>::Output: Dimension,
@@ -742,20 +757,31 @@ macro_rules! dim_lhs_div {
                 Dim( self / rhs.0, PhantomData )
             }
         }
+
+        /// Scalar division with scalar on RHS
+        #[cfg(not(feature = "nightly"))]
+        impl<D, V> Div<$t> for Dim<D, V> where V: Div<$t> {
+            type Output = Dim<D, <V as Div<$t>>::Output>;
+            #[inline]
+            fn div(self, rhs: $t) -> Self::Output {
+                Dim( self.0 / rhs, PhantomData )
+            }
+        }
+
         );
 }
-dim_lhs_div!(f32);
-dim_lhs_div!(f64);
-dim_lhs_div!(i8);
-dim_lhs_div!(i16);
-dim_lhs_div!(i32);
-dim_lhs_div!(i64);
-dim_lhs_div!(isize);
-dim_lhs_div!(u8);
-dim_lhs_div!(u16);
-dim_lhs_div!(u32);
-dim_lhs_div!(u64);
-dim_lhs_div!(usize);
+dim_scalar_div!(f32);
+dim_scalar_div!(f64);
+dim_scalar_div!(i8);
+dim_scalar_div!(i16);
+dim_scalar_div!(i32);
+dim_scalar_div!(i64);
+dim_scalar_div!(isize);
+dim_scalar_div!(u8);
+dim_scalar_div!(u16);
+dim_scalar_div!(u32);
+dim_scalar_div!(u64);
+dim_scalar_div!(usize);
 
 
 // Unary operators:
