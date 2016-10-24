@@ -1,20 +1,19 @@
 #[macro_use]
 extern crate dimensioned as dim;
 
-use dim::Dim;
 use dim::si::{Meter, Second};
-use std::ops::Div;
+use dim::typenum::Quot;
 
-type MPS = unit!(Meter / Second);
+type MPS<T> = Quot<Meter<T>, Second<T>>;
 
-fn speed(dist: Dim<Meter, f64>, time: Dim<Second, f64>) -> Dim<MPS, f64> {
+fn speed(dist: Meter<f64>, time: Second<f64>) -> MPS<f64> {
     dist / time
 }
 
 #[test]
 fn derived() {
-    let d: Dim<Meter, f64> = Dim::new(3.0);
-    let t: Dim<Second, f64> = Dim::new(2.0);
+    let d = Meter::new(3.0);
+    let t = Second::new(2.0);
 
     let v = speed(d, t);
 

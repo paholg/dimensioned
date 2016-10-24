@@ -14,6 +14,7 @@ make_units_adv! {
         P1, Second, s, s;
     }
     derived {
+        MeterPerSecond = (Meter / Second);
     }
 }
 
@@ -45,4 +46,13 @@ impl<Centimeter, Gram, Second, V> FromCGS<Centimeter, Gram, Second, V>
         Dim::new(from.0 * 0.01f64.sqrt().powi(Centimeter::to_i32()) *
                  0.001f64.sqrt().powi(Gram::to_i32()))
     }
+}
+
+#[test]
+fn mps_test() {
+    let dist = 2.0 * m;
+    let time = 2.0 * s;
+    let v = MeterPerSecond::new(1.0);
+
+    assert_eq!(v, dist / time);
 }

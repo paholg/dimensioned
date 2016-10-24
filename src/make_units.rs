@@ -51,7 +51,7 @@ macro_rules! make_units {
          $($Type:ident, $constant:ident, $print_as:ident;)+
      }
      derived {
-         $($derived_constant:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
+         $($Derived:ident = ($($derived_rhs:tt)+);)*
      } ) => (
         make_units_adv!{
             $System, $Unitless, $one, f64, 1.0;
@@ -59,7 +59,7 @@ macro_rules! make_units {
                 $(P1, $Type, $constant, $print_as;)*
             }
             derived {
-                $($derived_constant: $Derived = ($($derived_rhs)+);)*
+                $($Derived = ($($derived_rhs)+);)*
             }
         }
 
@@ -122,14 +122,19 @@ macro_rules! make_units_adv {
          $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+
      }
      derived {
-         $($derived_constant:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
+         $($Derived:ident = ($($derived_rhs:tt)+);)*
      } ) => (
         #[allow(unused_imports)]
         use $crate::{Z0, P1, P2, P3, P4, P5, P6, P7, P8, P9, N1, N2, N3, N4, N5, N6, N7, N8, N9};
+        #[allow(unused_imports)]
         use $crate::Integer;
+        #[allow(unused_imports)]
         use $crate::{Dimension, Dimensionless, Dim, Pow, Root, Recip, FmtDim};
+        #[allow(unused_imports)]
         use $crate::reexported::ops::{Add, Neg, Sub, Mul, Div};
+        #[allow(unused_imports)]
         use $crate::reexported::marker::PhantomData;
+        #[allow(unused_imports)]
         use $crate::reexported::fmt;
 
         #[derive(Copy, Clone)]
@@ -224,54 +229,45 @@ macro_rules! make_units_adv {
             }
         }
 
-        pub type $Unitless = $System;
-        impl Dimensionless for $Unitless {}
+        #[doc(hidden)]
+        pub mod inner {
+            #[allow(unused_imports)]
+            use $crate::typenum::consts::*;
+            #[allow(unused_imports)]
+            pub use $crate::{Dim, Dimensionless, Root};
+            #[allow(unused_imports)]
+            use super::$System;
+            #[allow(unused_imports)]
+            pub use $crate::typenum::{Quot, Prod};
+
+
+            pub type $Unitless = $System;
+            impl Dimensionless for $Unitless {}
+
+            __make_inner_base_types!($System, $($Type, $Root),+ |);
+
+            $(pub type $Derived = unit!(@commas $($derived_rhs)+);)*
+        }
+
+        pub type $Unitless<__TypeParameter> = Dim<inner::$Unitless, __TypeParameter>;
         #[allow(non_upper_case_globals, dead_code)]
-        pub const $one: Dim<$Unitless, $OneType> = Dim($val, PhantomData);
+        pub const $one: $Unitless<$OneType> = Dim($val, PhantomData);
 
-        __make_base_types!($System, $($Type, $Root),+ |);
+        $(pub type $Type<__TypeParameter> = Dim<inner::$Type, __TypeParameter>;
+        #[allow(non_upper_case_globals, dead_code)]
+          pub const $constant: $Type<$OneType> = Dim($val, PhantomData));*;
 
-        $(#[allow(non_upper_case_globals, dead_code)]
-          pub const $constant: Dim<$Type, $OneType> = Dim($val, PhantomData));*;
-
-        $(pub type $Derived = unit!($($derived_rhs)+);
-          #[allow(non_upper_case_globals)]
-          pub const $derived_constant: Dim<$Derived, $OneType> = Dim($val, PhantomData);
-        )*
-        );
-}
-
-/** Counts the number of arguments its called with and gives you the total.
-
-#Example
-
-```rust
-#[macro_use]
-extern crate dimensioned as dim;
-
-fn main() {
-    let x = count_args!(a, b, cat, banana);
-    assert_eq!(4, x);
-}
-```
-*/
-#[macro_export]
-macro_rules! count_args {
-    ($arg:ident, $($args:ident),+) => (
-        1 + count_args!($($args),+);
-    );
-    ($arg:ident) => (
-        1
+        $(pub type $Derived<__TypeParameter> = Dim<inner::$Derived, __TypeParameter>;)*
     );
 }
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __make_base_types {
+macro_rules! __make_inner_base_types {
     ($System:ident, $Type:ident, $Root:ident, $($Types:ident, $Roots:ident),+ | $($Zeros:ident),*)
         => (
         pub type $Type = $System< $($Zeros,)* $Root>;
-        __make_base_types!($System, $($Types, $Roots),+ | Z0 $(, $Zeros)*);
+        __make_inner_base_types!($System, $($Types, $Roots),+ | Z0 $(, $Zeros)*);
         );
     ($System:ident, $Type:ident, $Root:ident | $($Zeros:ident),*) => (
         pub type $Type = $System<$($Zeros,)* $Root>;
@@ -281,33 +277,44 @@ macro_rules! __make_base_types {
 /// Creates a derived unit based on existing ones.
 /// Currently only supports the operations * and /.
 ///
-/// The ideal way to create derived units is inside the make_units! macro (which calls this one),
-/// but this also lets you create derived units for systems that are already defined.
+/// Note that it is important that you place calls to this macro inside their own module, and that
+/// module must import `inner::*` from whichever module your unit system is in.
+///
+/// The ideal way to create derived units is inside the make_units! macro but this also lets you
+/// create derived units for systems that are already defined.
 ///
 /// # Example
 /// ```rust
 /// #[macro_use]
 /// extern crate dimensioned as dim;
-/// use std::ops::Div;
-/// use dim::{Dim};
-/// use dim::si::*;
-/// type MPS = unit!(Meter / Second);
+/// use dim::si::{Meter, Second};
 ///
-/// fn speed(dist: Dim<Meter, f64>, time: Dim<Second, f64>) -> Dim<MPS, f64> {
+/// mod derived {
+///     use dim::si::inner::*;
+///     unit!(MPS = Meter / Second);
+/// }
+/// use derived::MPS;
+///
+/// fn speed(dist: Meter<f64>, time: Second<f64>) -> MPS<f64> {
 ///     dist / time
 /// }
 ///
 /// fn main() {
-///     let x = 5.0 * m;
-///     let t = 1.0 * s;
+///     let x = Meter::new(5.0);
+///     let t = Second::new(2.0);
 ///     let v = speed(x, t);
-///     assert_eq!(v, x/t);
+///     let v2 = MPS::new(2.5);
+///     assert_eq!(v, v2);
 /// }
 /// ```
 #[macro_export]
 macro_rules! unit {
-    // { ( $($LHS:tt)+ ) } => { unit!($($LHS)+) };
-    { $LHS:tt * $($RHS:tt)+ } => { <unit!($LHS) as Mul<unit!($($RHS)+)>>::Output };
-    { $LHS:tt / $($RHS:tt)+ } => { <unit!($LHS) as Div<unit!($($RHS)+)>>::Output };
-    { $LHS:ty } => { $LHS };
+    (@eval $a:ty,) => ($a);
+    (@eval $a:ty, *, $b:ty, $($tail:tt)*) =>
+        (unit!(@eval $crate::typenum::Prod<$a, $b>, $($tail)* ));
+    (@eval $a:ty, /, $b:ty, $($tail:tt)*) =>
+        (unit!(@eval $crate::typenum::Quot<$a, $b>, $($tail)* ));
+    (@commas $t:ty) => ($t);
+    (@commas $($tail:tt)*) => (unit!(@eval $($tail,)*));
+    ($name:ident = $($tail:tt)*) => ( pub type $name<T> = Dim<unit!(@commas $($tail)*), T>;);
 }
