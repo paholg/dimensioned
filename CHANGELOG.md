@@ -3,6 +3,7 @@
 This project follows semantic versioning.
 
 ### Unpublished
+- `[added]` Many derived units added to unit systems.
 - `[added]` The derived block of `make_units!` now works. Derived units can also be made
   separately, but that is currently a bit cumbersome.
 - `[chaned]` ***BREAKING*** Type aliases has been changed. E.g. what used to be `Dim<Meter, T>` is now simply `Meter<T>`.
