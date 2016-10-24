@@ -68,10 +68,9 @@ impl<D, V> Dim<D, V> {
 
     # Example
     ```
-    use dimensioned::Dim;
     use dimensioned::si::{m, Meter};
 
-    let x: Dim<Meter, f64> = Dim::new(3.0);
+    let x = Meter::new(3.0);
     let y = 3.0*m;
     assert_eq!(x, y);
     ```
