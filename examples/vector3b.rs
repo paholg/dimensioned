@@ -2,7 +2,7 @@ extern crate dimensioned as dim;
 
 use vector3b::{Vector3, Cross, Norm};
 
-use dim::si::{one, m, kg, s};
+use dim::si::consts::{one, m, kg, s};
 
 fn main() {
     let xhat = Vector3::new(one, 0.0*one, 0.0*one);

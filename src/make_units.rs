@@ -13,32 +13,31 @@ extern crate dimensioned;
 
 mod fruit {
     make_units! {
-        Fruit, Unitless, one;
+        Fruit, Unitless;
         base {
-            Apple, apple, a;
-            Banana, banana, b;
-            Cucumber, cuke, c;
-            Mango, mango, m;
-            Watermelon, watermelon, w;
+            Apple, a;
+            Banana, b;
+            Cucumber, c;
+            Mango, m;
+            Watermelon, w;
         }
         derived {
         }
     }
 }
-use fruit::{apple, banana, cuke, mango, watermelon};
+use fruit::{Apple, Banana, Cucumber, Mango, Watermelon};
 
 fn main() {
-    let fruit_salad = apple * banana * mango * mango * watermelon;
+    let fruit_salad = Apple::new(1.0) * Banana::new(1.0) * Mango::new(1.0) * Mango::new(1.0) * Watermelon::new(1.0);
     println!("Mmmm, delicious: {}", fruit_salad);
     assert_eq!(format!("{}", fruit_salad), "1 a*b*m^2*w");
 }
 ```
 
-The line `Fruit, Unitless, one;` names the unit system `Fruit`, names its type for
-unitless data `Unitless` and creates the corresponding constant `one`.
+The line `Fruit, Unitless;` names the unit system `Fruit` and names its type for
+unitless data `Unitless`.
 
-The `base` block is used to define the base units of this system. The line `Apple,
-apple, a;` creates the unit `Apple`, the corresponding constant `apple`, and will use
+The `base` block is used to define the base units of this system. The line `Apple, a;` creates the unit `Apple` and will use
 the token "a" to print `Apple`s.
 
 The `derived` block is not yet implemented, but will be used to define derived units and
@@ -46,17 +45,17 @@ constants.
 */
 #[macro_export]
 macro_rules! make_units {
-    ($System:ident, $Unitless:ident, $one:ident;
+    ($System:ident, $Unitless:ident;
      base {
-         $($Type:ident, $constant:ident, $print_as:ident;)+
+         $($Type:ident, $print_as:ident;)+
      }
      derived {
          $($Derived:ident = ($($derived_rhs:tt)+);)*
      } ) => (
         make_units_adv!{
-            $System, $Unitless, $one, f64, 1.0;
+            $System, $Unitless;
             base {
-                $(P1, $Type, $constant, $print_as;)*
+                $(P1, $Type, $print_as;)*
             }
             derived {
                 $($Derived = ($($derived_rhs)+);)*
@@ -81,11 +80,11 @@ extern crate dimensioned;
 
 mod cgs {
     make_units_adv! {
-        CGS, Unitless, one, f64, 1.0;
+        CGS, Unitless;
         base {
-            P2, Centimeter, cm, cm;
-            P2, Gram, g, g;
-            P1, Second, s, s;
+            P2, Centimeter, cm;
+            P2, Gram, g;
+            P1, Second, s;
         }
         derived {
         }
@@ -117,9 +116,9 @@ constants.
 */
 #[macro_export]
 macro_rules! make_units_adv {
-    ($System:ident, $Unitless:ident, $one:ident, $OneType:ident, $val:expr;
+    ($System:ident, $Unitless:ident;
      base {
-         $($Root:ident, $Type:ident, $constant:ident, $print_as:ident;)+
+         $($Root:ident, $Type:ident, $print_as:ident;)+
      }
      derived {
          $($Derived:ident = ($($derived_rhs:tt)+);)*
@@ -138,32 +137,33 @@ macro_rules! make_units_adv {
         use $crate::reexported::fmt;
 
         #[derive(Copy, Clone)]
+        #[allow(non_snake_case)]
         pub struct $System<$($Type: Integer = Z0),*> {
-            $($constant: PhantomData<$Type>),*
+            $($print_as: PhantomData<$Type>),*
         }
         impl<$($Type: Integer),*> Dimension for $System<$($Type),*> {}
 
-        // using $Type and $constant for these traits is confusing. It should really be $Type_Left
+        // using $Type and $print_as for these traits is confusing. It should really be $Type_Left
         // and $Type_Right or something, but that is not yet supported by Rust
         #[allow(non_camel_case_types)]
-        impl<$($Type),*, $($constant),*> Mul<$System<$($constant),*>> for $System<$($Type),*>
-        where $($Type: Integer + Add<$constant>),*,
-              $($constant: Integer),*,
-              $(<$Type as Add<$constant>>::Output: Integer),*,
-              $System<$(<$Type as Add<$constant>>::Output),*>: Dimension,
+        impl<$($Type),*, $($print_as),*> Mul<$System<$($print_as),*>> for $System<$($Type),*>
+        where $($Type: Integer + Add<$print_as>),*,
+              $($print_as: Integer),*,
+              $(<$Type as Add<$print_as>>::Output: Integer),*,
+              $System<$(<$Type as Add<$print_as>>::Output),*>: Dimension,
         {
-            type Output = $System<$(<$Type as Add<$constant>>::Output),*>;
-            fn mul(self, _: $System<$($constant),*>) -> Self::Output { unreachable!()  }
+            type Output = $System<$(<$Type as Add<$print_as>>::Output),*>;
+            fn mul(self, _: $System<$($print_as),*>) -> Self::Output { unreachable!()  }
         }
 
         #[allow(non_camel_case_types)]
-        impl<$($Type),*, $($constant),*> Div<$System<$($constant),*>> for $System<$($Type),*>
-            where $($Type: Integer + Sub<$constant>),*,
-                  $($constant: Integer),*,
-                  $(<$Type as Sub<$constant>>::Output: Integer),*
+        impl<$($Type),*, $($print_as),*> Div<$System<$($print_as),*>> for $System<$($Type),*>
+            where $($Type: Integer + Sub<$print_as>),*,
+                  $($print_as: Integer),*,
+                  $(<$Type as Sub<$print_as>>::Output: Integer),*
         {
-            type Output = $System<$(<$Type as Sub<$constant>>::Output),*>;
-            fn div(self, _: $System<$($constant),*>) -> Self::Output { unreachable!()  }
+            type Output = $System<$(<$Type as Sub<$print_as>>::Output),*>;
+            fn div(self, _: $System<$($print_as),*>) -> Self::Output { unreachable!()  }
         }
 
         // Note that this is backwards from the definition of `Pow`. We should be doing:
@@ -250,12 +250,8 @@ macro_rules! make_units_adv {
         }
 
         pub type $Unitless<__TypeParameter> = Dim<inner::$Unitless, __TypeParameter>;
-        #[allow(non_upper_case_globals, dead_code)]
-        pub const $one: $Unitless<$OneType> = Dim($val, PhantomData);
 
-        $(pub type $Type<__TypeParameter> = Dim<inner::$Type, __TypeParameter>;
-        #[allow(non_upper_case_globals, dead_code)]
-          pub const $constant: $Type<$OneType> = Dim($val, PhantomData));*;
+        $(pub type $Type<__TypeParameter> = Dim<inner::$Type, __TypeParameter>;)*
 
         $(pub type $Derived<__TypeParameter> = Dim<inner::$Derived, __TypeParameter>;)*
     );

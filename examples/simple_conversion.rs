@@ -1,17 +1,16 @@
 #[macro_use]
 extern crate dimensioned as dim;
-extern crate typenum;
 
 use dim::Dim;
-use typenum::Integer;
+use dim::typenum::Integer;
 use std::ops::Mul;
 
 mod ms {
     make_units! {
-        MS, Unitless, one;
+        MS, Unitless;
         base {
-            Meter, m, m;
-            Second, s, s;
+            Meter, m;
+            Second, s;
         }
         derived {
         }
@@ -25,10 +24,10 @@ mod ms {
 
 mod fs {
     make_units! {
-        FS, Unitless, one;
+        FS, Unitless;
         base {
-            Foot, ft, ft;
-            Second, s, s;
+            Foot, ft;
+            Second, s;
         }
         derived {
         }
@@ -52,7 +51,7 @@ impl<Foot: Integer, Second: Integer, V: Mul<f64, Output = V>> fs::FromFS<Foot, S
 }
 
 fn main() {
-    let x_m = 5.0 * ms::m;
+    let x_m = ms::Meter::new(5.0);
     use ms::FromMS;
     let x_ft = fs::FS::from_ms(x_m);
 
