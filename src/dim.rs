@@ -61,18 +61,19 @@ impl<D, V: Copy> Copy for Dim<D, V> {}
 
 impl<D, V> Dim<D, V> {
     /**
-    Construct a new `Dim` object.
-
-    It is recommened to use this only where necessary, and to generally use the
-    constants that ship with unit systems to create `Dim` objects.
+    Construct a new `Dim` object. Can be called directly from any of the aliases for units, as seen below.
 
     # Example
     ```
-    use dimensioned::si::{m, Meter};
+    extern crate dimensioned as dim;
+    use dim::Dim;
+    use dim::si::Meter;
 
+    # fn main() {
     let x = Meter::new(3.0);
-    let y = 3.0*m;
+    let y: Meter<f64> = Dim::new(3.0);
     assert_eq!(x, y);
+    # }
     ```
 
      */
@@ -83,9 +84,9 @@ impl<D, V> Dim<D, V> {
     Map a `Dim<D, V>` to `Dim<D, O>` by applying function `f` to the contained value
     # Example
     ```
-    # extern crate dimensioned;
+    extern crate dimensioned as dim;
 
-    use dimensioned::si::m;
+    use dim::si::consts::m;
 
     # fn main() {
     let x = 4.0*m;
@@ -118,12 +119,15 @@ pub trait Sqrt {
     Take a square root.
     # Example
     ```
-    use dimensioned::si::m;
-    use dimensioned::Sqrt;
+    extern crate dimensioned as dim;
+    use dim::si::consts::m;
+    use dim::Sqrt;
 
+    # fn main() {
     let x = 2.0*m;
     let y = 4.0*m*m;
     assert_eq!(x, y.sqrt());
+    # }
     ```
      */
     fn sqrt(self) -> Self::Output;
@@ -188,12 +192,15 @@ pub trait Cbrt {
     Take a cube root.
     # Example
     ```
-    use dimensioned::si::m;
-    use dimensioned::Cbrt;
+    extern crate dimensioned as dim;
+    use dim::si::consts::m;
+    use dim::Cbrt;
 
+    # fn main() {
     let x = 2.0*m;
     let y = 8.0*m*m*m;
     assert_eq!(x, y.cbrt());
+    # }
     ```
      */
     fn cbrt(self) -> Self::Output;
@@ -244,13 +251,16 @@ pub trait Root<Radicand> {
     /**
     # Example
     ```
-    use dimensioned::si::m;
-    use dimensioned::Root;
-    use dimensioned::P4;
+    extern crate dimensioned as dim;
+    use dim::si::consts::m;
+    use dim::Root;
+    use dim::P4;
 
+    # fn main() {
     let x = 2.0*m;
     let y = 16.0*m*m*m*m;
     assert_eq!(x, P4::root(x*x*x*x));
+    # }
     ```
     */
     fn root(radicand: Radicand) -> Self::Output;
@@ -296,17 +306,18 @@ impl_root!(f64, powf64);
 pub trait Pow<Base> {
     #[allow(missing_docs)]
     type Output;
-    /// #[allow(missing_docs)]
-    /// type Output;
     /// # Example
     /// ```
-    /// use dimensioned::si::m;
-    /// use dimensioned::Pow;
-    /// use dimensioned::P3;
+    /// extern crate dimensioned as dim;
+    /// use dim::si::consts::m;
+    /// use dim::Pow;
+    /// use dim::P3;
     ///
+    /// # fn main() {
     /// let x = 2.0*m;
     /// let y = 8.0*m*m*m;
     /// assert_eq!(P3::pow(x), y);
+    /// }
     /// ```
     fn pow(base: Base) -> Self::Output;
 }
@@ -342,12 +353,15 @@ pub trait Recip {
     /**
     # Example
     ```
-    use dimensioned::si::s;
-    use dimensioned::Recip;
+    extern crate dimensioned as dim;
+    use dim::si::consts::s;
+    use dim::Recip;
 
+    # fn main() {
     let x = 4.0*s;
     let y = 0.25/s;
     assert_eq!(x, y.recip())
+    # }
     ```
      */
     fn recip(self) -> Self::Output;
@@ -432,9 +446,9 @@ impl_recip!(f64);
 // pub trait ConvertFrom<D, V> where Self: Sized {
 //     fn convert_from(from: Dim<D, V>) -> Dim<Self, V>;
 // }
-// pub trait ConvertTo<D> {
+// pub trait Convert<D> {
 //     type Output;
-//     fn convert_to(self) -> Self::Output;
+//     fn convert(self) -> Self::Output;
 // }
 
 // fixme: re-enable test when nightly flag is not needed for multiplication
@@ -470,11 +484,11 @@ Note: This macro requires that `Dim` and `Dimension` be imported.
 # Example
 ```ignore
 #[macro_use]
-extern crate dimensioned;
+extern crate dimensioned as dim;
 
-use dimensioned::Same;
-use dimensioned::{Dim, Dimension};
-use dimensioned::si::m;
+use dim::Same;
+use dim::{Dim, Dimension};
+use dim::si::consts::m;
 use std::ops::Mul;
 
 pub struct Vector2 {
@@ -539,9 +553,9 @@ Note: This macro requires that `Dim` and `Dimension` be imported.
 # Example
 ```ignore
 #[macro_use]
-extern crate dimensioned;
-use dimensioned::{Dim, Dimension};
-use dimensioned::si::m;
+extern crate dimensioned as dim;
+use dim::{Dim, Dimension};
+use dim::si::consts::m;
 use std::ops::Mul;
 
 pub struct Vector2 {

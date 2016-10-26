@@ -7,15 +7,15 @@
 #![allow(missing_docs)]
 
 make_units! {
-    SI, Unitless, one;
+    SI, Unitless;
     base {
-        Meter, m, m;
-        Kilogram, kg, kg;
-        Second, s, s;
-        Ampere, amp, A;
-        Kelvin, kelvin, K;
-        Candela, candela, cd;
-        Mole, mole, mol;
+        Meter, m;
+        Kilogram, kg;
+        Second, s;
+        Ampere, A;
+        Kelvin, K;
+        Candela, cd;
+        Mole, mol;
     }
     derived {
         Meter2 = (Meter * Meter);
@@ -64,9 +64,21 @@ make_units! {
     }
 }
 
+#[allow(non_upper_case_globals)]
+pub mod consts {
+    use reexported::marker::PhantomData;
+    use dim::Dim;
+    use super::*;
+    pub const one: Unitless<f64> = Dim(1.0, PhantomData);
+    pub const m: Meter<f64> = Dim(1.0, PhantomData);
+    pub const kg: Kilogram<f64> = Dim(1.0, PhantomData);
+    pub const s: Second<f64> = Dim(1.0, PhantomData);
+}
+
 
 #[test]
 fn kg_test() {
+    use si::consts::{kg, m, s};
     let mass = 3.0 * kg;
     let dist = 2.0 * m;
     let time = 2.0 * s;

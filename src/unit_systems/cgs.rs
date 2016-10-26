@@ -7,11 +7,11 @@
 #![allow(missing_docs)]
 
 make_units_adv! {
-    CGS, Unitless, one, f64, 1.0;
+    CGS, Unitless;
     base {
-        P2, Centimeter, cm, cm;
-        P2, Gram, g, g;
-        P1, Second, s, s;
+        P2, Centimeter, cm;
+        P2, Gram, g;
+        P1, Second, s;
     }
     derived {
         Centimeter2 = (Centimeter * Centimeter);
@@ -85,8 +85,8 @@ impl<Meter, Kilogram, Second, V> FromMKS<Meter, Kilogram, Second, V>
 
 #[test]
 fn gal_test() {
-    let x = 3.0 * cm;
-    let t = 2.0 * s;
+    // let x = 3.0 * cm;
+    // let t = 2.0 * s;
     // fixme
     // let a = 4.5 * gal;
     // assert_eq!(a, x * x / t);

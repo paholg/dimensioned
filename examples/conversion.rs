@@ -15,11 +15,11 @@ type Quot<A, B> = <A as Div<B>>::Output;
 
 mod fps {
     make_units_adv! {
-        FPS, Unitless, one, f64, 1.0;
+        FPS, Unitless;
         base {
-            P2, Foot, ft, ft;
-            P2, Pound, lb, lb;
-            P1, Second, s, s;
+            P2, Foot, ft;
+            P2, Pound, lb;
+            P1, Second, s;
         }
         derived {
         }
@@ -38,11 +38,10 @@ impl<Centimeter, Gram, Second, V> FromCGS<Centimeter, Gram, Second, V> for FPS<C
     }
 }
 
-
 fn main() {
-    let _ = 35.0 * cgs::cm / cgs::s;
+    let _ = cgs::CentimeterPerSecond::new(35.0);
 
-    let t2 = 10.0 * cgs::cm;
+    let t2 = cgs::Centimeter::new(10.0);
     let t2f = FPS::from_cgs(t2);
 
     println!("t2: {}, t2f: {}", t2, t2f);
