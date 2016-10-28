@@ -2,6 +2,9 @@
 //!
 //! This module is implemented very hackily and will be replaced with something better in the
 //! future.
+//!
+//! Don't rely on or use directly anything here.
+
 use typenum::*;
 
 use generic_array::{GenericArray, ArrayLength};

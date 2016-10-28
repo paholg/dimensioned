@@ -65,6 +65,7 @@ make_units! {
     }
 }
 
+
 #[test]
 fn test() {
     use si::Meter;
@@ -74,7 +75,7 @@ fn test() {
 }
 
 #[allow(non_upper_case_globals)]
-pub mod consts {
+mod consts {
     use reexported::marker::PhantomData;
     use super::*;
     pub const one: Unitless<f64> = SI { value: 1.0, _marker: PhantomData };
@@ -82,6 +83,8 @@ pub mod consts {
     pub const kg: Kilogram<f64> = SI { value: 1.0, _marker: PhantomData };
     pub const s: Second<f64> = SI { value: 1.0, _marker: PhantomData };
 }
+
+pub use self::consts::*;
 
 
 // #[test]

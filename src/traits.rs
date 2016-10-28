@@ -1,7 +1,11 @@
+pub trait Dimension<T> {}
 
-pub trait Dimension { }
+pub trait Dimensionless {}
 
-pub trait Dimensionless: Dimension {}
+#[cfg(feature = "oibit")]
+pub trait NotDim {}
+#[cfg(feature = "oibit")]
+impl NotDim for .. {}
 
 macro_rules! impl_unary {
     ($Type:ty, $Trait:ident, $fun:ident) => (
@@ -12,11 +16,11 @@ macro_rules! impl_unary {
     );
 }
 
-use reexported::fmt;
-pub trait FmtDim: Dimension {
-    /// Gives a human friendly representation of a `Dimension` type.
-    fn fmt(f: &mut fmt::Formatter) -> Result<(), fmt::Error>;
-}
+// use reexported::fmt;
+// pub trait FmtDim: Dimension {
+//     /// Gives a human friendly representation of a `Dimension` type.
+//     fn fmt(f: &mut fmt::Formatter) -> Result<(), fmt::Error>;
+// }
 
 
 /// `Recip` is used for implementing a `recip()` member for types that are not preserved under reciprocal.
@@ -91,7 +95,7 @@ impl_root!(f64, powf64);
 
 /// `Sqrt` provides a `sqrt` member function for types that are not preserved under square root.
 ///
-/// It is automagically implemented for all types `T` for which `P2::Root<T>` is implemented.
+/// It is automatically implemented for all types `T` for which `P2::Root<T>` is implemented.
 pub trait Sqrt {
     type Output;
     fn sqrt(self) -> Self::Output;
@@ -106,9 +110,9 @@ impl<T> Sqrt for T where P2: Root<T> {
 }
 
 
-/// `Sqrt` provides a `sqrt` member function for types that are not preserved under square root.
+/// `Cbrt` provides a `cbrt` member function for types that are not preserved under square root.
 ///
-/// It is automagically implemented for all types `T` for which `P3::Root<T>` is implemented.
+/// It is automatically implemented for all types `T` for which `P3::Root<T>` is implemented.
 pub trait Cbrt {
     type Output;
     fn cbrt(self) -> Self::Output;

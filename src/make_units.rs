@@ -1,9 +1,15 @@
 /// Create a unit system!
 ///
+/// This macro is the meat of the library.
+///
+/// fixme: Outline of normal vs. advanced use.
+/// fixme: Note about formatting -- can disable it, but debug is always on
+/// fixme: Discussion of operations
+/// fixme: Example
+///
 /// As this macro makes some imports and creates a module named `inner`, it is highly recommended
 /// that you place any call to it in its own module.
 ///
-/// fixme: add example
 #[macro_export]
 macro_rules! make_units {
 
@@ -46,38 +52,48 @@ macro_rules! make_units {
 
     // Implement an XAssign trait with a scalar. ONLY FOR OPERATIONS THAT CAN BE DONE WITH SCALARS.
     (@assign_scalar $System:ident, $Trait:ident, $fun:ident) => (
-        impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
+        impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
             Vl: $Trait<Vr>,
+            Vr: Dimensionless,
+        {
+            fn $fun(&mut self, rhs: $System<Vr, Ar>) {
+                $Trait::$fun(&mut self.value, rhs.value)
+            }
+        }
+
+        #[cfg(feature = "oibit")]
+        impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
+            Vl: $Trait<Vr>, Vr: NotDim,
         {
             fn $fun(&mut self, rhs: Vr) {
                 $Trait::$fun(&mut self.value, rhs)
             }
         }
-    );
+);
 
     // Implement a binary operator between something with units and a scalar.
     // Only for when the scalar is on the right.
     // ONLY FOR OPERATIONS THAT CAN BE DONE WITH SCALARS.
-    // (@binary_scalar $System:ident, $Trait:ident, $fun:ident) => (
-    //     impl<V, A, Rhs> $Trait<Rhs> for $System<V, A> where
-    //         V: $Trait<Rhs>,
-    //     {
-    //         type Output = $System<<V as $Trait<Rhs>>::Output, A>;
-    //         fn $fun(self, rhs: Rhs) -> Self::Output {
-    //             $System::new( $Trait::$fun(self.value, rhs.value) )
-    //         }
-    //     }
-    // );
-
-    (@fmt S $System:ident $(R $Root:ident P $print_as:ident)* T $Trait:ident E $token:expr) => (
-        impl<V, A> $crate::reexported::fmt::$Trait for $System<V, A> where
-            V: $crate::reexported::fmt::$Trait,
-            $crate::typenum::Length<A>: $crate::generic_array::ArrayLength<isize>,
-            A: $crate::typenum::TypeArray + $crate::typenum::Len + $crate::array::ToGA<
-                Output = $crate::generic_array::GenericArray<isize, $crate::typenum::Length<A>>
-            >,
+    (@binary_scalar $System:ident, $Trait:ident, $fun:ident) => (
+        #[cfg(feature = "oibit")]
+        impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
+            Vl: $Trait<Vr>, Vr: NotDim,
         {
-            fn fmt(&self, f: &mut $crate::reexported::fmt::Formatter) -> Result<(), $crate::reexported::fmt::Error> {
+            type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
+            fn $fun(self, rhs: Vr) -> Self::Output {
+                $System::new( $Trait::$fun(self.value, rhs) )
+            }
+        }
+    );
+
+    (@fmt true S $System:ident $(R $Root:ident P $print_as:ident)* T $Trait:ident E $token:expr) => (
+        impl<V, A> fmt::$Trait for $System<V, A> where
+            V: fmt::$Trait,
+            Length<A>: ArrayLength<isize>,
+            A: TypeArray + Len + ToGA<Output = GenericArray<isize, Length<A>>>,
+        {
+            fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error>
+            {
                 use $crate::typenum::consts::*;
                 use $crate::typenum::Integer;
                 let allowed_roots = [$($Root::to_isize()),*];
@@ -115,6 +131,8 @@ macro_rules! make_units {
             }
         }
     );
+
+    (@fmt false S $System:ident $(R $Root:ident P $print_as:ident)* T $Trait:ident E $token:expr) => ();
 
     // define arrays for all the base units
     (@base_arrays $Unitless:ident, $Unit:ident, $Root:ident, $($Units:ident, $Roots:ident,)*) => (
@@ -156,6 +174,7 @@ macro_rules! make_units {
             derived {
                 $($Derived = ($($derived_rhs)+);)*
             }
+            fmt = true;
         }
 
     );
@@ -167,17 +186,21 @@ macro_rules! make_units {
      derived {
          $($Derived:ident = ($($derived_rhs:tt)+);)*
      }
+     fmt = $to_fmt:ident;
     ) => (
+        use $crate::reexported::marker;
+        use $crate::{Dimension, Root, Sqrt, Cbrt, Pow};
+
         #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash)]
         pub struct $System<V, A> {
-            value: V,
-            _marker: $crate::reexported::marker::PhantomData<A>,
+            pub value: V,
+            _marker: marker::PhantomData<A>,
         }
 
         impl<V, A> $System<V, A> {
             #[inline]
             pub fn new(v: V) -> Self {
-                $System { value: v, _marker: $crate::reexported::marker::PhantomData }
+                $System { value: v, _marker: marker::PhantomData }
             }
 
             /// Perform an operation on the contained value.
@@ -200,10 +223,16 @@ macro_rules! make_units {
             }
         }
 
-        impl<V, A> $crate::Dimension for $System<V, A> {}
+        impl<V, A> Dimension<V> for $System<V, A> {}
+
+        #[cfg(feature = "oibit")]
+        use $crate::NotDim;
+        #[cfg(feature = "oibit")]
+        impl<V, A> !NotDim for $System<V, A> {}
 
         #[doc(hidden)]
         pub mod inner {
+            use $crate::traits::*;
             use $crate::typenum::consts::*;
             make_units!(@base_arrays $Unitless, $($Unit, $Root,)*);
             $(pub type $Derived = unit!(@commas $($derived_rhs)+);)*
@@ -212,22 +241,27 @@ macro_rules! make_units {
         pub type $Unitless<__TypeParameter> = $System<__TypeParameter, inner::$Unitless>;
         $(pub type $Unit<__TypeParameter> = $System<__TypeParameter, inner::$Unit>;)*
 
+        use $crate::Dimensionless;
         impl<__TypeParameter> $crate::Dimensionless for $Unitless<__TypeParameter> {}
 
         $(pub type $Derived<__TypeParameter> = $System<__TypeParameter, inner::$Derived>);*;
 
         //--------------------------------------------------------------------------------
         // Formatting
+        use $crate::reexported::fmt;
+        use $crate::typenum::{Len, Length, TypeArray};
+        use $crate::generic_array::{GenericArray, ArrayLength};
+        use $crate::array::ToGA;
 
-        make_units!(@fmt S $System $(R $Root P $print_as)* T Display E "{} ");
-        make_units!(@fmt S $System $(R $Root P $print_as)* T Debug E "{:?} ");
-        make_units!(@fmt S $System $(R $Root P $print_as)* T Octal E "{:o} ");
-        make_units!(@fmt S $System $(R $Root P $print_as)* T LowerHex E "{:x} ");
-        make_units!(@fmt S $System $(R $Root P $print_as)* T UpperHex E "{:X} ");
-        make_units!(@fmt S $System $(R $Root P $print_as)* T Pointer E "{:p} ");
-        make_units!(@fmt S $System $(R $Root P $print_as)* T Binary E "{:b} ");
-        make_units!(@fmt S $System $(R $Root P $print_as)* T LowerExp E "{:e} ");
-        make_units!(@fmt S $System $(R $Root P $print_as)* T UpperExp E "{:E} ");
+        make_units!(@fmt true S $System $(R $Root P $print_as)* T Debug E "{:?} ");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as)* T Display E "{} ");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as)* T Octal E "{:o} ");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as)* T LowerHex E "{:x} ");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as)* T UpperHex E "{:X} ");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as)* T Pointer E "{:p} ");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as)* T Binary E "{:b} ");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as)* T LowerExp E "{:e} ");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as)* T UpperExp E "{:E} ");
 
         //--------------------------------------------------------------------------------
         // Operator traits from this crate
@@ -269,11 +303,14 @@ macro_rules! make_units {
         // Binary operators
 
         use $crate::reexported::ops::{Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign,
-                                      BitXor, BitXorAssign, Div, DivAssign, Mul, MulAssign, Rem,
-                                      RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign};
+                                      BitXor, BitXorAssign, Div, DivAssign, Mul, MulAssign, Sub,
+                                      SubAssign};
 
         make_units!(@binary $System, Add, Same, add);
         make_units!(@assign $System, AddAssign, add_assign);
+
+        make_units!(@binary $System, Sub, Same, sub);
+        make_units!(@assign $System, SubAssign, sub_assign);
 
         make_units!(@binary $System, BitAnd, Same, bitand);
         make_units!(@assign $System, BitAndAssign, bitand_assign);
@@ -285,38 +322,14 @@ macro_rules! make_units {
         make_units!(@assign $System, BitXorAssign, bitxor_assign);
 
         make_units!(@binary $System, Div, Sub, div);
+        make_units!(@binary_scalar $System, Div, div);
         make_units!(@assign_scalar $System, DivAssign, div_assign);
 
         make_units!(@binary $System, Mul, Add, mul);
+        make_units!(@binary_scalar $System, Mul, mul);
         make_units!(@assign_scalar $System, MulAssign, mul_assign);
 
-
-        make_units!(@binary $System, Sub, Same, sub);
-        make_units!(@assign $System, SubAssign, sub_assign);
-
         //--------------------------------------------------------------------------------
-
-        // impl<X, Y, A, B> $crate::reexported::ops::Mul<$System<Y, B>> for $System<X, A>
-        // where A: $crate::reexported::ops::Add<B>,
-        //       X: $crate::reexported::ops::Mul<Y>,
-        //       $System<$crate::typenum::Prod<X, Y>, $crate::typenum::Sum<A, B>>: $crate::Dimension,
-        // {
-        //     type Output = $System<$crate::typenum::Prod<X, Y>, $crate::typenum::Sum<A, B>>;
-        //     fn mul(self, rhs: $System<Y, B>) -> Self::Output {
-        //         $System::new(self.value * rhs.value)
-        //     }
-        // }
-
-        // impl<X, Y, A, B> $crate::reexported::ops::Div<$System<Y, B>> for $System<X, A>
-        //     where A: $crate::reexported::ops::Sub<B>,
-        //           X: $crate::reexported::ops::Div<Y>,
-        //           $System<$crate::typenum::Quot<X, Y>, $crate::typenum::Diff<A, B>>: $crate::Dimension,
-        // {
-        //     type Output = $System<$crate::typenum::Quot<X, Y>, $crate::typenum::Diff<A, B>>;
-        //     fn div(self, rhs: $System<Y, B>) -> Self::Output {
-        //         $System::new(self.value / rhs.value)
-        //     }
-        // }
     );
 }
 

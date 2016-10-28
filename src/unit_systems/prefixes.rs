@@ -1,4 +1,4 @@
-#![allow(non_upper_case_globals, missing_docs)]
+#![allow(non_upper_case_globals)]
 pub const exa: f64 = 1e18;
 pub const peta: f64 = 1e15;
 pub const tera: f64 = 1e12;

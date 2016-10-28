@@ -1,12 +1,10 @@
 //! The **cgs** module provides a unit system for use with Gaussian CGS units. It was
 //! generated using the `make_units!` macro. See its documentation for more information.
 //!
-//! It will also define derived units, although this is not implemented yet.
-//!
 
 #![allow(missing_docs)]
 
-make_units_adv! {
+make_units! {
     CGS, Unitless;
     base {
         P2, Centimeter, cm;
@@ -43,51 +41,53 @@ make_units_adv! {
         Stokes = (Centimeter2 / Second);
         Kayser = (Unitless / Centimeter);
 
-        SqrtCentimeter = (<Centimeter as Root<P2>>::Output);
-        SqrtGram = (<Gram as Root<P2>>::Output);
+        SqrtCentimeter = (<Centimeter as Sqrt>::Output);
+        SqrtGram = (<Gram as Sqrt>::Output);
 
         StatCoulomb = (SqrtGram * SqrtCentimeter * Centimeter / Second);
         StatAmpere = (StatCoulomb / Second);
         StatVolt = (Erg / StatCoulomb);
     }
+    fmt = true;
 }
 
-pub trait FromCGS<Centimeter: Integer, Gram: Integer, Second: Integer, V>
-    where Self: Sized
-{
-    fn from_cgs(from: Dim<CGS<Centimeter, Gram, Second>, V>) -> Dim<Self, V>;
+#[allow(non_upper_case_globals)]
+mod consts {
+    use reexported::marker::PhantomData;
+    use super::*;
+    pub const one: Unitless<f64> = CGS { value: 1.0, _marker: PhantomData };
+    pub const cm: Centimeter<f64> = CGS { value: 1.0, _marker: PhantomData };
+    pub const g: Gram<f64> = CGS { value: 1.0, _marker: PhantomData };
+    pub const s: Second<f64> = CGS { value: 1.0, _marker: PhantomData };
 }
 
-#[allow(unused_imports)]
-// needed for some reason
-#[cfg(not(feature="std"))]
-use core::num::Float;
+pub use self::consts::*;
 
-#[allow(unused_imports)]
-// needed for some reason
-#[cfg(not(feature="std"))]
-use dim::Sqrt;
-
-use mks::{MKS, FromMKS};
-impl<Meter, Kilogram, Second, V> FromMKS<Meter, Kilogram, Second, V>
-    for CGS<Meter, Kilogram, Second>
-    where V: Mul<f64, Output = V>,
-          Meter: Integer,
-          Kilogram: Integer,
-          Second: Integer
+use typenum::{Prod, Integer};
+use reexported::convert::From;
+use mks;
+impl<V, Meter, Kilogram, Second> From<mks::MKS<V, tarr![Meter, Kilogram, Second]>>
+    for CGS<Prod<V, f64>, tarr![Meter, Kilogram, Second]> where
+    Meter: Integer, Kilogram: Integer, Second: Integer,
+    V: Mul<f64>,
 {
-    fn from_mks(from: Dim<MKS<Meter, Kilogram, Second>, V>) -> Dim<Self, V> {
-        Dim::new(from.0 * 100f64.sqrt().powi(Meter::to_i32()) *
-                 1000f64.sqrt().powi(Kilogram::to_i32()))
+    fn from(other: mks::MKS<V, tarr![Meter, Kilogram, Second]>) -> Self {
+        // Note we have to be a bit careful here because these unit systems are special and use
+        // double the regular unit power, so that they can be represented with half integer
+        // powers. E.g. The unit for area will really be `m^4`.
+        let mfac = 100.0f64.powf(Meter::to_i32() as f64 / 2.0);
+        let kgfac = 1000.0f64.powf(Meter::to_i32() as f64/ 2.0);
+        // Factor due to seconds is always 1!
+        // let sfac = 1.0f64.powi(Meter::to_i32());
+        let fac = mfac * kgfac;
+
+        CGS::new( other.value * fac )
     }
 }
 
-
 #[test]
-fn gal_test() {
-    // let x = 3.0 * cm;
-    // let t = 2.0 * s;
-    // fixme
-    // let a = 4.5 * gal;
-    // assert_eq!(a, x * x / t);
+fn test_convert() {
+    let force_mks = mks::Unitless::new(10.0) * mks::kg * mks::m / mks::s / mks::s;
+    let force_cgs = Unitless::new(1_000_000.0) * g * cm / s / s;
+    assert_eq!(CGS::from(force), force2);
 }

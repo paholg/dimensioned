@@ -13,9 +13,9 @@
   name = "dimensioned"
 
 [features]
-  default = ["std", "nightly"]
+  default = ["std"]
   std = []
-  nightly = []
+  oibit = []
 
 [dependencies]
   typenum = { path = "../typenum/" }

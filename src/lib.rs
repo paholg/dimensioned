@@ -9,10 +9,11 @@
        html_root_url = "http://paholg.com/dimensioned")]
 // #![warn(missing_docs)] fixme
 
-#![cfg_attr(feature = "nightly", feature(optin_builtin_traits))]
+#![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
 #![cfg_attr(not(feature="std"), feature(core_float, core_intrinsics))]
 
 #![cfg_attr(not(feature="std"), no_std)]
+
 
 /// Re-exports from std or core, which allow the `make_units` macro to work properly with or
 /// without the std library.  These are not guaranteed to stay here, and you should import from
@@ -25,7 +26,7 @@ pub mod reexported {
 /// Re-exports from std or core, which allow the `make_units` macro to work properly with or
 /// without the std library.  These are not guaranteed to stay here, and you should import from
 /// `core` or `std` directly, not from here.
-#[cfg(not(feature="std"))]
+#[cfg(not(feature = "std"))]
 pub mod reexported {
     pub use core::*;
 }
@@ -41,7 +42,7 @@ mod traits;
 #[macro_use]
 mod make_units;
 
-pub mod unit_systems;
+mod unit_systems;
 pub use unit_systems::*;
 
 pub use traits::*;
