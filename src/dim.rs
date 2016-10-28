@@ -297,7 +297,7 @@ macro_rules! impl_root {
 impl_root!(f32, powf32);
 impl_root!(f64, powf64);
 
-/// **Pow<Base>** is used for implementing general integer powers for types that don't `impl
+/// `Pow<Base>` is used for implementing general integer powers for types that don't `impl
 /// Float` and whose type signature changes when multiplying, such as `Dim<D, V>`.
 ///
 /// It uses type numbers to specify the degree.
@@ -315,7 +315,7 @@ pub trait Pow<Base> {
     ///
     /// # fn main() {
     /// let x = 2.0*m;
-    /// let y = 8.0*m*m*m;
+    /// let y = x * x * x;
     /// assert_eq!(P3::pow(x), y);
     /// }
     /// ```
@@ -366,6 +366,7 @@ pub trait Recip {
      */
     fn recip(self) -> Self::Output;
 }
+
 impl<D, V> Recip for Dim<D, V>
     where D: Recip,
           V: Recip,

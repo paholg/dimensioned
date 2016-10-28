@@ -1,0 +1,215 @@
+// /** **Convert** provides a useful trait for allowing unit conversions. The trait
+// `std::convert::From` can't be used because it doesn't have an associated type.
+
+// # Example
+// ```
+// #[macro_use]
+// extern crate dimensioned as dim;
+// extern crate typenum;
+
+// use dim::{Dim, FromDim};
+// use dim::cgs::{self, CGS};
+// use typenum::int::Integer;
+// use typenum::consts::P2;
+
+// use std::ops::{Mul, Div};
+
+// type Quot<A, B> = <A as Div<B>>::Output;
+
+// mod mks {
+// make_units_adv! {
+// CGS, Unitless, one, f64, 1.0;
+// base {
+// P2, Centimeter, cm, cm;
+// P2, Gram, g, g;
+// P1, Second, s, s;
+//     }
+//     derived {
+//     }
+// }
+// }
+// use mks::MKS;
+
+// impl<V, CM, G, S> FromDim<Dim<CGS<CM, G, S>, V>> for MKS<Quot<CM, P2>, Quot<G, P2>, S>
+//     where V: Mul<f64, Output=V>, CM: Integer + Div<P2>, G: Integer + Div<P2>, S: Integer,
+//           Quot<CM, P2>: Integer, Quot<G, P2>: Integer,
+// {
+//     type Output = Dim<Self, V>;
+//     fn from_dim(origin: Dim<CGS<CM, G, S>, V>) -> Self::Output {
+//         Dim::new( origin.0 * 0.01f64.powi(CM::to_i32()) * 0.001f64.powi(G::to_i32()) )
+//     }
+// }
+
+
+// fn main() {
+//     let speed = 35.0 * cgs::cm / cgs::s;
+
+//     println!("I was going {}, which is {}.", speed, MKS::from_dim(speed));
+// }
+
+// ```
+// */
+// pub trait ConvertFrom<D, V> where Self: Sized {
+//     fn convert_from(from: Dim<D, V>) -> Dim<Self, V>;
+// }
+// pub trait Convert<D> {
+//     type Output;
+//     fn convert(self) -> Self::Output;
+// }
+
+/// Scalar multiplication with scalar on RHS
+#[cfg(feature = "nightly")]
+impl<D, V, RHS> Mul<RHS> for Dim<D, V>
+    where V: Mul<RHS>,
+          RHS: NotDim
+{
+    type Output = Dim<D, <V as Mul<RHS>>::Output>;
+    #[inline]
+    fn mul(self, rhs: RHS) -> Self::Output {
+        Dim(self.0 * rhs, PhantomData)
+    }
+}
+
+macro_rules! dim_scalar_mult {
+    ($t: ty) => (
+        /// Scalar multiplication with scalar on LHS
+        impl<D, V> Mul<Dim<D, V>> for $t where $t: Mul<V> {
+            type Output = Dim<D, <$t as Mul<V>>::Output>;
+            #[inline]
+            fn mul(self, rhs: Dim<D, V>) -> Self::Output {
+                Dim( self * rhs.0, PhantomData )
+            }
+        }
+
+        /// Scalar multiplication with scalar on RHS
+        #[cfg(not(feature = "nightly"))]
+        impl<D, V> Mul<$t> for Dim<D, V> where V: Mul<$t> {
+            type Output = Dim<D, <V as Mul<$t>>::Output>;
+            #[inline]
+            fn mul(self, rhs: $t) -> Self::Output {
+                Dim( self.0 * rhs, PhantomData )
+            }
+        }
+
+    );
+}
+
+dim_scalar_mult!(f32);
+dim_scalar_mult!(f64);
+dim_scalar_mult!(i8);
+dim_scalar_mult!(i16);
+dim_scalar_mult!(i32);
+dim_scalar_mult!(i64);
+dim_scalar_mult!(isize);
+dim_scalar_mult!(u8);
+dim_scalar_mult!(u16);
+dim_scalar_mult!(u32);
+dim_scalar_mult!(u64);
+dim_scalar_mult!(usize);
+
+/// Scalar division with scalar on RHS
+#[cfg(feature = "nightly")]
+impl<D, V, RHS> Div<RHS> for Dim<D, V>
+    where V: Div<RHS>,
+          RHS: NotDim
+{
+    type Output = Dim<D, <V as Div<RHS>>::Output>;
+    #[inline]
+    fn div(self, rhs: RHS) -> Dim<D, <V as Div<RHS>>::Output> {
+        Dim(self.0 / rhs, PhantomData)
+    }
+}
+
+macro_rules! dim_scalar_div {
+    ($t: ty) => (
+        /// Scalar division with scalar on LHS
+        impl<D, V> Div<Dim<D, V>> for $t
+            where D: Recip,
+                  <D as Recip>::Output: Dimension,
+                  $t: Div<V>
+        {
+            type Output = Dim<<D as Recip>::Output, <$t as Div<V>>::Output>;
+            #[inline]
+            fn div(self, rhs: Dim<D, V>) -> Self::Output {
+                Dim( self / rhs.0, PhantomData )
+            }
+        }
+
+        /// Scalar division with scalar on RHS
+        #[cfg(not(feature = "nightly"))]
+        impl<D, V> Div<$t> for Dim<D, V> where V: Div<$t> {
+            type Output = Dim<D, <V as Div<$t>>::Output>;
+            #[inline]
+            fn div(self, rhs: $t) -> Self::Output {
+                Dim( self.0 / rhs, PhantomData )
+            }
+        }
+
+        );
+}
+dim_scalar_div!(f32);
+dim_scalar_div!(f64);
+dim_scalar_div!(i8);
+dim_scalar_div!(i16);
+dim_scalar_div!(i32);
+dim_scalar_div!(i64);
+dim_scalar_div!(isize);
+dim_scalar_div!(u8);
+dim_scalar_div!(u16);
+dim_scalar_div!(u32);
+dim_scalar_div!(u64);
+dim_scalar_div!(usize);
+
+// Binary operators:
+macro_rules! dim_binary {
+    ($Trait:ident, $op: ident, $($fun:ident),*) => (
+        impl<Dl, Vl, Dr, Vr> $Trait<Dim<Dr, Vr>> for Dim<Dl, Vl>
+            where Dl: Dimension + $op<Dr>,
+                  Dr: Dimension, Vl: $Trait<Vr>,
+                  <Dl as $op<Dr>>::Output: Dimension
+        {
+            type Output = Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output>;
+            #[inline]
+            $(fn $fun(self, rhs: Dim<Dr, Vr>)
+                      -> Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output>
+              {
+                  Dim( (self.0).$fun(rhs.0), PhantomData )
+              })*
+        }
+    )
+}
+dim_binary!(Add, Same, add);
+dim_binary!(BitAnd, Same, bitand);
+dim_binary!(BitOr, Same, bitor);
+dim_binary!(BitXor, Same, bitxor);
+dim_binary!(Rem, Same, rem);
+dim_binary!(Shl, Same, shl);
+dim_binary!(Shr, Same, shr);
+dim_binary!(Sub, Same, sub);
+
+// fixme: figure this out
+// impl<D, V, Idx> Index<Idx> for Dim<D, V>
+//     where D: Dimension, V: Index<Idx>, <V as Index<Idx>>::Output: Sized
+// {
+//     type Output = Dim<D, <V as Index<Idx>>::Output>;
+//     fn index<'a>(&'a self, index: Idx) -> &'a Self::Output {
+//         &Dim::new((self.0)[index])
+//     }
+// }
+
+// {
+
+//     trait Sqr {
+//         fn sqr(self) -> Self;
+//     }
+
+//     macro_rules! impl_sqr {
+//         ($t:ty) => (
+//             impl Sqr for $t {
+//                 fn sqr(self) -> Self {
+//                     self * self
+//                 }
+//             }
+//         );
+//     }
+// }

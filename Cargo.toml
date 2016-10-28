@@ -18,4 +18,5 @@
   nightly = []
 
 [dependencies]
-  typenum = "1.3.2"
+  typenum = { path = "../typenum/" }
+  generic-array = { path = "../generic-array" }
