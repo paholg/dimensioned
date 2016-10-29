@@ -77,7 +77,7 @@ impl<V, Meter, Kilogram, Second> From<mks::MKS<V, tarr![Meter, Kilogram, Second]
         // powers. E.g. The unit for area will really be `m^4`.
         let mfac = 100.0f64.powf(Meter::to_i32() as f64 / 2.0);
         let kgfac = 1000.0f64.powf(Meter::to_i32() as f64/ 2.0);
-        // Factor due to seconds is always 1!
+        // Factor due to seconds are always 1!
         // let sfac = 1.0f64.powi(Meter::to_i32());
         let fac = mfac * kgfac;
 
@@ -87,7 +87,29 @@ impl<V, Meter, Kilogram, Second> From<mks::MKS<V, tarr![Meter, Kilogram, Second]
 
 #[test]
 fn test_convert() {
+    // fixme: eliminate these calls to Unitless
     let force_mks = mks::Unitless::new(10.0) * mks::kg * mks::m / mks::s / mks::s;
     let force_cgs = Unitless::new(1_000_000.0) * g * cm / s / s;
-    assert_eq!(CGS::from(force), force2);
+    assert_eq!(CGS::from(force_mks), force_cgs);
 }
+
+// // We're converting from a system with 7 base units to one with 3, so things are gonna get weird
+// // Note that we can't convert from cgs to si as we can't be sure where any of the cgs units came
+// // from.
+// use si;
+// impl<V, Meter, Kilogram, Second, Ampere, Kelvin, Candela, Mole> From
+//     <si::SI<V, tarr![Meter, Kilogram, Second, Ampere, Kelvin, Candela, Mole]>>
+//     for CGS<Prod<V, f64>, tarr![Prod<Meter, P2>, Prod<Kilogram, P2>, Second][> where
+//     Meter: Integer, Kilogram: Integer, Second: Integer,
+//     V: Mul<f64>,
+// {
+//     fn from(other: si::SI<V, tarr![Meter, Kilogram, Second, Ampere, Kelvin, Candela, Mole]>>) -> Self {
+//         let mfac = 100.0f64.powf(Meter::to_i32() as f64 / 2.0);
+//         let kgfac = 1000.0f64.powf(Meter::to_i32() as f64/ 2.0);
+//         // Factor due to seconds are always 1!
+//         // let sfac = 1.0f64.powi(Meter::to_i32());
+//         let fac = mfac * kgfac;
+
+//         CGS::new( other.value * fac )
+//     }
+// }

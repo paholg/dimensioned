@@ -18,5 +18,5 @@
   oibit = []
 
 [dependencies]
-  typenum = { path = "../typenum/" }
-  generic-array = { path = "../generic-array" }
+  typenum = "1.4.0"
+  generic-array = "0.5.1"

@@ -69,7 +69,33 @@ macro_rules! make_units {
                 $Trait::$fun(&mut self.value, rhs)
             }
         }
-);
+
+        macro_rules! prim {
+            ($head:tt) => (
+                #[cfg(not(feature = "oibit"))]
+                impl<V, A> $Trait<$head> for $System<V, A> where
+                    V: $Trait<$head>,
+                {
+                    fn $fun(&mut self, rhs: $head) {
+                        $Trait::$fun(&mut self.value, rhs)
+                    }
+                }
+            );
+            () => ();
+        }
+        prim!(f32);
+        prim!(f64);
+        prim!(i8);
+        prim!(i16);
+        prim!(i32);
+        prim!(i64);
+        prim!(isize);
+        prim!(u8);
+        prim!(u16);
+        prim!(u32);
+        prim!(u64);
+        prim!(usize);
+    );
 
     // Implement a binary operator between something with units and a scalar.
     // Only for when the scalar is on the right.
@@ -271,23 +297,23 @@ macro_rules! make_units {
             fn recip(self) -> Self::Output { $System::new(self.value.recip()) }
         }
 
-        impl<Exp, V, A> $crate::Pow<$System<V, A>> for Exp
-            where Exp: $crate::Pow<V>,
+        impl<Exp, V, A> $crate::Pow<Exp> for $System<V, A>
+            where V: $crate::Pow<Exp>,
                   A: $crate::reexported::ops::Mul<Exp>,
         {
-            type Output = $System< <Exp as $crate::Pow<V>>::Output, $crate::typenum::Prod<A, Exp>>;
-            fn pow(base: $System<V, A>) -> Self::Output {
-                $System::new(Exp::pow(base.value))
+            type Output = $System< <V as $crate::Pow<Exp>>::Output, $crate::typenum::Prod<A, Exp>>;
+            fn pow(self, exp: Exp) -> Self::Output {
+                $System::new( self.value.pow(exp) )
             }
         }
 
-        impl<Index, V, A> $crate::Root<$System<V, A>> for Index
-            where Index: $crate::typenum::Integer + $crate::Root<V>,
+        impl<Index, V, A> $crate::Root<Index> for $System<V, A>
+            where V: $crate::Root<Index>,
                   A: $crate::reexported::ops::Div<Index>,
         {
-            type Output = $System< <Index as $crate::Root<V>>::Output, $crate::typenum::Quot<A, Index>>;
-            fn root(radicand: $System<V, A>) -> Self::Output {
-                $System::new(Index::root(radicand.value))
+            type Output = $System< <V as $crate::Root<Index>>::Output, $crate::typenum::Quot<A, Index>>;
+            fn root(self, idx: Index) -> Self::Output {
+                $System::new( self.value.root(idx) )
             }
         }
 

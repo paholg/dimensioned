@@ -33,24 +33,35 @@ impl_unary!(f32, Recip, recip);
 impl_unary!(f64, Recip, recip);
 
 
-/// `Pow<Base>` is used for implementing general integer powers for types that are not preserved
-/// under exponentiation.
+/// `Pow<Exp> for Base` is used for implementing general integer powers for types that are not necessarily
+/// preserved under exponentiation.
 ///
-/// It uses type numbers to specify the degree.
+/// It uses instantiated type numbers to specify the degree, as you can see in the example below.
 ///
-/// The syntax is a little bit weird and may be subject to change.
-pub trait Pow<Base> {
+/// # Example
+/// ```rust
+/// extern crate dimensioned as dim;
+/// use dim::Pow;
+/// use dim::typenum::P2;
+///
+/// # fn main() {
+/// let x = 2.0.pow(P2::new());
+/// let y = 4.0;
+///
+/// assert_eq!(x, y);
+/// # }
+pub trait Pow<Exp> {
     type Output;
-    fn pow(base: Base) -> Self::Output;
+    fn pow(self, exp: Exp) -> Self::Output;
 }
 
 use typenum::Integer;
 macro_rules! impl_pow {
     ($t: ty) => (
-        impl<Exp: Integer> Pow<$t> for Exp {
+        impl<Exp: Integer> Pow<Exp> for $t {
             type Output = $t;
-            fn pow(base: $t) -> Self::Output {
-                base.powi(Exp::to_i32())
+            fn pow(self, exp: Exp) -> Self::Output {
+                self.powi(Exp::to_i32())
             }
         }
     );
@@ -59,31 +70,41 @@ macro_rules! impl_pow {
 impl_pow!(f32);
 impl_pow!(f64);
 
-
-/// `Root<Radicand>` is used for implementing general integer roots for types that aren't preserved
-/// under root.
+/// `Root<Index> for Radicand` is used for implementing general integer roots for types that aren't necessarily preserved under root.
 ///
-/// It uses type numbers to specify the degree.
+/// It uses instantiated type numbers to specify the degree, as you can see in the example below.
 ///
-/// The syntax is a little bit weird and may be subject to change.
-pub trait Root<Radicand> {
+/// # Example
+/// ```rust
+/// extern crate dimensioned as dim;
+/// use dim::Root;
+/// use dim::typenum::P2;
+///
+/// # fn main() {
+/// let x = 4.0.root(P2::new());
+/// let y = 2.0;
+///
+/// assert_eq!(x, y);
+/// # }
+pub trait Root<Index> {
     type Output;
-    fn root(radicand: Radicand) -> Self::Output;
+    fn root(self, idx: Index) -> Self::Output;
 }
 
 macro_rules! impl_root {
     ($t: ty, $f: ident) => (
-        impl<Index: Integer> Root<$t> for Index {
+        impl<Index: Integer> Root<Index> for $t {
             type Output = $t;
             #[cfg(feature = "std")]
-            fn root(radicand: $t) -> Self::Output {
+            fn root(self, idx: Index) -> Self::Output {
                 let exp = (Index::to_i32() as $t).recip();
-                radicand.powf(exp)
+                self.powf(exp)
             }
+
             #[cfg(not(feature = "std"))]
-            fn root(radicand: $t) -> Self::Output {
+            fn root(self, idx: Index) -> Self::Output {
                 let exp = (Index::to_i32() as $t).recip();
-                unsafe { ::core::intrinsics::$f(radicand, exp) }
+                unsafe { ::core::intrinsics::$f(self, exp) }
             }
         }
     );
@@ -102,10 +123,10 @@ pub trait Sqrt {
 }
 
 use typenum::P2;
-impl<T> Sqrt for T where P2: Root<T> {
-    type Output = <P2 as Root<T>>::Output;
+impl<T> Sqrt for T where T: Root<P2> {
+    type Output = <T as Root<P2>>::Output;
     fn sqrt(self) -> Self::Output {
-        P2::root(self)
+        self.root(P2::new())
     }
 }
 
@@ -119,9 +140,9 @@ pub trait Cbrt {
 }
 
 use typenum::P3;
-impl<T> Cbrt for T where P3: Root<T> {
-    type Output = <P3 as Root<T>>::Output;
+impl<T> Cbrt for T where T: Root<P3> {
+    type Output = <T as Root<P3>>::Output;
     fn cbrt(self) -> Self::Output {
-        P3::root(self)
+        self.root(P3::new())
     }
 }

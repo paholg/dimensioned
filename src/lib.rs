@@ -34,10 +34,22 @@ pub mod reexported {
 #[macro_use]
 pub extern crate typenum;
 
-#[macro_use]
-extern crate generic_array;
+// Copied from typenum so that users don't have to import typenum.
+// Only change is the paths.
+#[macro_export]
+macro_rules! tarr {
+    () => ( $crate::typenum::ATerm );
+    ($n:ty) => ( $crate::typenum::TArr<$n, $crate::typenum::ATerm> );
+    ($n:ty,) => ( $crate::typenum::TArr<$n, $crate::typenum::ATerm> );
+    ($n:ty, $($tail:ty),+) => ( $crate::typenum::TArr<$n, tarr![$($tail),+]> );
+    ($n:ty, $($tail:ty),+,) => ( $crate::typenum::TArr<$n, tarr![$($tail),+]> );
+}
 
-mod traits;
+
+#[macro_use]
+pub extern crate generic_array;
+
+pub mod traits;
 
 #[macro_use]
 mod make_units;

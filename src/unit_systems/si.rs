@@ -68,10 +68,12 @@ make_units! {
 
 #[test]
 fn test() {
-    use si::Meter;
+    use si;
 
-    let x = Meter::new(3.3);
+    let mut x = si::Meter::new(3.3);
     println!("{}", x);
+
+    x *= 3.2;
 }
 
 #[allow(non_upper_case_globals)]
