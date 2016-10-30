@@ -80,7 +80,9 @@ pub trait Sqrt {
 }
 
 use typenum::P2;
-impl<T> Sqrt for T where T: Root<P2> {
+impl<T> Sqrt for T
+    where T: Root<P2>
+{
     type Output = <T as Root<P2>>::Output;
     fn sqrt(self) -> Self::Output {
         self.root(P2::new())
@@ -97,7 +99,9 @@ pub trait Cbrt {
 }
 
 use typenum::P3;
-impl<T> Cbrt for T where T: Root<P3> {
+impl<T> Cbrt for T
+    where T: Root<P3>
+{
     type Output = <T as Root<P3>>::Output;
     fn cbrt(self) -> Self::Output {
         self.root(P3::new())

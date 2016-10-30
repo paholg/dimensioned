@@ -25,12 +25,12 @@ impl ToGA for ATerm {
 }
 
 
-impl<V, A> ToGA for TArr<V, A> where
-    V: Integer,
-    A: Len + ToGA,
-    <A as ToGA>::Output: AppendFront<isize>,
-    Length<A>: Add<B1>,
-    Add1<Length<A>>: Unsigned + ArrayLength<isize>,
+impl<V, A> ToGA for TArr<V, A>
+    where V: Integer,
+          A: Len + ToGA,
+          <A as ToGA>::Output: AppendFront<isize>,
+          Length<A>: Add<B1>,
+          Add1<Length<A>>: Unsigned + ArrayLength<isize>
 {
     type Output = <<A as ToGA>::Output as AppendFront<isize>>::Output;
     fn to_ga() -> Self::Output {
@@ -43,10 +43,10 @@ pub trait AppendFront<T> {
     fn append_front(self, element: T) -> Self::Output;
 }
 
-impl<T, N> AppendFront<T> for GenericArray<T, N> where
-    T: Default,
-    N: Add<B1> + ArrayLength<T>,
-    Add1<N>: ArrayLength<T>
+impl<T, N> AppendFront<T> for GenericArray<T, N>
+    where T: Default,
+          N: Add<B1> + ArrayLength<T>,
+          Add1<N>: ArrayLength<T>
 {
     type Output = GenericArray<T, Add1<N>>;
     fn append_front(self, element: T) -> Self::Output {
