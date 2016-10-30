@@ -13,7 +13,7 @@
 #[macro_export]
 macro_rules! make_units {
 
-// implement a unary operation
+    // implement a unary operation
     (@unary $System:ident, $Trait:ident, $op:ident, $fun:ident) => (
         impl<V, A> $Trait for $System<V, A> where
             A: $op,
@@ -26,7 +26,7 @@ macro_rules! make_units {
         }
     );
 
-// implement a binary operation between two things with units
+    // implement a binary operation between two things with units
     (@binary $System:ident, $Trait:ident, $op:ident, $fun:ident) => (
         impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
             Al: $op<Ar>,
@@ -39,7 +39,7 @@ macro_rules! make_units {
         }
     );
 
-// Implement an XAssign trait. ONLY FOR OPERATIONS THAT PRESERVE UNITS (e.g. Add, Sub).
+    // Implement an XAssign trait. ONLY FOR OPERATIONS THAT PRESERVE UNITS (e.g. Add, Sub).
     (@assign $System:ident, $Trait:ident, $fun:ident) => (
         impl<Vl, A, Vr> $Trait<$System<Vr, A>> for $System<Vl, A> where
             Vl: $Trait<Vr>,
@@ -85,8 +85,8 @@ macro_rules! make_units {
         prim!(usize);
     );
 
-// Implement a binary operator between the Unitless type of a unit system and a scalar.
-// FOR OPERATIONS THAT PRESERVE TYPE (e.g. Add, Sub)
+    // Implement a binary operator between the Unitless type of a unit system and a scalar.
+    // FOR OPERATIONS THAT PRESERVE TYPE (e.g. Add, Sub)
     (@binary_scalar_dimless $System:ident, $Trait:ident, $fun:ident) => (
         #[cfg(feature = "oibit")]
         impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
@@ -135,7 +135,7 @@ macro_rules! make_units {
         prim!(usize);
     );
 
-// Implement an XAssign trait with a scalar. ONLY FOR OPERATIONS THAT CAN BE DONE WITH SCALARS (e.g. Mul, Div)
+    // Implement an XAssign trait with a scalar. ONLY FOR OPERATIONS THAT CAN BE DONE WITH SCALARS (e.g. Mul, Div)
     (@assign_scalar $System:ident, $Trait:ident, $fun:ident) => (
         impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
             Vl: $Trait<Vr>,
@@ -182,9 +182,9 @@ macro_rules! make_units {
         prim!(usize);
     );
 
-// Implement a binary operator between something with units and a scalar.
-// ONLY FOR OPERATIONS THAT CAN BE DONE WITH SCALARS (e.g. Mul, Div)
-// Only for scalar on the rhs.
+    // Implement a binary operator between something with units and a scalar.
+    // ONLY FOR OPERATIONS THAT CAN BE DONE WITH SCALARS (e.g. Mul, Div)
+    // Only for scalar on the rhs.
     (@binary_scalar $System:ident, $Trait:ident, $fun:ident) => (
         #[cfg(feature = "oibit")]
         impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
@@ -227,7 +227,7 @@ macro_rules! make_units {
     (@fmt true S $System:ident $(R $Root:ident P $print_as:expr;)* T $Trait:ident E $token:expr) => (
         impl<V, A> fmt::$Trait for $System<V, A> where
             V: fmt::$Trait,
-            Length<A>: ArrayLength<isize>,
+        Length<A>: ArrayLength<isize>,
             A: TypeArray + Len + ToGA<Output = GenericArray<isize, Length<A>>>,
         {
             fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error>
@@ -272,7 +272,7 @@ macro_rules! make_units {
 
     (@fmt false S $System:ident $(R $Root:ident P $print_as:expr;)* T $Trait:ident E $token:expr) => ();
 
-// define arrays for all the base units
+    // define arrays for all the base units
     (@base_arrays $Unitless:ident, $Unit:ident, $Root:ident, $($Units:ident, $Roots:ident,)*) => (
         pub type $Unitless = tarr![Z0, $(make_units!(@convert_to_zero $Units)),*];
         make_units!(@next_array U $Unit R $Root $(U $Units R $Roots)* $(E $Units)*);
@@ -282,7 +282,7 @@ macro_rules! make_units {
      $(F $FrontZeros:ident)* E $Zero:ident $(E $EndZeros:ident)*) => (
         pub type $Unit = tarr![
             $(make_units!(@convert_to_zero $FrontZeros),)*
-            $Root,
+                $Root,
             Z0 $(, make_units!(@convert_to_zero $EndZeros))*
         ];
         make_units!(@next_array $(U $Units R $Roots)* $(F $FrontZeros)* F $Zero $(E $EndZeros)*);
@@ -290,96 +290,66 @@ macro_rules! make_units {
     (@next_array U $Unit:ident R $Root:ident $(F $FrontZeros:ident)*) => (
         pub type $Unit = tarr![
             $(make_units!(@convert_to_zero $FrontZeros),)*
-            $Root
+                $Root
         ];
     );
 
     (@convert_to_zero $Unit:ident) => ( Z0 );
     (@convert_to_zero) => ();
 
-    ($System:ident, $Unitless:ident;
+    ($System:ident;
+     $one:ident: $Unitless:ident;
      base {
-         $($Type:ident, $print_as:expr;)+
+         $($constant:ident: $Type:ident, $print_as:expr;)+
      }
      derived {
-         $($Derived:ident = ($($derived_rhs:tt)+);)*
+         $($derived_const:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
      } ) => (
         make_units!{
-            $System, $Unitless;
+            $System;
+            $one: $Unitless;
             base {
-                $(P1, $Type, $print_as;)*
+                $(P1, $constant: $Type, $print_as;)*
             }
             derived {
-                $($Derived = ($($derived_rhs)+);)*
+                $($derived_const: $Derived = ($($derived_rhs)+);)*
             }
             fmt = true;
         }
 
     );
 
-        ($System:ident, $Unitless:ident;
+    ($System:ident;
+     $one:ident: $Unitless:ident;
      base {
-         $($Type:ident, $print_as:expr;)+
-     }
-        ) => (
-        make_units!{
-            $System, $Unitless;
-            base {
-                $(P1, $Type, $print_as;)*
-            }
-            derived {
-            }
-            fmt = true;
-        }
-
-        );
-
-    ($System:ident, $Unitless:ident;
-     base {
-         $($Type:ident, $print_as:expr;)+
+         $($constant:ident: $Type:ident, $print_as:expr;)+
      }
      derived {
-         $($Derived:ident = ($($derived_rhs:tt)+);)*
+         $($derived_const:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
      }
      fmt = $to_fmt:ident;
     ) => (
         make_units!{
-            $System, $Unitless;
+            $System;
+            $one: $Unitless;
             base {
-                $(P1, $Type, $print_as;)*
+                $(P1, $constant: $Type, $print_as;)*
             }
             derived {
-                $($Derived = ($($derived_rhs)+);)*
+                $($derived_const: $Derived = ($($derived_rhs)+);)*
             }
             fmt = $to_fmt;
         }
 
     );
 
-        ($System:ident, $Unitless:ident;
+    ($System:ident;
+     $one:ident: $Unitless:ident;
      base {
-         $($Type:ident, $print_as:expr;)+
-     }
-         fmt = $to_fmt:ident;
-        ) => (
-        make_units!{
-            $System, $Unitless;
-            base {
-                $(P1, $Type, $print_as;)*
-            }
-            derived {
-            }
-            fmt = $to_fmt;
-        }
-
-    );
-
-    ($System:ident, $Unitless:ident;
-     base {
-         $($Root:ident, $Unit:ident, $print_as:expr;)+
+         $($Root:ident, $constant:ident: $Unit:ident, $print_as:expr;)+
      }
      derived {
-         $($Derived:ident = ($($derived_rhs:tt)+);)*
+         $($derived_const:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
      }
      fmt = $to_fmt:ident;
     ) => (
@@ -398,10 +368,10 @@ macro_rules! make_units {
                 $System { value: v, _marker: marker::PhantomData }
             }
 
-/// Perform an operation on the contained value.
-///
-/// Use of this function is discouraged, as the operation may be one that does not
-/// perserve units, and this function has no way to protect against that.
+            /// Perform an operation on the contained value.
+            ///
+            /// Use of this function is discouraged, as the operation may be one that does not
+            /// perserve units, and this function has no way to protect against that.
             #[inline]
             #[allow(dead_code)]
             pub fn map_unsafe<O, F: FnOnce(V) -> O>(self, f: F) -> $System<O, A> {
@@ -410,10 +380,10 @@ macro_rules! make_units {
         }
 
         impl<V, A> $System<V, A> where $System<V, A>: $crate::Dimensionless {
-/// Perform an operation on the contained value.
-///
-/// This function is only defined for unitless types, so it is perfectly safe to use
-/// with operations that may not perserve units.
+            /// Perform an operation on the contained value.
+            ///
+            /// This function is only defined for unitless types, so it is perfectly safe to use
+            /// with operations that may not perserve units.
             pub fn map<O, F: FnOnce(V) -> O>(self, f: F) -> $System<O, A> {
                 $System::new(f(self.value))
             }
@@ -440,13 +410,30 @@ macro_rules! make_units {
         pub type $Unitless<__TypeParameter> = $System<__TypeParameter, inner::$Unitless>;
         $(pub type $Unit<__TypeParameter> = $System<__TypeParameter, inner::$Unit>;)*
 
-        use $crate::Dimensionless;
+            use $crate::Dimensionless;
         impl<__TypeParameter> $crate::Dimensionless for $Unitless<__TypeParameter> {}
 
         $(pub type $Derived<__TypeParameter> = $System<__TypeParameter, inner::$Derived>;)*
 
-// --------------------------------------------------------------------------------
-// Formatting
+        // --------------------------------------------------------------------------------
+        // Define consts
+        pub mod f32consts {
+            use super::*;
+            use $crate::reexported::marker::PhantomData;
+            pub const $one: $Unitless<f32> = $System { value: 1.0, _marker: PhantomData };
+            $(pub const $constant: $Unit<f32> = $System { value: 1.0, _marker: PhantomData };)*
+            $(pub const $derived_const: $Derived<f32> = $System { value: 1.0, _marker: PhantomData };)*
+        }
+        pub mod f64consts {
+            use super::*;
+            use $crate::reexported::marker::PhantomData;
+            pub const $one: $Unitless<f64> = $System { value: 1.0, _marker: PhantomData };
+            $(pub const $constant: $Unit<f64> = $System { value: 1.0, _marker: PhantomData };)*
+            $(pub const $derived_const: $Derived<f64> = $System { value: 1.0, _marker: PhantomData };)*
+        }
+
+        // --------------------------------------------------------------------------------
+        // Formatting
         use $crate::reexported::fmt;
         use $crate::typenum::{Len, Length, TypeArray};
         use $crate::generic_array::{GenericArray, ArrayLength};
@@ -462,8 +449,8 @@ macro_rules! make_units {
         make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T LowerExp E "{:e} ");
         make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T UpperExp E "{:E} ");
 
-// --------------------------------------------------------------------------------
-// Operator traits from this crate
+        // --------------------------------------------------------------------------------
+        // Operator traits from this crate
 
         impl<V, A> $crate::Recip for $System<V, A> where V: $crate::Recip, A: $crate::reexported::ops::Neg, {
             type Output = $System<<V as $crate::Recip>::Output, $crate::typenum::Negate<A>>;
@@ -491,16 +478,16 @@ macro_rules! make_units {
             }
         }
 
-// --------------------------------------------------------------------------------
-// Unary operators
+        // --------------------------------------------------------------------------------
+        // Unary operators
 
         use $crate::reexported::ops::{Neg, Not};
         use $crate::typenum::Same;
         make_units!(@unary $System, Neg, Same, neg);
         make_units!(@unary $System, Not, Same, not);
 
-// --------------------------------------------------------------------------------
-// Binary operators
+        // --------------------------------------------------------------------------------
+        // Binary operators
 
         use $crate::reexported::ops::{Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign,
                                       BitXor, BitXorAssign, Div, DivAssign, Mul, MulAssign, Sub,
@@ -556,7 +543,7 @@ macro_rules! make_units {
         lhs_ops!(u64);
         lhs_ops!(usize);
 
-// Bit operations probably aren't useful, but may as well define them.
+        // Bit operations probably aren't useful, but may as well define them.
         make_units!(@binary $System, BitAnd, Same, bitand);
         make_units!(@assign $System, BitAndAssign, bitand_assign);
         make_units!(@binary_scalar_dimless $System, BitAnd, bitand);
@@ -569,7 +556,7 @@ macro_rules! make_units {
         make_units!(@assign $System, BitXorAssign, bitxor_assign);
         make_units!(@binary_scalar_dimless $System, BitXor, bitxor);
 
-// --------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------
     );
 }
 
