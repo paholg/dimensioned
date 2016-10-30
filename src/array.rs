@@ -64,9 +64,5 @@ fn test() {
     type A = tarr![P1, N3, P4];
     let a = A::to_ga();
 
-    for i in a.iter() {
-        println!("{}", i);
-    }
-
     assert_eq!(a, arr![isize; 1, -3, 4]);
 }

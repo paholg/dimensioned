@@ -7,9 +7,9 @@
 make_units! {
     CGS, Unitless;
     base {
-        P2, Centimeter, cm;
-        P2, Gram, g;
-        P1, Second, s;
+        P2, Centimeter, "cm";
+        P2, Gram, "g";
+        P1, Second, "s";
     }
     derived {
         Centimeter2 = (Centimeter * Centimeter);
@@ -63,7 +63,7 @@ mod consts {
 
 pub use self::consts::*;
 
-use typenum::{Prod, Integer};
+use typenum::{Integer};
 use reexported::convert::From;
 use mks;
 impl<V, Meter, Kilogram, Second> From<mks::MKS<V, tarr![Meter, Kilogram, Second]>>

@@ -14,6 +14,14 @@
 
 #![cfg_attr(not(feature="std"), no_std)]
 
+// For clippy:
+#![cfg_attr(feature="clippy", feature(plugin))]
+#![cfg_attr(feature="clippy", plugin(clippy))]
+
+#![allow(unknown_lints)]
+#![deny(clippy)]
+#![allow(type_complexity, len_without_is_empty)]
+
 
 /// Re-exports from std or core, which allow the `make_units` macro to work properly with or
 /// without the std library.  These are not guaranteed to stay here, and you should import from

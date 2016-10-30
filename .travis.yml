@@ -3,6 +3,7 @@ sudo: false
 rust:
   - beta
   - nightly
+cache: cargo
 
 notifications:
   email:
@@ -11,11 +12,15 @@ notifications:
 before_script:
   - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
   - export TRAVIS_CARGO_NIGHTLY_FEATURE=""
+  - (cargo install rustfmt || true) # the || true keeps cargo from throwing an error if it's already installed
+
 script:
   - |
+    PATH=$PATH:~/.cargo/bin cargo fmt -- --write-mode=diff &&
     travis-cargo test &&
     travis-cargo --only nightly test -- --no-default-features --features "oibit" &&
     travis-cargo --only nightly test -- --features "oibit" &&
+    travis-cargo --only nightly test -- --features "clippy" &&
     travis-cargo --only beta doc
 
 after_success:

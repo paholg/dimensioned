@@ -9,13 +9,13 @@
 make_units! {
     SI, Unitless;
     base {
-        Meter, m;
-        Kilogram, kg;
-        Second, s;
-        Ampere, A;
-        Kelvin, K;
-        Candela, cd;
-        Mole, mol;
+        Meter, "m";
+        Kilogram, "kg";
+        Second, "s";
+        Ampere, "A";
+        Kelvin, "K";
+        Candela, "cd";
+        Mole, "mol";
     }
 
     derived {
@@ -69,21 +69,40 @@ make_units! {
 #[test]
 fn test() {
     use si;
+    use typenum::consts::*;
 
-    let mut x = si::Meter::new(3.3);
-    println!("{}", x);
+    let mut x = si::Unitless::new(1.0) * si::m * si::m / si::s * si::kg;
+    let y = x / 3.0;
+    x /= 3.0;
 
-    x *= 3.2;
+    assert_eq!(x, y);
+
+    let mut z = si::Unitless::new(1.0);
+    let w = z + 4.0;
+    z += 4.0;
+    assert_eq!(z, w);
 }
 
 #[allow(non_upper_case_globals)]
 mod consts {
     use reexported::marker::PhantomData;
     use super::*;
-    pub const one: Unitless<f64> = SI { value: 1.0, _marker: PhantomData };
-    pub const m: Meter<f64> = SI { value: 1.0, _marker: PhantomData };
-    pub const kg: Kilogram<f64> = SI { value: 1.0, _marker: PhantomData };
-    pub const s: Second<f64> = SI { value: 1.0, _marker: PhantomData };
+    pub const one: Unitless<f64> = SI {
+        value: 1.0,
+        _marker: PhantomData,
+    };
+    pub const m: Meter<f64> = SI {
+        value: 1.0,
+        _marker: PhantomData,
+    };
+    pub const kg: Kilogram<f64> = SI {
+        value: 1.0,
+        _marker: PhantomData,
+    };
+    pub const s: Second<f64> = SI {
+        value: 1.0,
+        _marker: PhantomData,
+    };
 }
 
 pub use self::consts::*;

@@ -20,3 +20,7 @@
 [dependencies]
   typenum = "1.4.0"
   generic-array = "0.5.1"
+  clippy = { version = "*", optional = true }
+
+[replace]
+  "typenum:1.4.0" =  { git = "https://github.com/paholg/typenum/", branch = "trait-fns" }

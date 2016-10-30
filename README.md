@@ -16,6 +16,9 @@ system. Dimensioned also ships with some unit systems, and it is recommended tha
 them if it fits your use case. If you feel that dimensioned should ship with more unit systems,
 please submit an issue.
 
+**NOTE:** Dimensioned is undergoing much flux right now, so you should expect breaking changes for
+at least the near future.
+
 ## Using Dimensioned
 
 Dimensioned requires Rust version 1.13.0 or higher. That is currently the beta, but should be
@@ -34,23 +37,23 @@ Here is a short example to showcase some of its features:
 ```rust
 extern crate dimensioned as dim;
 
-use dim::{si, cgs};
+use dim::{mks, cgs};
 use std::convert::From;
 
-fn speed(dist: si::Meter<f64>, time: si::Second<f64>) -> si::MeterPerSecond<f64> {
+fn speed(dist: mks::Meter<f64>, time: mks::Second<f64>) -> mks::MeterPerSecond<f64> {
     dist / time
 }
 
 fn main() {
-    let x = 6.0 * si::m;
-    let t = 3.0 * si::s;
-    let v = 2.0 * si::m/si::s;
+    let x = 6.0 * mks::m;
+    let t = 3.0 * mks::s;
+    let v = 2.0 * mks::m/mks::s;
     let v2 = speed(x, t);
     assert_eq!(v, v2);
 
     let v3 = 2000.0 * cgs::m / cgs::s;
     let v4 = cgs::CGS::From(v);
-    assert_eq(v3, v4);[[[[[[[
+    assert_eq(v3, v4);
 }
 ```
 

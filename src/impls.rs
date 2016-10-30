@@ -1,16 +1,4 @@
 
-/// Scalar multiplication with scalar on RHS
-#[cfg(feature = "nightly")]
-impl<D, V, RHS> Mul<RHS> for Dim<D, V>
-    where V: Mul<RHS>,
-          RHS: NotDim
-{
-    type Output = Dim<D, <V as Mul<RHS>>::Output>;
-    #[inline]
-    fn mul(self, rhs: RHS) -> Self::Output {
-        Dim(self.0 * rhs, PhantomData)
-    }
-}
 
 macro_rules! dim_scalar_mult {
     ($t: ty) => (
@@ -49,18 +37,6 @@ dim_scalar_mult!(u32);
 dim_scalar_mult!(u64);
 dim_scalar_mult!(usize);
 
-/// Scalar division with scalar on RHS
-#[cfg(feature = "nightly")]
-impl<D, V, RHS> Div<RHS> for Dim<D, V>
-    where V: Div<RHS>,
-          RHS: NotDim
-{
-    type Output = Dim<D, <V as Div<RHS>>::Output>;
-    #[inline]
-    fn div(self, rhs: RHS) -> Dim<D, <V as Div<RHS>>::Output> {
-        Dim(self.0 / rhs, PhantomData)
-    }
-}
 
 macro_rules! dim_scalar_div {
     ($t: ty) => (
@@ -102,32 +78,6 @@ dim_scalar_div!(u32);
 dim_scalar_div!(u64);
 dim_scalar_div!(usize);
 
-// Binary operators:
-macro_rules! dim_binary {
-    ($Trait:ident, $op: ident, $($fun:ident),*) => (
-        impl<Dl, Vl, Dr, Vr> $Trait<Dim<Dr, Vr>> for Dim<Dl, Vl>
-            where Dl: Dimension + $op<Dr>,
-                  Dr: Dimension, Vl: $Trait<Vr>,
-                  <Dl as $op<Dr>>::Output: Dimension
-        {
-            type Output = Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output>;
-            #[inline]
-            $(fn $fun(self, rhs: Dim<Dr, Vr>)
-                      -> Dim<<Dl as $op<Dr>>::Output, <Vl as $Trait<Vr>>::Output>
-              {
-                  Dim( (self.0).$fun(rhs.0), PhantomData )
-              })*
-        }
-    )
-}
-dim_binary!(Add, Same, add);
-dim_binary!(BitAnd, Same, bitand);
-dim_binary!(BitOr, Same, bitor);
-dim_binary!(BitXor, Same, bitxor);
-dim_binary!(Rem, Same, rem);
-dim_binary!(Shl, Same, shl);
-dim_binary!(Shr, Same, shr);
-dim_binary!(Sub, Same, sub);
 
 // fixme: figure this out
 // impl<D, V, Idx> Index<Idx> for Dim<D, V>
