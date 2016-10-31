@@ -1,6 +1,6 @@
-pub trait Dimension<T> {}
+pub trait Dimensioned {}
 
-pub trait Dimensionless {}
+pub trait Dimensionless: Dimensioned {}
 
 #[cfg(feature = "oibit")]
 pub trait NotDim {}

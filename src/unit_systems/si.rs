@@ -83,6 +83,11 @@ fn test() {
     let w = z + 4.0;
     z += 4.0;
     assert_eq!(z, w);
+
+    use si::Meter;
+    let mut v = Meter::new(vec![1.0, 2.0]);
+
+    v[0] += 1.2 * M;
 }
 
 

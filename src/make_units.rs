@@ -13,215 +13,356 @@
 #[macro_export]
 macro_rules! make_units {
 
-    // implement a unary operation
-    (@unary $System:ident, $Trait:ident, $op:ident, $fun:ident) => (
-        impl<V, A> $Trait for $System<V, A> where
-            A: $op,
-            V: $Trait,
-        {
-            type Output = $System<<V as $Trait>::Output, <A as $op>::Output>;
-            fn $fun(self) -> Self::Output {
-                $System::new( $Trait::$fun(self.value) )
-            }
-        }
-    );
+    (@ops $System:ident, $Unitless:ident) => (
+        // -------------------------------------------------------------------------------
+        // Unary: Neg, Not
 
-    // implement a binary operation between two things with units
-    (@binary $System:ident, $Trait:ident, $op:ident, $fun:ident) => (
-        impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
-            Al: $op<Ar>,
-            Vl: $Trait<Vr>,
-        {
-            type Output = $System<<Vl as $Trait<Vr>>::Output, <Al as $op<Ar>>::Output>;
-            fn $fun(self, rhs: $System<Vr, Ar>) -> Self::Output {
-                $System::new( $Trait::$fun(self.value, rhs.value) )
-            }
-        }
-    );
-
-    // Implement an XAssign trait. ONLY FOR OPERATIONS THAT PRESERVE UNITS (e.g. Add, Sub).
-    (@assign $System:ident, $Trait:ident, $fun:ident) => (
-        impl<Vl, A, Vr> $Trait<$System<Vr, A>> for $System<Vl, A> where
-            Vl: $Trait<Vr>,
-        {
-            fn $fun(&mut self, rhs: $System<Vr, A>) {
-                $Trait::$fun(&mut self.value, rhs.value)
-            }
-        }
-
-        #[cfg(feature = "oibit")]
-        impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
-            Vl: $Trait<Vr>, Vr: NotDim, $System<Vl, A>: Dimensionless
-        {
-            fn $fun(&mut self, rhs: Vr) {
-                $Trait::$fun(&mut self.value, rhs)
-            }
-        }
-
-        macro_rules! prim {
-            ($head:tt) => (
-                #[cfg(not(feature = "oibit"))]
-                impl<V, A> $Trait<$head> for $System<V, A> where
-                    V: $Trait<$head>, $System<V, A>: Dimensionless
+        macro_rules! unary_op {
+            ($Trait:ident, $fun:ident) => (
+                impl<V, A> $Trait for $System<V, A> where
+                    V: $Trait,
                 {
-                    fn $fun(&mut self, rhs: $head) {
-                        $Trait::$fun(&mut self.value, rhs)
+                    type Output = $System<<V as $Trait>::Output, A>;
+                    fn $fun(self) -> Self::Output {
+                        $System::new( $Trait::$fun(self.value) )
                     }
                 }
             );
-            () => ();
         }
+
+        unary_op!(Not, not);
+        unary_op!(Neg, neg);
+
+        // -------------------------------------------------------------------------------
+        // Unit-preserving: Add, Sub, BitAnd, BitOr, BitXor
+
+        macro_rules! binary_unit_preserve {
+            ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
+                // Both have units
+                impl<Vl, A, Vr> $Trait<$System<Vr, A>> for $System<Vl, A> where
+                    Vl: $Trait<Vr>,
+                {
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
+                    fn $fun(self, rhs: $System<Vr, A>) -> Self::Output {
+                        $System::new( $Trait::$fun(self.value, rhs.value) )
+                    }
+                }
+
+                // Unitless on lhs, scalar on rhs
+                #[cfg(feature = "oibit")]
+                impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
+                    Vl: $Trait<Vr>, Vr: NotDim, $System<Vl, A>: Dimensionless
+                {
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
+                    fn $fun(self, rhs: Vr) -> Self::Output {
+                        $System::new( $Trait::$fun(self.value, rhs) )
+                    }
+                }
+
+                // Assign: Both have units
+                impl<Vl, A, Vr> $TraitAssign<$System<Vr, A>> for $System<Vl, A> where
+                    Vl: $TraitAssign<Vr>,
+                {
+                    fn $fun_assign(&mut self, rhs: $System<Vr, A>) {
+                        $TraitAssign::$fun_assign(&mut self.value, rhs.value)
+                    }
+                }
+
+                // Assign: Unitless on lhs, scalar on rhs
+                #[cfg(feature = "oibit")]
+                impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
+                    Vl: $TraitAssign<Vr>, Vr: NotDim, $System<Vl, A>: Dimensionless
+                {
+                    fn $fun_assign(&mut self, rhs: Vr) {
+                        $TraitAssign::$fun_assign(&mut self.value, rhs)
+                    }
+                }
+            );
+        }
+
+        binary_unit_preserve!(Add, add, AddAssign, add_assign);
+        binary_unit_preserve!(Sub, sub, SubAssign, sub_assign);
+        binary_unit_preserve!(BitAnd, bitand, BitAndAssign, bitand_assign);
+        binary_unit_preserve!(BitOr, bitor, BitOrAssign, bitor_assign);
+        binary_unit_preserve!(BitXor, bitxor, BitXorAssign, bitxor_assign);
+
+        // -------------------------------------------------------------------------------
+        // Unit-changing: Mul, Div
+
+        macro_rules! binary_unit_change {
+            ($Trait:ident, $fun:ident, $op:ident, $TraitAssign:ident, $fun_assign:ident) => (
+                // Both have units
+                impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
+                    Vl: $Trait<Vr>, Al: $op<Ar>,
+                {
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, <Al as $op<Ar>>::Output>;
+                    fn $fun(self, rhs: $System<Vr, Ar>) -> Self::Output {
+                        $System::new( $Trait::$fun(self.value, rhs.value) )
+                    }
+                }
+
+                // Lhs has units, scalar on rhs
+                #[cfg(feature = "oibit")]
+                impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
+                    Vl: $Trait<Vr>, Vr: NotDim,
+                {
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
+                    fn $fun(self, rhs: Vr) -> Self::Output {
+                        $System::new( $Trait::$fun(self.value, rhs) )
+                    }
+                }
+
+                // Assign: Lhs has units, rhs unitless
+                impl<Vl, Al, Vr, Ar> $TraitAssign<$System<Vr, Ar>> for $System<Vl, Al> where
+                    Vl: $TraitAssign<Vr>,
+                    $System<Vr, Ar>: Dimensionless,
+                {
+                    fn $fun_assign(&mut self, rhs: $System<Vr, Ar>) {
+                        $TraitAssign::$fun_assign(&mut self.value, rhs.value)
+                    }
+                }
+
+                // Assign: Lhs has units, scalar on rhs
+                #[cfg(feature = "oibit")]
+                impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
+                    Vl: $TraitAssign<Vr>, Vr: NotDim,
+                {
+                    fn $fun_assign(&mut self, rhs: Vr) {
+                        $TraitAssign::$fun_assign(&mut self.value, rhs)
+                    }
+                }
+            );
+        }
+
+        binary_unit_change!(Mul, mul, Add, MulAssign, mul_assign);
+        binary_unit_change!(Div, div, Sub, DivAssign, div_assign);
+
+        // -------------------------------------------------------------------------------
+        // Rem (it's kinda its own thing)
+
+        // Both have units
+        impl<Vl, Al, Vr, Ar> Rem<$System<Vr, Ar>> for $System<Vl, Al> where
+            Vl: Rem<Vr>
+        {
+            type Output = $System<<Vl as Rem<Vr>>::Output, Al>;
+            fn rem(self, rhs: $System<Vr, Ar>) -> Self::Output {
+                $System::new( self.value % rhs.value )
+            }
+        }
+
+        // Lhs has units, scalar on rhs
+        #[cfg(feature = "oibit")]
+        impl<Vl, A, Vr> Rem<Vr> for $System<Vl, A> where
+            Vl: Rem<Vr>, Vr: NotDim,
+        {
+            type Output = $System<<Vl as Rem<Vr>>::Output, A>;
+            fn rem(self, rhs: Vr) -> Self::Output {
+                $System::new( self.value % rhs )
+            }
+        }
+
+        // Assign, both have units
+        impl<Vl, Al, Vr, Ar> RemAssign<$System<Vr, Ar>> for $System<Vl, Al> where
+            Vl: RemAssign<Vr>,
+        {
+            fn rem_assign(&mut self, rhs: $System<Vr, Ar>) {
+                self.value %= rhs.value
+            }
+        }
+
+        // Assign: Lhs has units, scalar on rhs
+        #[cfg(feature = "oibit")]
+        impl<Vl, A, Vr> RemAssign<Vr> for $System<Vl, A> where
+            Vl: RemAssign<Vr>, Vr: NotDim,
+        {
+            fn rem_assign(&mut self, rhs: Vr) {
+                self.value %= rhs
+            }
+        }
+
+        // -------------------------------------------------------------------------------
+        // Shl, Shr
+
+        macro_rules! binary_shift {
+            ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
+                // Lhs has units, rhs unitless
+                impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
+                    Vl: $Trait<Vr>, $System<Vr, Ar>: Dimensionless
+                {
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, Al>;
+                    fn $fun(self, rhs: $System<Vr, Ar>) -> Self::Output {
+                        $System::new( $Trait::$fun(self.value, rhs.value) )
+                    }
+                }
+
+                // Lhs has units, scalar on rhs
+                #[cfg(feature = "oibit")]
+                impl<Vl, Al, Vr> $Trait<Vr> for $System<Vl, Al> where
+                    Vl: $Trait<Vr>, Vr: NotDim,
+                {
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, Al>;
+                    fn $fun(self, rhs: Vr) -> Self::Output {
+                        $System::new( $Trait::$fun(self.value, rhs.value) )
+                    }
+                }
+
+                // Assign: Lhs has units, rhs unitless
+                impl<Vl, Al, Vr, Ar> $TraitAssign<$System<Vr, Ar>> for $System<Vl, Al> where
+                    Vl: $TraitAssign<Vr>,
+                    $System<Vr, Ar>: Dimensionless,
+                {
+                    fn $fun_assign(&mut self, rhs: $System<Vr, Ar>) {
+                        $TraitAssign::$fun_assign(&mut self.value, rhs.value)
+                    }
+                }
+
+                // Assign: Lhs has units, scalar on rhs
+                #[cfg(feature = "oibit")]
+                impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
+                    Vl: $TraitAssign<Vr>, Vr: NotDim,
+                {
+                    fn $fun_assign(&mut self, rhs: Vr) {
+                        $TraitAssign::$fun_assign(&mut self.value, rhs)
+                    }
+                }
+            );
+        }
+
+        binary_shift!(Shl, shl, ShlAssign, shl_assign);
+        binary_shift!(Shr, shr, ShrAssign, shr_assign);
+
+        // -------------------------------------------------------------------------------
+        // All things with primitives
+        macro_rules! prim {
+            ($t: ty) => (
+
+                // Operations that require lhs and rhs to have the same units
+                // Add, Sub, BitAnd, BitOr, BitXor
+                macro_rules! same_units {
+                    ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
+
+                        // Unitless on lhs, primitive on rhs
+                        #[cfg(not(feature = "oibit"))]
+                        impl<V, A> $Trait<$t> for $System<V, A> where
+                            V: $Trait<$t>, $System<V, A>: Dimensionless
+                        {
+                            type Output = $System<<V as $Trait<$t>>::Output, A>;
+                            fn $fun(self, rhs: $t) -> Self::Output {
+                                $System::new( $Trait::$fun(self.value, rhs) )
+                            }
+                        }
+
+                        // Primitive on lhs, unitless on rhs
+                        impl<V, A> $Trait<$System<V, A>> for $t where
+                            $t: $Trait<V>, $System<V, A>: Dimensionless
+                        {
+                            type Output = $System<<$t as $Trait<V>>::Output, A>;
+                            fn $fun(self, rhs: $System<V, A>) -> Self::Output {
+                                $System::new( $Trait::$fun(self, rhs.value) )
+                            }
+                        }
+
+                        // Assign: Unitless on lhs, primitive on rhs
+                        #[cfg(not(feature = "oibit"))]
+                        impl<V, A> $TraitAssign<$t> for $System<V, A> where
+                            V: $TraitAssign<$t>, $System<V, A>: Dimensionless
+                        {
+                            fn $fun_assign(&mut self, rhs: $t) {
+                                $TraitAssign::$fun_assign(&mut self.value, rhs)
+                            }
+                        }
+
+                    );
+                }
+
+                same_units!(Add, add, AddAssign, add_assign);
+                same_units!(Sub, sub, SubAssign, sub_assign);
+
+                same_units!(BitAnd, bitand, BitAndAssign, bitand_assign);
+                same_units!(BitOr, bitor, BitOrAssign, bitor_assign);
+                same_units!(BitXor, bitxor, BitXorAssign, bitxor_assign);
+
+                // Operations that don't care what units lhs has when rhs is a scalar
+                // Mul, Div, Rem, Shl, Shr
+                macro_rules! rhs_units_differ {
+                    ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
+                        // Units on lhs, primitive on rhs
+                        #[cfg(not(feature = "oibit"))]
+                        impl<V, A> $Trait<$t> for $System<V, A> where
+                            V: $Trait<$t>
+                        {
+                            type Output = $System<<V as $Trait<$t>>::Output, A>;
+                            fn $fun(self, rhs: $t) -> Self::Output {
+                                $System::new( $Trait::$fun(self.value, rhs) )
+                            }
+                        }
+
+                        // Assign: Unitless on lhs, primitive on rhs
+                        #[cfg(not(feature = "oibit"))]
+                        impl<V, A> $TraitAssign<$t> for $System<V, A> where
+                            V: $TraitAssign<$t>
+                        {
+                            fn $fun_assign(&mut self, rhs: $t) {
+                                $TraitAssign::$fun_assign(&mut self.value, rhs)
+                            }
+                        }
+
+                    );
+                }
+
+                rhs_units_differ!(Mul, mul, MulAssign, mul_assign);
+                rhs_units_differ!(Div, div, DivAssign, div_assign);
+                rhs_units_differ!(Rem, rem, RemAssign, rem_assign);
+                rhs_units_differ!(Shl, shl, ShlAssign, shl_assign);
+                rhs_units_differ!(Shr, shr, ShrAssign, shr_assign);
+
+                // Mul: Primitive on lhs, units on rhs
+                impl<V, A> Mul<$System<V, A>> for $t where $t: Mul<V> {
+                    type Output = $System<Prod<$t, V>, A>;
+                    #[inline]
+                    fn mul(self, rhs: $System<V, A>) -> Self::Output {
+                        $System::new(self*rhs.value)
+                    }
+                }
+
+                // Div: Primitive on lhs, units on rhs
+                impl<V, A> Div<$System<V, A>> for $t where $t: Div<V>, A: Neg {
+                    type Output = $System<Quot<$t, V>, <A as Neg>::Output>;
+                    #[inline]
+                    fn div(self, rhs: $System<V, A>) -> Self::Output {
+                        $System::new(self / rhs.value)
+                    }
+                }
+
+                // Rem: Primitive on lhs, units on rhs
+                impl<V, A> Rem<$System<V, A>> for $t where $t: Rem<V> {
+                    type Output = $Unitless<<$t as Rem<V>>::Output>;
+                    #[inline]
+                    fn rem(self, rhs: $System<V, A>) -> Self::Output {
+                        $System::new(self % rhs.value)
+                    }
+                }
+
+            );
+        }
+
         prim!(f32);
         prim!(f64);
+
         prim!(i8);
         prim!(i16);
         prim!(i32);
         prim!(i64);
         prim!(isize);
+
         prim!(u8);
         prim!(u16);
         prim!(u32);
         prim!(u64);
         prim!(usize);
-    );
 
-    // Implement a binary operator between the Unitless type of a unit system and a scalar.
-    // FOR OPERATIONS THAT PRESERVE TYPE (e.g. Add, Sub)
-    (@binary_scalar_dimless $System:ident, $Trait:ident, $fun:ident) => (
-        #[cfg(feature = "oibit")]
-        impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
-            Vl: $Trait<Vr>, Vr: NotDim, $System<Vl, A>: Dimensionless
-        {
-            type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
-            fn $fun(self, rhs: Vr) -> Self::Output {
-                $System::new( $Trait::$fun(self.value, rhs) )
-            }
-        }
-
-        macro_rules! prim {
-            ($head:tt) => (
-                #[cfg(not(feature = "oibit"))]
-                impl<V, A> $Trait<$head> for $System<V, A> where
-                    V: $Trait<$head>, $System<V, A>: Dimensionless
-                {
-                    type Output = $System<<V as $Trait<$head>>::Output, A>;
-                    fn $fun(self, rhs: $head) -> Self::Output {
-                        $System::new($Trait::$fun(self.value, rhs))
-                    }
-                }
-
-                impl<V, A> $Trait<$System<V, A>> for $head where
-                    $head: $Trait<V>, $System<V, A>: Dimensionless
-                {
-                    type Output = $System<<$head as $Trait<V>>::Output, A>;
-                    fn $fun(self, rhs: $System<V, A>) -> Self::Output {
-                        $System::new($Trait::$fun(self, rhs.value))
-                    }
-                }
-            );
-            () => ();
-        }
-        prim!(f32);
-        prim!(f64);
-        prim!(i8);
-        prim!(i16);
-        prim!(i32);
-        prim!(i64);
-        prim!(isize);
-        prim!(u8);
-        prim!(u16);
-        prim!(u32);
-        prim!(u64);
-        prim!(usize);
-    );
-
-    // Implement an XAssign trait with a scalar. ONLY FOR OPERATIONS THAT CAN BE DONE WITH SCALARS (e.g. Mul, Div)
-    (@assign_scalar $System:ident, $Trait:ident, $fun:ident) => (
-        impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
-            Vl: $Trait<Vr>,
-            Vr: Dimensionless,
-        {
-            fn $fun(&mut self, rhs: $System<Vr, Ar>) {
-                $Trait::$fun(&mut self.value, rhs.value)
-            }
-        }
-
-        #[cfg(feature = "oibit")]
-        impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
-            Vl: $Trait<Vr>, Vr: NotDim,
-        {
-            fn $fun(&mut self, rhs: Vr) {
-                $Trait::$fun(&mut self.value, rhs)
-            }
-        }
-
-        macro_rules! prim {
-            ($head:tt) => (
-                #[cfg(not(feature = "oibit"))]
-                impl<V, A> $Trait<$head> for $System<V, A> where
-                    V: $Trait<$head>,
-                {
-                    fn $fun(&mut self, rhs: $head) {
-                        $Trait::$fun(&mut self.value, rhs)
-                    }
-                }
-            );
-            () => ();
-        }
-        prim!(f32);
-        prim!(f64);
-        prim!(i8);
-        prim!(i16);
-        prim!(i32);
-        prim!(i64);
-        prim!(isize);
-        prim!(u8);
-        prim!(u16);
-        prim!(u32);
-        prim!(u64);
-        prim!(usize);
-    );
-
-    // Implement a binary operator between something with units and a scalar.
-    // ONLY FOR OPERATIONS THAT CAN BE DONE WITH SCALARS (e.g. Mul, Div)
-    // Only for scalar on the rhs.
-    (@binary_scalar $System:ident, $Trait:ident, $fun:ident) => (
-        #[cfg(feature = "oibit")]
-        impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
-            Vl: $Trait<Vr>, Vr: NotDim,
-        {
-            type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
-            fn $fun(self, rhs: Vr) -> Self::Output {
-                $System::new( $Trait::$fun(self.value, rhs) )
-            }
-        }
-
-        macro_rules! prim {
-            ($head:tt) => (
-                #[cfg(not(feature = "oibit"))]
-                impl<V, A> $Trait<$head> for $System<V, A> where
-                    V: $Trait<$head>,
-                {
-                    type Output = $System<<V as $Trait<$head>>::Output, A>;
-                    fn $fun(self, rhs: $head) -> Self::Output {
-                        $System::new($Trait::$fun(self.value, rhs))
-                    }
-                }
-            );
-            () => ();
-        }
-        prim!(f32);
-        prim!(f64);
-        prim!(i8);
-        prim!(i16);
-        prim!(i32);
-        prim!(i64);
-        prim!(isize);
-        prim!(u8);
-        prim!(u16);
-        prim!(u32);
-        prim!(u64);
-        prim!(usize);
+        prim!(bool);
+        prim!(char);
     );
 
     (@fmt true S $System:ident $(R $Root:ident P $print_as:expr;)* T $Trait:ident E $token:expr) => (
@@ -249,6 +390,9 @@ macro_rules! make_units {
                 {
                     if first {
                         first = false;
+                        if exp != 0 {
+                            try!(write!(f, " "));
+                        }
                     } else if exp != 0 {
                         try!(write!(f, "*"));
                     }
@@ -358,7 +502,8 @@ macro_rules! make_units {
         #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash)]
         pub struct $System<V, A> {
             pub value: V,
-            _marker: marker::PhantomData<A>,
+            // fixme: this shouldn't be public once `new` can be const
+            pub _marker: marker::PhantomData<A>,
         }
 
         impl<V, A> $System<V, A> {
@@ -389,8 +534,8 @@ macro_rules! make_units {
             }
         }
 
-        use $crate::Dimension;
-        impl<V, A> Dimension<V> for $System<V, A> {}
+        use $crate::Dimensioned;
+        impl<V, A> Dimensioned for $System<V, A> {}
 
         #[cfg(feature = "oibit")]
         use $crate::NotDim;
@@ -439,15 +584,15 @@ macro_rules! make_units {
         use $crate::generic_array::{GenericArray, ArrayLength};
         use $crate::array::ToGA;
 
-        make_units!(@fmt true S $System $(R $Root P $print_as;)* T Debug E "{:?} ");
-        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Display E "{} ");
-        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Octal E "{:o} ");
-        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T LowerHex E "{:x} ");
-        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T UpperHex E "{:X} ");
-        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Pointer E "{:p} ");
-        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Binary E "{:b} ");
-        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T LowerExp E "{:e} ");
-        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T UpperExp E "{:E} ");
+        make_units!(@fmt true S $System $(R $Root P $print_as;)* T Debug E "{:?}");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Display E "{}");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Octal E "{:o}");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T LowerHex E "{:x}");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T UpperHex E "{:X}");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Pointer E "{:p}");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Binary E "{:b}");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T LowerExp E "{:e}");
+        make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T UpperExp E "{:E}");
 
         // --------------------------------------------------------------------------------
         // Operator traits from this crate
@@ -479,82 +624,59 @@ macro_rules! make_units {
         }
 
         // --------------------------------------------------------------------------------
-        // Unary operators
-
-        use $crate::reexported::ops::{Neg, Not};
-        use $crate::typenum::Same;
-        make_units!(@unary $System, Neg, Same, neg);
-        make_units!(@unary $System, Not, Same, not);
-
-        // --------------------------------------------------------------------------------
-        // Binary operators
+        // Operators
 
         use $crate::reexported::ops::{Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign,
                                       BitXor, BitXorAssign, Div, DivAssign, Mul, MulAssign, Sub,
-                                      SubAssign};
+                                      SubAssign, Rem, RemAssign, Neg, Not, Shl, ShlAssign, Shr,
+                                      ShrAssign};
         use $crate::typenum::{Prod, Quot};
 
-        make_units!(@binary $System, Add, Same, add);
-        make_units!(@assign $System, AddAssign, add_assign);
-        make_units!(@binary_scalar_dimless $System, Add, add);
+        make_units!(@ops $System, $Unitless);
 
-        make_units!(@binary $System, Sub, Same, sub);
-        make_units!(@assign $System, SubAssign, sub_assign);
-        make_units!(@binary_scalar_dimless $System, Sub, sub);
+        // --------------------------------------------------------------------------------
+        // Deref only for dimensionless things
 
-        make_units!(@binary $System, Div, Sub, div);
-        make_units!(@binary_scalar $System, Div, div);
-        make_units!(@assign_scalar $System, DivAssign, div_assign);
-
-        make_units!(@binary $System, Mul, Add, mul);
-        make_units!(@binary_scalar $System, Mul, mul);
-        make_units!(@assign_scalar $System, MulAssign, mul_assign);
-
-        macro_rules! lhs_ops {
-            ($t: ty) => (
-                impl<V, A> Mul<$System<V, A>> for $t where $t: Mul<V> {
-                    type Output = $System<Prod<$t, V>, A>;
-                    #[inline]
-                    fn mul(self, rhs: $System<V, A>) -> Self::Output {
-                        $System::new(self*rhs.value)
-                    }
-                }
-
-                impl<V, A> Div<$System<V, A>> for $t where $t: Div<V>, A: Neg {
-                    type Output = $System<Quot<$t, V>, <A as Neg>::Output>;
-                    #[inline]
-                    fn div(self, rhs: $System<V, A>) -> Self::Output {
-                        $System::new(self / rhs.value)
-                    }
-                }
-            );
+        use $crate::reexported::ops::Deref;
+        impl<V, A> Deref for $System<V, A> where $System<V, A>: Dimensionless {
+            type Target = V;
+            fn deref(&self) -> &Self::Target {
+                &self.value
+            }
         }
 
-        lhs_ops!(f32);
-        lhs_ops!(f64);
-        lhs_ops!(i8);
-        lhs_ops!(i16);
-        lhs_ops!(i32);
-        lhs_ops!(i64);
-        lhs_ops!(isize);
-        lhs_ops!(u8);
-        lhs_ops!(u16);
-        lhs_ops!(u32);
-        lhs_ops!(u64);
-        lhs_ops!(usize);
+        // --------------------------------------------------------------------------------
+        // Index
 
-        // Bit operations probably aren't useful, but may as well define them.
-        make_units!(@binary $System, BitAnd, Same, bitand);
-        make_units!(@assign $System, BitAndAssign, bitand_assign);
-        make_units!(@binary_scalar_dimless $System, BitAnd, bitand);
+        use $crate::reexported::ops::Index;
+        impl<V, A, Idx> Index<Idx> for $System<V, A>
+            where V: Index<Idx>,
+                  <V as Index<Idx>>::Output: Sized,
+                  $System<<V as Index<Idx>>::Output, A>: Sized
+        {
+            type Output = $System<<V as Index<Idx>>::Output, A>;
+            fn index(&self, index: Idx) -> &Self::Output {
+                // fixme: ensure this is safe
+                unsafe {
+                    $crate::reexported::mem::transmute(&self.value[index])
+                }
+            }
+        }
 
-        make_units!(@binary $System, BitOr, Same, bitor);
-        make_units!(@assign $System, BitOrAssign, bitor_assign);
-        make_units!(@binary_scalar_dimless $System, BitOr, bitor);
-
-        make_units!(@binary $System, BitXor, Same, bitxor);
-        make_units!(@assign $System, BitXorAssign, bitxor_assign);
-        make_units!(@binary_scalar_dimless $System, BitXor, bitxor);
+        use $crate::reexported::ops::IndexMut;
+        impl<V, A, Idx> IndexMut<Idx> for $System<V, A>
+            where $System<V, A>: Index<Idx>,
+                  V: Index<Idx> + IndexMut<Idx>,
+        <V as Index<Idx>>::Output: Sized,
+        <$System<V, A> as Index<Idx>>::Output: Sized
+        {
+            fn index_mut(&mut self, index: Idx) -> &mut Self::Output{
+                // fixme: ensure this is safe
+                unsafe {
+                    $crate::reexported::mem::transmute(&mut self.value[index])
+                }
+            }
+        }
 
         // --------------------------------------------------------------------------------
     );
