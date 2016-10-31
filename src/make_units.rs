@@ -202,7 +202,7 @@ macro_rules! make_units {
                 {
                     type Output = $System<<Vl as $Trait<Vr>>::Output, Al>;
                     fn $fun(self, rhs: Vr) -> Self::Output {
-                        $System::new( $Trait::$fun(self.value, rhs.value) )
+                        $System::new( $Trait::$fun(self.value, rhs) )
                     }
                 }
 
@@ -431,6 +431,7 @@ macro_rules! make_units {
         ];
         make_units!(@next_array $(U $Units R $Roots)* $(F $FrontZeros)* F $Zero $(E $EndZeros)*);
     );
+
     (@next_array U $Unit:ident R $Root:ident $(F $FrontZeros:ident)*) => (
         pub type $Unit = tarr![
             $(make_units!(@convert_to_zero $FrontZeros),)*
@@ -569,6 +570,7 @@ macro_rules! make_units {
             $(pub const $constant: $Unit<f32> = $System { value: 1.0, _marker: PhantomData };)*
             $(pub const $derived_const: $Derived<f32> = $System { value: 1.0, _marker: PhantomData };)*
         }
+
         pub mod f64consts {
             use super::*;
             use $crate::reexported::marker::PhantomData;
