@@ -3,7 +3,7 @@
 /// This macro is the meat of the library.
 ///
 /// fixme: Outline of normal vs. advanced use.
-/// fixme: Note about formatting -- can disable it, but debug is always on
+/// fixme: Note about fmt traits -- can disable them, but debug is always on
 /// fixme: Discussion of operations
 /// fixme: Example
 ///
@@ -381,7 +381,7 @@ macro_rules! make_units {
 
                 let mut first = true;
 
-                try!(write!(f, $token, self.value));
+                try!(self.value.fmt(f));
 
                 for ((&root, exp), token) in
                     allowed_roots.into_iter()
@@ -499,6 +499,7 @@ macro_rules! make_units {
      fmt = $to_fmt:ident;
     ) => (
         use $crate::reexported::marker;
+        use $crate::{Dimensioned, Dimensionless};
 
         #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash)]
         pub struct $System<V, A> {
@@ -509,7 +510,6 @@ macro_rules! make_units {
 
         impl<V, A> $System<V, A> {
             #[inline]
-            #[allow(dead_code)]
             pub fn new(v: V) -> Self {
                 $System { value: v, _marker: marker::PhantomData }
             }
@@ -519,7 +519,6 @@ macro_rules! make_units {
             /// Use of this function is discouraged, as the operation may be one that does not
             /// perserve units, and this function has no way to protect against that.
             #[inline]
-            #[allow(dead_code)]
             pub fn map_unsafe<O, F: FnOnce(V) -> O>(self, f: F) -> $System<O, A> {
                 $System::new(f(self.value))
             }
@@ -530,13 +529,28 @@ macro_rules! make_units {
             ///
             /// This function is only defined for unitless types, so it is perfectly safe to use
             /// with operations that may not perserve units.
+            #[inline]
             pub fn map<O, F: FnOnce(V) -> O>(self, f: F) -> $System<O, A> {
                 $System::new(f(self.value))
             }
         }
 
-        use $crate::Dimensioned;
-        impl<V, A> Dimensioned for $System<V, A> {}
+        // --------------------------------------------------------------------------------
+        // Implement traits defined in dim::traits
+
+        impl<V, A> Dimensioned<V> for $System<V, A> {
+            type Array = A;
+            fn new(val: V) -> Self {
+                $System::new(val)
+            }
+
+            fn value(&self) -> &V {
+                &self.value
+            }
+        }
+
+        // --------------------------------------------------------------------------------
+        // Define type aliases
 
         #[cfg(feature = "oibit")]
         use $crate::NotDim;
@@ -556,7 +570,6 @@ macro_rules! make_units {
         pub type $Unitless<__TypeParameter> = $System<__TypeParameter, inner::$Unitless>;
         $(pub type $Unit<__TypeParameter> = $System<__TypeParameter, inner::$Unit>;)*
 
-            use $crate::Dimensionless;
         impl<__TypeParameter> $crate::Dimensionless for $Unitless<__TypeParameter> {}
 
         $(pub type $Derived<__TypeParameter> = $System<__TypeParameter, inner::$Derived>;)*
@@ -654,7 +667,6 @@ macro_rules! make_units {
         impl<V, A, Idx> Index<Idx> for $System<V, A>
             where V: Index<Idx>,
                   <V as Index<Idx>>::Output: Sized,
-                  $System<<V as Index<Idx>>::Output, A>: Sized
         {
             type Output = $System<<V as Index<Idx>>::Output, A>;
             fn index(&self, index: Idx) -> &Self::Output {
@@ -669,13 +681,13 @@ macro_rules! make_units {
         impl<V, A, Idx> IndexMut<Idx> for $System<V, A>
             where $System<V, A>: Index<Idx>,
                   V: Index<Idx> + IndexMut<Idx>,
-        <V as Index<Idx>>::Output: Sized,
-        <$System<V, A> as Index<Idx>>::Output: Sized
+                  <V as Index<Idx>>::Output: Sized,
+                  <$System<V, A> as Index<Idx>>::Output: Sized
         {
             fn index_mut(&mut self, index: Idx) -> &mut Self::Output{
                 // fixme: ensure this is safe
                 unsafe {
-                    $crate::reexported::mem::transmute(&mut self.value[index])
+                    $crate::reexported::mem::transmute(self.value.index_mut(index))
                 }
             }
         }

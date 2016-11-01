@@ -26,4 +26,6 @@
 - Numerics :: If and when Rust supports numerics and arithmetic in type signatures, switch to using
               them instead of typenum. This is almost certainly in the far future.
 
+- Serialize / Deserialize
+
 # Known Bugs

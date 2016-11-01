@@ -1,6 +1,14 @@
-pub trait Dimensioned {}
+//! Traits that are useful.
 
-pub trait Dimensionless: Dimensioned {}
+pub trait Dimensioned<V> {
+    type Array;
+
+    fn new(val: V) -> Self;
+
+    fn value(&self) -> &V;
+}
+
+pub trait Dimensionless {}
 
 #[cfg(feature = "oibit")]
 pub trait NotDim {}

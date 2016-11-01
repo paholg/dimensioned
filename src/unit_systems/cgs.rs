@@ -81,7 +81,6 @@ impl<V, Meter, Kilogram, Second> From<mks::MKS<V, tarr![Meter, Kilogram, Second]
 fn test_convert() {
     use mks;
     use cgs::f64consts::*;
-    // fixme: eliminate these calls to Unitless
     let force_mks = 10.0 * mks::KG * mks::M / mks::S / mks::S;
     let force_cgs = 1_000_000.0 * G*CM/S/S;
     assert_eq!(CGS::from(force_mks), force_cgs);

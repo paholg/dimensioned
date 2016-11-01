@@ -83,13 +83,17 @@ fn test() {
     let w = z + 4.0;
     z += 4.0;
     assert_eq!(z, w);
+}
 
+#[cfg(feature = "std")]
+#[test]
+fn test_index() {
     use si::Meter;
     let mut v = Meter::new(vec![1.0, 2.0]);
 
     v[0] += 1.2 * M;
+    assert_eq!(v, Meter::new(vec![2.2, 2.0]));
 }
-
 
 // #[test]
 // fn kg_test() {
