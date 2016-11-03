@@ -1,14 +1,33 @@
 //! Traits that are useful.
 
-pub trait Dimensioned<V> {
-    type Array;
+pub trait Dimensioned {
+    type Value;
+    type Units;
 
-    fn new(val: V) -> Self;
+    fn new(val: Self::Value) -> Self;
 
-    fn value(&self) -> &V;
+    fn value(&self) -> &Self::Value;
 }
 
-pub trait Dimensionless {}
+pub trait Dimensionless: Dimensioned {}
+
+/// Perform an operation on the contained value and/or its units.
+///
+/// Use of this function is discouraged, as the operation may be one that does not
+/// perserve units, and this function has no way to protect against that.
+pub trait MapUnsafe<ValueOut, UnitsOut>: Dimensioned {
+    type Output;
+    fn map_unsafe<F: FnOnce(Self::Value) -> ValueOut>(self, f: F) -> Self::Output;
+}
+
+/// Perform an operation on the contained value.
+///
+/// This function is only defined for unitless types, and it keeps them unitless, so it is
+/// perfectly safe to use.
+pub trait Map<ValueOut>: Dimensionless {
+    type Output;
+    fn map<F: FnOnce(Self::Value) -> ValueOut>(self, f: F) -> Self::Output;
+}
 
 #[cfg(feature = "oibit")]
 pub trait NotDim {}

@@ -513,39 +513,37 @@ macro_rules! make_units {
             pub fn new(v: V) -> Self {
                 $System { value: v, _marker: marker::PhantomData }
             }
-
-            /// Perform an operation on the contained value.
-            ///
-            /// Use of this function is discouraged, as the operation may be one that does not
-            /// perserve units, and this function has no way to protect against that.
-            #[inline]
-            pub fn map_unsafe<O, F: FnOnce(V) -> O>(self, f: F) -> $System<O, A> {
-                $System::new(f(self.value))
-            }
-        }
-
-        impl<V, A> $System<V, A> where $System<V, A>: $crate::Dimensionless {
-            /// Perform an operation on the contained value.
-            ///
-            /// This function is only defined for unitless types, so it is perfectly safe to use
-            /// with operations that may not perserve units.
-            #[inline]
-            pub fn map<O, F: FnOnce(V) -> O>(self, f: F) -> $System<O, A> {
-                $System::new(f(self.value))
-            }
         }
 
         // --------------------------------------------------------------------------------
         // Implement traits defined in dim::traits
 
-        impl<V, A> Dimensioned<V> for $System<V, A> {
-            type Array = A;
+        impl<V, A> Dimensioned for $System<V, A> {
+            type Value = V;
+            type Units = A;
             fn new(val: V) -> Self {
                 $System::new(val)
             }
 
             fn value(&self) -> &V {
                 &self.value
+            }
+        }
+
+        use $crate::MapUnsafe;
+        impl<ValueIn, UnitsIn, ValueOut, UnitsOut> MapUnsafe<ValueOut, UnitsOut> for $System<ValueIn, UnitsIn> {
+            type Output = $System<ValueOut, UnitsOut>;
+            fn map_unsafe<F: FnOnce(ValueIn) -> ValueOut>(self, f: F) -> Self::Output {
+                $System::new(f(self.value))
+            }
+        }
+
+        use $crate::Map;
+        impl<ValueIn, ValueOut> Map<ValueOut> for $Unitless<ValueIn>
+        {
+            type Output = $Unitless<ValueOut>;
+            fn map<F: FnOnce(ValueIn) -> ValueOut>(self, f: F) -> Self::Output {
+                $System::new(f(self.value))
             }
         }
 
