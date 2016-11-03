@@ -23,8 +23,9 @@ macro_rules! make_units {
                     V: $Trait,
                 {
                     type Output = $System<<V as $Trait>::Output, A>;
+                    #[inline]
                     fn $fun(self) -> Self::Output {
-                        $System::new( $Trait::$fun(self.value) )
+                        $System::new($Trait::$fun(self.value_unsafe))
                     }
                 }
             );
@@ -43,8 +44,9 @@ macro_rules! make_units {
                     Vl: $Trait<Vr>,
                 {
                     type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
+                    #[inline]
                     fn $fun(self, rhs: $System<Vr, A>) -> Self::Output {
-                        $System::new( $Trait::$fun(self.value, rhs.value) )
+                        $System::new($Trait::$fun(self.value_unsafe, rhs.value_unsafe))
                     }
                 }
 
@@ -54,8 +56,9 @@ macro_rules! make_units {
                     Vl: $Trait<Vr>, Vr: NotDim, $System<Vl, A>: Dimensionless
                 {
                     type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
+                    #[inline]
                     fn $fun(self, rhs: Vr) -> Self::Output {
-                        $System::new( $Trait::$fun(self.value, rhs) )
+                        $System::new($Trait::$fun(self.value_unsafe, rhs))
                     }
                 }
 
@@ -63,8 +66,9 @@ macro_rules! make_units {
                 impl<Vl, A, Vr> $TraitAssign<$System<Vr, A>> for $System<Vl, A> where
                     Vl: $TraitAssign<Vr>,
                 {
+                    #[inline]
                     fn $fun_assign(&mut self, rhs: $System<Vr, A>) {
-                        $TraitAssign::$fun_assign(&mut self.value, rhs.value)
+                        $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs.value_unsafe)
                     }
                 }
 
@@ -73,8 +77,9 @@ macro_rules! make_units {
                 impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
                     Vl: $TraitAssign<Vr>, Vr: NotDim, $System<Vl, A>: Dimensionless
                 {
+                    #[inline]
                     fn $fun_assign(&mut self, rhs: Vr) {
-                        $TraitAssign::$fun_assign(&mut self.value, rhs)
+                        $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs)
                     }
                 }
             );
@@ -96,8 +101,9 @@ macro_rules! make_units {
                     Vl: $Trait<Vr>, Al: $op<Ar>,
                 {
                     type Output = $System<<Vl as $Trait<Vr>>::Output, <Al as $op<Ar>>::Output>;
+                    #[inline]
                     fn $fun(self, rhs: $System<Vr, Ar>) -> Self::Output {
-                        $System::new( $Trait::$fun(self.value, rhs.value) )
+                        $System::new( $Trait::$fun(self.value_unsafe, rhs.value_unsafe) )
                     }
                 }
 
@@ -107,8 +113,9 @@ macro_rules! make_units {
                     Vl: $Trait<Vr>, Vr: NotDim,
                 {
                     type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
+                    #[inline]
                     fn $fun(self, rhs: Vr) -> Self::Output {
-                        $System::new( $Trait::$fun(self.value, rhs) )
+                        $System::new( $Trait::$fun(self.value_unsafe, rhs) )
                     }
                 }
 
@@ -117,8 +124,9 @@ macro_rules! make_units {
                     Vl: $TraitAssign<Vr>,
                     $System<Vr, Ar>: Dimensionless,
                 {
+                    #[inline]
                     fn $fun_assign(&mut self, rhs: $System<Vr, Ar>) {
-                        $TraitAssign::$fun_assign(&mut self.value, rhs.value)
+                        $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs.value_unsafe)
                     }
                 }
 
@@ -127,8 +135,9 @@ macro_rules! make_units {
                 impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
                     Vl: $TraitAssign<Vr>, Vr: NotDim,
                 {
+                    #[inline]
                     fn $fun_assign(&mut self, rhs: Vr) {
-                        $TraitAssign::$fun_assign(&mut self.value, rhs)
+                        $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs)
                     }
                 }
             );
@@ -145,8 +154,9 @@ macro_rules! make_units {
             Vl: Rem<Vr>
         {
             type Output = $System<<Vl as Rem<Vr>>::Output, Al>;
+            #[inline]
             fn rem(self, rhs: $System<Vr, Ar>) -> Self::Output {
-                $System::new( self.value % rhs.value )
+                $System::new( self.value_unsafe % rhs.value_unsafe )
             }
         }
 
@@ -156,8 +166,9 @@ macro_rules! make_units {
             Vl: Rem<Vr>, Vr: NotDim,
         {
             type Output = $System<<Vl as Rem<Vr>>::Output, A>;
+            #[inline]
             fn rem(self, rhs: Vr) -> Self::Output {
-                $System::new( self.value % rhs )
+                $System::new( self.value_unsafe % rhs )
             }
         }
 
@@ -165,8 +176,9 @@ macro_rules! make_units {
         impl<Vl, Al, Vr, Ar> RemAssign<$System<Vr, Ar>> for $System<Vl, Al> where
             Vl: RemAssign<Vr>,
         {
+            #[inline]
             fn rem_assign(&mut self, rhs: $System<Vr, Ar>) {
-                self.value %= rhs.value
+                self.value_unsafe %= rhs.value_unsafe
             }
         }
 
@@ -175,8 +187,9 @@ macro_rules! make_units {
         impl<Vl, A, Vr> RemAssign<Vr> for $System<Vl, A> where
             Vl: RemAssign<Vr>, Vr: NotDim,
         {
+            #[inline]
             fn rem_assign(&mut self, rhs: Vr) {
-                self.value %= rhs
+                self.value_unsafe %= rhs
             }
         }
 
@@ -190,8 +203,9 @@ macro_rules! make_units {
                     Vl: $Trait<Vr>, $System<Vr, Ar>: Dimensionless
                 {
                     type Output = $System<<Vl as $Trait<Vr>>::Output, Al>;
+                    #[inline]
                     fn $fun(self, rhs: $System<Vr, Ar>) -> Self::Output {
-                        $System::new( $Trait::$fun(self.value, rhs.value) )
+                        $System::new( $Trait::$fun(self.value_unsafe, rhs.value_unsafe) )
                     }
                 }
 
@@ -201,8 +215,9 @@ macro_rules! make_units {
                     Vl: $Trait<Vr>, Vr: NotDim,
                 {
                     type Output = $System<<Vl as $Trait<Vr>>::Output, Al>;
+                    #[inline]
                     fn $fun(self, rhs: Vr) -> Self::Output {
-                        $System::new( $Trait::$fun(self.value, rhs) )
+                        $System::new( $Trait::$fun(self.value_unsafe, rhs) )
                     }
                 }
 
@@ -211,8 +226,9 @@ macro_rules! make_units {
                     Vl: $TraitAssign<Vr>,
                     $System<Vr, Ar>: Dimensionless,
                 {
+                    #[inline]
                     fn $fun_assign(&mut self, rhs: $System<Vr, Ar>) {
-                        $TraitAssign::$fun_assign(&mut self.value, rhs.value)
+                        $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs.value_unsafe)
                     }
                 }
 
@@ -221,8 +237,9 @@ macro_rules! make_units {
                 impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
                     Vl: $TraitAssign<Vr>, Vr: NotDim,
                 {
+                    #[inline]
                     fn $fun_assign(&mut self, rhs: Vr) {
-                        $TraitAssign::$fun_assign(&mut self.value, rhs)
+                        $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs)
                     }
                 }
             );
@@ -247,8 +264,9 @@ macro_rules! make_units {
                             V: $Trait<$t>, $System<V, A>: Dimensionless
                         {
                             type Output = $System<<V as $Trait<$t>>::Output, A>;
+                            #[inline]
                             fn $fun(self, rhs: $t) -> Self::Output {
-                                $System::new( $Trait::$fun(self.value, rhs) )
+                                $System::new( $Trait::$fun(self.value_unsafe, rhs) )
                             }
                         }
 
@@ -257,8 +275,9 @@ macro_rules! make_units {
                             $t: $Trait<V>, $System<V, A>: Dimensionless
                         {
                             type Output = $System<<$t as $Trait<V>>::Output, A>;
+                            #[inline]
                             fn $fun(self, rhs: $System<V, A>) -> Self::Output {
-                                $System::new( $Trait::$fun(self, rhs.value) )
+                                $System::new( $Trait::$fun(self, rhs.value_unsafe) )
                             }
                         }
 
@@ -267,8 +286,9 @@ macro_rules! make_units {
                         impl<V, A> $TraitAssign<$t> for $System<V, A> where
                             V: $TraitAssign<$t>, $System<V, A>: Dimensionless
                         {
+                            #[inline]
                             fn $fun_assign(&mut self, rhs: $t) {
-                                $TraitAssign::$fun_assign(&mut self.value, rhs)
+                                $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs)
                             }
                         }
 
@@ -292,8 +312,9 @@ macro_rules! make_units {
                             V: $Trait<$t>
                         {
                             type Output = $System<<V as $Trait<$t>>::Output, A>;
+                            #[inline]
                             fn $fun(self, rhs: $t) -> Self::Output {
-                                $System::new( $Trait::$fun(self.value, rhs) )
+                                $System::new( $Trait::$fun(self.value_unsafe, rhs) )
                             }
                         }
 
@@ -302,8 +323,9 @@ macro_rules! make_units {
                         impl<V, A> $TraitAssign<$t> for $System<V, A> where
                             V: $TraitAssign<$t>
                         {
+                            #[inline]
                             fn $fun_assign(&mut self, rhs: $t) {
-                                $TraitAssign::$fun_assign(&mut self.value, rhs)
+                                $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs)
                             }
                         }
 
@@ -321,7 +343,7 @@ macro_rules! make_units {
                     type Output = $System<Prod<$t, V>, A>;
                     #[inline]
                     fn mul(self, rhs: $System<V, A>) -> Self::Output {
-                        $System::new(self*rhs.value)
+                        $System::new(self * rhs.value_unsafe)
                     }
                 }
 
@@ -330,7 +352,7 @@ macro_rules! make_units {
                     type Output = $System<Quot<$t, V>, <A as Neg>::Output>;
                     #[inline]
                     fn div(self, rhs: $System<V, A>) -> Self::Output {
-                        $System::new(self / rhs.value)
+                        $System::new(self / rhs.value_unsafe)
                     }
                 }
 
@@ -339,7 +361,7 @@ macro_rules! make_units {
                     type Output = $Unitless<<$t as Rem<V>>::Output>;
                     #[inline]
                     fn rem(self, rhs: $System<V, A>) -> Self::Output {
-                        $System::new(self % rhs.value)
+                        $System::new(self % rhs.value_unsafe)
                     }
                 }
 
@@ -381,7 +403,7 @@ macro_rules! make_units {
 
                 let mut first = true;
 
-                try!(self.value.fmt(f));
+                try!(self.value_unsafe.fmt(f));
 
                 for ((&root, exp), token) in
                     allowed_roots.into_iter()
@@ -503,15 +525,34 @@ macro_rules! make_units {
 
         #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash)]
         pub struct $System<V, A> {
-            pub value: V,
-            // fixme: this shouldn't be public once `new` can be const
+            /// This is the value of whatever type we're giving units. Using it directly bypasses
+            /// all of the dimensional analysis that having a unit system provides, and should be
+            /// avoided whenever possible.
+            ///
+            /// If using this member is necessary, it is strongly encouraged to wrap the
+            /// calculation in a dimensionally-safe interface.
+            pub value_unsafe: V,
+
+            /// This member is only temporarily public and so its use is considered unstable.
+            /// Right now, the only way to create a `const` with units is with this pattern:
+            ///
+            /// ```rust
+            /// extern crate dimensioned as dim;
+            /// use dim::si;
+            ///
+            /// const x: si::Meter<f64> = si::Meter { value_unsafe: 3.4, _marker: std::marker::PhantomData };
+            /// # fn main() {}
+            /// ```
+            ///
+            /// Once `const_fns` is stabilized, that will be able to be replaced with a call to
+            /// `Meter::new` and `_marker` will be made private.
             pub _marker: marker::PhantomData<A>,
         }
 
         impl<V, A> $System<V, A> {
             #[inline]
             pub fn new(v: V) -> Self {
-                $System { value: v, _marker: marker::PhantomData }
+                $System { value_unsafe: v, _marker: marker::PhantomData }
             }
         }
 
@@ -521,20 +562,23 @@ macro_rules! make_units {
         impl<V, A> Dimensioned for $System<V, A> {
             type Value = V;
             type Units = A;
+            #[inline]
             fn new(val: V) -> Self {
                 $System::new(val)
             }
 
-            fn value(&self) -> &V {
-                &self.value
+            #[inline]
+            fn value_unsafe(&self) -> &V {
+                &self.value_unsafe
             }
         }
 
         use $crate::MapUnsafe;
         impl<ValueIn, UnitsIn, ValueOut, UnitsOut> MapUnsafe<ValueOut, UnitsOut> for $System<ValueIn, UnitsIn> {
             type Output = $System<ValueOut, UnitsOut>;
+            #[inline]
             fn map_unsafe<F: FnOnce(ValueIn) -> ValueOut>(self, f: F) -> Self::Output {
-                $System::new(f(self.value))
+                $System::new(f(self.value_unsafe))
             }
         }
 
@@ -542,8 +586,9 @@ macro_rules! make_units {
         impl<ValueIn, ValueOut> Map<ValueOut> for $Unitless<ValueIn>
         {
             type Output = $Unitless<ValueOut>;
+            #[inline]
             fn map<F: FnOnce(ValueIn) -> ValueOut>(self, f: F) -> Self::Output {
-                $System::new(f(self.value))
+                $System::new(f(self.value_unsafe))
             }
         }
 
@@ -568,7 +613,12 @@ macro_rules! make_units {
         pub type $Unitless<__TypeParameter> = $System<__TypeParameter, inner::$Unitless>;
         $(pub type $Unit<__TypeParameter> = $System<__TypeParameter, inner::$Unit>;)*
 
-        impl<__TypeParameter> $crate::Dimensionless for $Unitless<__TypeParameter> {}
+        impl<Value> $crate::Dimensionless for $Unitless<Value> {
+            #[inline]
+            fn value(&self) -> &Value {
+                &self.value_unsafe
+            }
+        }
 
         $(pub type $Derived<__TypeParameter> = $System<__TypeParameter, inner::$Derived>;)*
 
@@ -577,17 +627,17 @@ macro_rules! make_units {
         pub mod f32consts {
             use super::*;
             use $crate::reexported::marker::PhantomData;
-            pub const $one: $Unitless<f32> = $System { value: 1.0, _marker: PhantomData };
-            $(pub const $constant: $Unit<f32> = $System { value: 1.0, _marker: PhantomData };)*
-            $(pub const $derived_const: $Derived<f32> = $System { value: 1.0, _marker: PhantomData };)*
+            pub const $one: $Unitless<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };
+            $(pub const $constant: $Unit<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+            $(pub const $derived_const: $Derived<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
         }
 
         pub mod f64consts {
             use super::*;
             use $crate::reexported::marker::PhantomData;
-            pub const $one: $Unitless<f64> = $System { value: 1.0, _marker: PhantomData };
-            $(pub const $constant: $Unit<f64> = $System { value: 1.0, _marker: PhantomData };)*
-            $(pub const $derived_const: $Derived<f64> = $System { value: 1.0, _marker: PhantomData };)*
+            pub const $one: $Unitless<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };
+            $(pub const $constant: $Unit<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+            $(pub const $derived_const: $Derived<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
         }
 
         // --------------------------------------------------------------------------------
@@ -612,7 +662,8 @@ macro_rules! make_units {
 
         impl<V, A> $crate::Recip for $System<V, A> where V: $crate::Recip, A: $crate::reexported::ops::Neg, {
             type Output = $System<<V as $crate::Recip>::Output, $crate::typenum::Negate<A>>;
-            fn recip(self) -> Self::Output { $System::new(self.value.recip()) }
+            #[inline]
+            fn recip(self) -> Self::Output { $System::new(self.value_unsafe.recip()) }
         }
 
         use $crate::typenum::Pow;
@@ -621,8 +672,9 @@ macro_rules! make_units {
                   A: $crate::reexported::ops::Mul<Exp>,
         {
             type Output = $System< <V as Pow<Exp>>::Output, $crate::typenum::Prod<A, Exp>>;
+            #[inline]
             fn powi(self, exp: Exp) -> Self::Output {
-                $System::new( self.value.powi(exp) )
+                $System::new( self.value_unsafe.powi(exp) )
             }
         }
 
@@ -631,8 +683,9 @@ macro_rules! make_units {
                   A: $crate::reexported::ops::Div<Index>,
         {
             type Output = $System< <V as $crate::Root<Index>>::Output, $crate::typenum::Quot<A, Index>>;
+            #[inline]
             fn root(self, idx: Index) -> Self::Output {
-                $System::new( self.value.root(idx) )
+                $System::new( self.value_unsafe.root(idx) )
             }
         }
 
@@ -653,8 +706,9 @@ macro_rules! make_units {
         use $crate::reexported::ops::Deref;
         impl<V, A> Deref for $System<V, A> where $System<V, A>: Dimensionless {
             type Target = V;
+            #[inline]
             fn deref(&self) -> &Self::Target {
-                &self.value
+                &self.value_unsafe
             }
         }
 
@@ -667,10 +721,11 @@ macro_rules! make_units {
                   <V as Index<Idx>>::Output: Sized,
         {
             type Output = $System<<V as Index<Idx>>::Output, A>;
+            #[inline]
             fn index(&self, index: Idx) -> &Self::Output {
                 // fixme: ensure this is safe
                 unsafe {
-                    $crate::reexported::mem::transmute(&self.value[index])
+                    $crate::reexported::mem::transmute(&self.value_unsafe[index])
                 }
             }
         }
@@ -682,10 +737,11 @@ macro_rules! make_units {
                   <V as Index<Idx>>::Output: Sized,
                   <$System<V, A> as Index<Idx>>::Output: Sized
         {
+            #[inline]
             fn index_mut(&mut self, index: Idx) -> &mut Self::Output{
                 // fixme: ensure this is safe
                 unsafe {
-                    $crate::reexported::mem::transmute(self.value.index_mut(index))
+                    $crate::reexported::mem::transmute(self.value_unsafe.index_mut(index))
                 }
             }
         }

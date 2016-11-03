@@ -6,10 +6,12 @@ pub trait Dimensioned {
 
     fn new(val: Self::Value) -> Self;
 
-    fn value(&self) -> &Self::Value;
+    fn value_unsafe(&self) -> &Self::Value;
 }
 
-pub trait Dimensionless: Dimensioned {}
+pub trait Dimensionless: Dimensioned {
+    fn value(&self) -> &Self::Value;
+}
 
 /// Perform an operation on the contained value and/or its units.
 ///

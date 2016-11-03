@@ -70,7 +70,7 @@ pub use self::f64consts::*;
 
 
 #[test]
-fn test() {
+fn test_si() {
     use si::f64consts::*;
 
     let mut x = 2.25 * M*M/S/KG*N;

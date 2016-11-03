@@ -6,7 +6,7 @@
 
 - Convert :: impl From
 - test all ops extensively if possible
-
+add constant block to mscro, finish unit systems
 
 # Questions
 - What all derived types should be generated? Do with build script or just macro?

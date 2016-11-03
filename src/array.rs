@@ -60,7 +60,7 @@ impl<T, N> AppendFront<T> for GenericArray<T, N>
 }
 
 #[test]
-fn test() {
+fn test_array() {
     type A = tarr![P1, N3, P4];
     let a = A::to_ga();
 

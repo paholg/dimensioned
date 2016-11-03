@@ -73,7 +73,7 @@ impl<V, Meter, Kilogram, Second> From<mks::MKS<V, tarr![Meter, Kilogram, Second]
         // let sfac = 1.0f64.powi(Meter::to_i32());
         let fac = mfac * kgfac;
 
-        CGS::new( other.value * fac )
+        CGS::new( other.value_unsafe * fac )
     }
 }
 
