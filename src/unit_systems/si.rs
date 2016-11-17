@@ -10,13 +10,13 @@ make_units! {
     SI;
     ONE: Unitless;
     base {
-        M:   Meter,    "m";
-        KG:  Kilogram, "kg";
-        S:   Second,   "s";
-        A:   Ampere,   "A";
-        K:   Kelvin,   "K";
-        CD:  Candela,  "cd";
-        MOL: Mole,     "mol";
+        P1, M:   Meter,    "m";
+        P1, KG:  Kilogram, "kg";
+        P1, S:   Second,   "s";
+        P1, A:   Ampere,   "A";
+        P1, K:   Kelvin,   "K";
+        P1, CD:  Candela,  "cd";
+        P1, MOL: Mole,     "mol";
     }
 
     derived {
@@ -64,6 +64,12 @@ make_units! {
         JS: JouleSecond = (Joule * Second);
         NPS: NewtonPerSecond = (Newton / Second);
     }
+    constants {
+        MIN: Second = 60.0;
+        HR: Second = 60.0*60.0;
+        DAY: Second = 24.0*60.0*60.0;
+    }
+    fmt = true;
 }
 
 pub use self::f64consts::*;

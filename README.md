@@ -1,7 +1,7 @@
 [![crates.io](https://img.shields.io/crates/v/dimensioned.svg)](https://crates.io/crates/dimensioned)
 [![Build Status](https://travis-ci.org/paholg/dimensioned.svg?branch=master)](https://travis-ci.org/paholg/dimensioned)
 
-[Documentation](http://paholg.com/dimensioned/) | [Website](http://paholg.com/project/dimensioned/)
+[Documentation](http://paholg.com/dimensioned/)
 
 Dimensioned
 =====
@@ -19,7 +19,7 @@ please submit an issue.
 **NOTE:** Dimensioned is undergoing much flux right now, so you should expect breaking changes for
 at least the near future.
 
-## Using Dimensioned
+## Dimensioned Basics
 
 Dimensioned requires Rust version 1.13.0 or higher. That is currently the beta, but should be
 stable around the middle of November.
@@ -31,6 +31,8 @@ have dimensions. // fixme: reword, add example
 Dimensioned can be used without the `std` library by using it with default features. Doing so uses
 some experimental features of `core`, and so a nightly compiler is required. There is no reason not
 to use the "oibit" feature in this case.
+
+## Examples
 
 Here is a short example to showcase some of its features:
 
@@ -72,3 +74,7 @@ error with very long, nested types, then I recommend jumping straight to that li
 code. Chances are, it just caught an error with your dimensional analysis! It's also possible that
 it means you ran into something where dimensioned is lacking; please file an issue if you feel it's
 missing something.
+
+## Creating a custom unit system
+
+## Error Messages

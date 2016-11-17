@@ -55,7 +55,8 @@ impl_unary!(f32, Recip, recip);
 impl_unary!(f64, Recip, recip);
 
 
-/// `Root<Index> for Radicand` is used for implementing general integer roots for types that aren't necessarily preserved under root.
+/// `Root<Index> for Radicand` is used for implementing general integer roots for types that aren't
+/// necessarily preserved under root.
 ///
 /// It uses instantiated type numbers to specify the degree, as you can see in the example below.
 ///
@@ -99,10 +100,23 @@ macro_rules! impl_root {
 impl_root!(f32, powf32);
 impl_root!(f64, powf64);
 
+#[test]
+fn test_root() {
+    use typenum::consts::*;
+    let radicands = &[0.0, 0.5, 1.0, 2.0];
 
-/// `Sqrt` provides a `sqrt` member function for types that are not preserved under square root.
+    for &r in radicands {
+        assert_eq!(r, r.root(P1::new()));
+        assert_eq!(r, (r*r).root(P2::new()));
+        assert_eq!(r, (r*r*r).root(P3::new()));
+        assert_eq!(r, (r*r*r*r*r).root(P5::new()));
+    }
+}
+
+
+/// `Sqrt` provides a `sqrt` member function for types that are not necessarily preserved under square root.
 ///
-/// It is automatically implemented for all types `T` for which `P2::Root<T>` is implemented.
+/// It is automatically implemented for all types `T` for which `T::Root<typenum::P2>` is implemented.
 pub trait Sqrt {
     type Output;
     fn sqrt(self) -> Self::Output;
@@ -119,9 +133,9 @@ impl<T> Sqrt for T
 }
 
 
-/// `Cbrt` provides a `cbrt` member function for types that are not preserved under square root.
+/// `Cbrt` provides a `cbrt` member function for types that are not necessarily preserved under square root.
 ///
-/// It is automatically implemented for all types `T` for which `P3::Root<T>` is implemented.
+/// It is automatically implemented for all types `T` for which `T::Root<typenum::P3>` is implemented.
 pub trait Cbrt {
     type Output;
     fn cbrt(self) -> Self::Output;

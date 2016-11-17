@@ -18,6 +18,6 @@
   oibit = []
 
 [dependencies]
-  typenum = "1.5.0"
+  typenum = "1.5.1"
   generic-array = "0.5.1"
-  clippy = { version = "0.0.97", optional = true }
+  clippy = { version = "0.0.98", optional = true }

@@ -1,9 +1,9 @@
-/// Create a unit system!
+/// Create a new unit system.
 ///
-/// This macro is the meat of the library.
+/// This macro is the heart of this library and is used to create the unit systems with which it
+/// ships.
 ///
-/// fixme: Outline of normal vs. advanced use.
-/// fixme: Note about fmt traits -- can disable them, but debug is always on
+///
 /// fixme: Discussion of operations
 /// fixme: Example
 ///
@@ -467,56 +467,13 @@ macro_rules! make_units {
     ($System:ident;
      $one:ident: $Unitless:ident;
      base {
-         $($constant:ident: $Type:ident, $print_as:expr;)+
-     }
-     derived {
-         $($derived_const:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
-     } ) => (
-        make_units!{
-            $System;
-            $one: $Unitless;
-            base {
-                $(P1, $constant: $Type, $print_as;)*
-            }
-            derived {
-                $($derived_const: $Derived = ($($derived_rhs)+);)*
-            }
-            fmt = true;
-        }
-
-    );
-
-    ($System:ident;
-     $one:ident: $Unitless:ident;
-     base {
-         $($constant:ident: $Type:ident, $print_as:expr;)+
+         $($Root:ident, $base:ident: $Unit:ident, $print_as:expr;)+
      }
      derived {
          $($derived_const:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
      }
-     fmt = $to_fmt:ident;
-    ) => (
-        make_units!{
-            $System;
-            $one: $Unitless;
-            base {
-                $(P1, $constant: $Type, $print_as;)*
-            }
-            derived {
-                $($derived_const: $Derived = ($($derived_rhs)+);)*
-            }
-            fmt = $to_fmt;
-        }
-
-    );
-
-    ($System:ident;
-     $one:ident: $Unitless:ident;
-     base {
-         $($Root:ident, $constant:ident: $Unit:ident, $print_as:expr;)+
-     }
-     derived {
-         $($derived_const:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
+     constants {
+         $($constant:ident: $ConstantUnit:ident = $constant_value:expr;)*
      }
      fmt = $to_fmt:ident;
     ) => (
@@ -607,7 +564,7 @@ macro_rules! make_units {
             #[allow(unused_imports)]
             use $crate::typenum::consts::*;
             make_units!(@base_arrays $Unitless, $($Unit, $Root,)*);
-            $(pub type $Derived = unit!(@commas $($derived_rhs)+);)*
+            $(pub type $Derived = derived!(@commas $($derived_rhs)+);)*
         }
 
         pub type $Unitless<__TypeParameter> = $System<__TypeParameter, inner::$Unitless>;
@@ -628,16 +585,18 @@ macro_rules! make_units {
             use super::*;
             use $crate::reexported::marker::PhantomData;
             pub const $one: $Unitless<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };
-            $(pub const $constant: $Unit<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+            $(pub const $base: $Unit<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
             $(pub const $derived_const: $Derived<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+            $(pub const $constant: $ConstantUnit<f32> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
         }
 
         pub mod f64consts {
             use super::*;
             use $crate::reexported::marker::PhantomData;
             pub const $one: $Unitless<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };
-            $(pub const $constant: $Unit<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+            $(pub const $base: $Unit<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
             $(pub const $derived_const: $Derived<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+            $(pub const $constant: $ConstantUnit<f64> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
         }
 
         // --------------------------------------------------------------------------------
@@ -686,6 +645,7 @@ macro_rules! make_units {
             #[inline]
             fn root(self, idx: Index) -> Self::Output {
                 $System::new( self.value_unsafe.root(idx) )
+                //self.map_unsafe(|v| v.root(idx))
             }
         }
 
@@ -750,46 +710,64 @@ macro_rules! make_units {
     );
 }
 
-/// Creates a derived unit based on existing ones.
-/// Currently only supports the operations * and /.
+/// Create a derived unit based on existing ones.
 ///
-/// Note that in order to use this macro, you must be sure that the name of the unit system and all
-/// items from its `inner` module are in scope. As a result of this, it should probably be called
-/// in its own module.
+/// If you need a value of some derived unit, then the easiest way is to multiply and divide
+/// constants, like so:
 ///
-/// The ideal way to create derived units is inside the `make_units!` macro, but this lets you
-/// create derived units for systems that are defined elsewhere.
+/// ```rust
+/// extern crate dimensioned as dim;
+/// use dim::si::M;
+///
+/// fn main() {
+///     let inverse_volume = 3.0 / M/M/M;
+/// }
+/// ```
+///
+/// This macro creates types, so, for example, you could use it to make a derived unit that a
+/// function can return, as can be seen in the example below.
+///
+/// This macro is a bit fragile. It requires precise syntax, only supporting the operators `*` and
+/// `/` at the moment. It also requires the base type of your unit system and all things from its
+/// `inner` module to be in scope.
 ///
 /// # Example
 /// ```rust
 /// #[macro_use]
 /// extern crate dimensioned as dim;
-/// use dim::si::{Meter, Second};
 ///
 /// mod derived {
 ///     use dim::si::inner::*;
 ///     use dim::si::SI;
-///     unit!(SI: MPS = Meter / Second);
-/// }
-/// use derived::MPS;
 ///
+///     derived!(SI: InverseMeter3 = Unitless / Meter3);
+///     derived!(SI: Newton2PerSecond = Newton * Newton / Second);
+/// }
+/// use derived::InverseMeter3;
+///
+/// use dim::{Recip, si};
+///
+/// fn invert_volume(v: si::Meter3<f64>) -> InverseMeter3<f64> {
+///     v.recip()
+/// }
 ///
 /// fn main() {
-///    let x = Meter::new(5.0);
-///    let t = Second::new(2.0);
-///    let v = x / t;
-///    let v2 = MPS::new(2.5);
-///    assert_eq!(v, v2);
+///    let x = 3.0 * si::M;
+///    let y = 2.0 * si::M;
+///    let z = 5.0 * si::M;
+///
+///    let inverse_volume = invert_volume(x*y*z);
+///    assert_eq!(1.0/x/y/z, inverse_volume);
 /// }
 /// ```
 #[macro_export]
-macro_rules! unit {
+macro_rules! derived {
     (@eval $a:ty,) => ($a);
     (@eval $a:ty, *, $b:ty, $($tail:tt)*) =>
-        (unit!(@eval $crate::typenum::Sum<$a, $b>, $($tail)* ));
+        (derived!(@eval $crate::typenum::Sum<$a, $b>, $($tail)* ));
     (@eval $a:ty, /, $b:ty, $($tail:tt)*) =>
-        (unit!(@eval $crate::typenum::Diff<$a, $b>, $($tail)* ));
+        (derived!(@eval $crate::typenum::Diff<$a, $b>, $($tail)* ));
     (@commas $t:ty) => ($t);
-    (@commas $($tail:tt)*) => (unit!(@eval $($tail,)*));
-    ($System:ident: $name:ident = $($tail:tt)*) => ( pub type $name<__TypeParameter> = $System<__TypeParameter, unit!(@commas $($tail)*)>;);
+    (@commas $($tail:tt)*) => (derived!(@eval $($tail,)*));
+    ($System:ident: $name:ident = $($tail:tt)*) => ( pub type $name<__TypeParameter> = $System<__TypeParameter, derived!(@commas $($tail)*)>;);
 }

@@ -16,6 +16,7 @@ make_units! {
     derived {
         MPS: MeterPerSecond = (Meter / Second);
     }
+    constants {}
     fmt = true;
 }
 

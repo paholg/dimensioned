@@ -49,6 +49,7 @@ make_units! {
         // STATA: StatAmpere = (StatCoulomb / Second);
         // STATV: StatVolt = (Erg / StatCoulomb);
     }
+    constants {}
     fmt = true;
 }
 

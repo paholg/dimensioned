@@ -1,6 +1,7 @@
 language: rust
 sudo: false
 rust:
+  - stable
   - beta
   - nightly
 cache: cargo
@@ -22,7 +23,7 @@ script:
     travis-cargo --only nightly test -- --no-default-features --features "oibit" &&
     travis-cargo --only nightly test -- --features "oibit" &&
     travis-cargo --only nightly test -- --features "clippy" &&
-    travis-cargo --only beta doc
+    travis-cargo --only stable doc
 
 after_success:
   - travis-cargo doc-upload
