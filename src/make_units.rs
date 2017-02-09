@@ -14,8 +14,8 @@
 macro_rules! make_units {
 
     (@ops $System:ident, $Unitless:ident) => (
-// -------------------------------------------------------------------------------
-// Unary: Neg, Not
+        // -------------------------------------------------------------------------------
+        // Unary: Neg, Not
 
         macro_rules! unary_op {
             ($Trait:ident, $fun:ident) => (
@@ -34,12 +34,12 @@ macro_rules! make_units {
         unary_op!(Not, not);
         unary_op!(Neg, neg);
 
-// -------------------------------------------------------------------------------
-// Unit-preserving: Add, Sub, BitAnd, BitOr, BitXor
+        // -------------------------------------------------------------------------------
+        // Unit-preserving: Add, Sub, BitAnd, BitOr, BitXor
 
         macro_rules! binary_unit_preserve {
             ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
-// Both have units
+                // Both have units
                 impl<Vl, A, Vr> $Trait<$System<Vr, A>> for $System<Vl, A> where
                     Vl: $Trait<Vr>,
                 {
@@ -50,7 +50,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Unitless on lhs, scalar on rhs
+                // Unitless on lhs, scalar on rhs
                 #[cfg(feature = "oibit")]
                 impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
                     Vl: $Trait<Vr>, Vr: NotDim, $System<Vl, A>: Dimensionless
@@ -62,7 +62,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Assign: Both have units
+                // Assign: Both have units
                 impl<Vl, A, Vr> $TraitAssign<$System<Vr, A>> for $System<Vl, A> where
                     Vl: $TraitAssign<Vr>,
                 {
@@ -72,7 +72,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Assign: Unitless on lhs, scalar on rhs
+                // Assign: Unitless on lhs, scalar on rhs
                 #[cfg(feature = "oibit")]
                 impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
                     Vl: $TraitAssign<Vr>, Vr: NotDim, $System<Vl, A>: Dimensionless
@@ -91,12 +91,12 @@ macro_rules! make_units {
         binary_unit_preserve!(BitOr, bitor, BitOrAssign, bitor_assign);
         binary_unit_preserve!(BitXor, bitxor, BitXorAssign, bitxor_assign);
 
-// -------------------------------------------------------------------------------
-// Unit-changing: Mul, Div
+        // -------------------------------------------------------------------------------
+        // Unit-changing: Mul, Div
 
         macro_rules! binary_unit_change {
             ($Trait:ident, $fun:ident, $op:ident, $TraitAssign:ident, $fun_assign:ident) => (
-// Both have units
+                // Both have units
                 impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
                     Vl: $Trait<Vr>, Al: $op<Ar>,
                 {
@@ -107,7 +107,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Lhs has units, scalar on rhs
+                // Lhs has units, scalar on rhs
                 #[cfg(feature = "oibit")]
                 impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
                     Vl: $Trait<Vr>, Vr: NotDim,
@@ -119,7 +119,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Assign: Lhs has units, rhs unitless
+                // Assign: Lhs has units, rhs unitless
                 impl<Vl, Al, Vr, Ar> $TraitAssign<$System<Vr, Ar>> for $System<Vl, Al> where
                     Vl: $TraitAssign<Vr>,
                 $System<Vr, Ar>: Dimensionless,
@@ -130,7 +130,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Assign: Lhs has units, scalar on rhs
+                // Assign: Lhs has units, scalar on rhs
                 #[cfg(feature = "oibit")]
                 impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
                     Vl: $TraitAssign<Vr>, Vr: NotDim,
@@ -146,10 +146,10 @@ macro_rules! make_units {
         binary_unit_change!(Mul, mul, Add, MulAssign, mul_assign);
         binary_unit_change!(Div, div, Sub, DivAssign, div_assign);
 
-// -------------------------------------------------------------------------------
-// Rem (it's kinda its own thing)
+        // -------------------------------------------------------------------------------
+        // Rem (it's kinda its own thing)
 
-// Both have units
+        // Both have units
         impl<Vl, Al, Vr, Ar> Rem<$System<Vr, Ar>> for $System<Vl, Al> where
             Vl: Rem<Vr>
         {
@@ -160,7 +160,7 @@ macro_rules! make_units {
             }
         }
 
-// Lhs has units, scalar on rhs
+        // Lhs has units, scalar on rhs
         #[cfg(feature = "oibit")]
         impl<Vl, A, Vr> Rem<Vr> for $System<Vl, A> where
             Vl: Rem<Vr>, Vr: NotDim,
@@ -172,7 +172,7 @@ macro_rules! make_units {
             }
         }
 
-// Assign, both have units
+        // Assign, both have units
         impl<Vl, Al, Vr, Ar> RemAssign<$System<Vr, Ar>> for $System<Vl, Al> where
             Vl: RemAssign<Vr>,
         {
@@ -182,7 +182,7 @@ macro_rules! make_units {
             }
         }
 
-// Assign: Lhs has units, scalar on rhs
+        // Assign: Lhs has units, scalar on rhs
         #[cfg(feature = "oibit")]
         impl<Vl, A, Vr> RemAssign<Vr> for $System<Vl, A> where
             Vl: RemAssign<Vr>, Vr: NotDim,
@@ -193,12 +193,12 @@ macro_rules! make_units {
             }
         }
 
-// -------------------------------------------------------------------------------
-// Shl, Shr
+        // -------------------------------------------------------------------------------
+        // Shl, Shr
 
         macro_rules! binary_shift {
             ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
-// Lhs has units, rhs unitless
+                // Lhs has units, rhs unitless
                 impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
                     Vl: $Trait<Vr>, $System<Vr, Ar>: Dimensionless
                 {
@@ -209,7 +209,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Lhs has units, scalar on rhs
+                // Lhs has units, scalar on rhs
                 #[cfg(feature = "oibit")]
                 impl<Vl, Al, Vr> $Trait<Vr> for $System<Vl, Al> where
                     Vl: $Trait<Vr>, Vr: NotDim,
@@ -221,7 +221,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Assign: Lhs has units, rhs unitless
+                // Assign: Lhs has units, rhs unitless
                 impl<Vl, Al, Vr, Ar> $TraitAssign<$System<Vr, Ar>> for $System<Vl, Al> where
                     Vl: $TraitAssign<Vr>,
                 $System<Vr, Ar>: Dimensionless,
@@ -232,7 +232,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Assign: Lhs has units, scalar on rhs
+                // Assign: Lhs has units, scalar on rhs
                 #[cfg(feature = "oibit")]
                 impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
                     Vl: $TraitAssign<Vr>, Vr: NotDim,
@@ -248,17 +248,17 @@ macro_rules! make_units {
         binary_shift!(Shl, shl, ShlAssign, shl_assign);
         binary_shift!(Shr, shr, ShrAssign, shr_assign);
 
-// -------------------------------------------------------------------------------
-// All things with primitives
+        // -------------------------------------------------------------------------------
+        // All things with primitives
         macro_rules! prim {
             ($t: ty) => (
 
-// Operations that require lhs and rhs to have the same units
-// Add, Sub, BitAnd, BitOr, BitXor
+                // Operations that require lhs and rhs to have the same units
+                // Add, Sub, BitAnd, BitOr, BitXor
                 macro_rules! same_units {
                     ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
 
-// Unitless on lhs, primitive on rhs
+                        // Unitless on lhs, primitive on rhs
                         #[cfg(not(feature = "oibit"))]
                         impl<V, A> $Trait<$t> for $System<V, A> where
                             V: $Trait<$t>, $System<V, A>: Dimensionless
@@ -270,7 +270,7 @@ macro_rules! make_units {
                             }
                         }
 
-// Primitive on lhs, unitless on rhs
+                        // Primitive on lhs, unitless on rhs
                         impl<V, A> $Trait<$System<V, A>> for $t where
                             $t: $Trait<V>, $System<V, A>: Dimensionless
                         {
@@ -281,7 +281,7 @@ macro_rules! make_units {
                             }
                         }
 
-// Assign: Unitless on lhs, primitive on rhs
+                        // Assign: Unitless on lhs, primitive on rhs
                         #[cfg(not(feature = "oibit"))]
                         impl<V, A> $TraitAssign<$t> for $System<V, A> where
                             V: $TraitAssign<$t>, $System<V, A>: Dimensionless
@@ -302,11 +302,11 @@ macro_rules! make_units {
                 same_units!(BitOr, bitor, BitOrAssign, bitor_assign);
                 same_units!(BitXor, bitxor, BitXorAssign, bitxor_assign);
 
-// Operations that don't care what units lhs has when rhs is a scalar
-// Mul, Div, Rem, Shl, Shr
+                // Operations that don't care what units lhs has when rhs is a scalar
+                // Mul, Div, Rem, Shl, Shr
                 macro_rules! rhs_units_differ {
                     ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
-// Units on lhs, primitive on rhs
+                        // Units on lhs, primitive on rhs
                         #[cfg(not(feature = "oibit"))]
                         impl<V, A> $Trait<$t> for $System<V, A> where
                             V: $Trait<$t>
@@ -318,7 +318,7 @@ macro_rules! make_units {
                             }
                         }
 
-// Assign: Unitless on lhs, primitive on rhs
+                        // Assign: Unitless on lhs, primitive on rhs
                         #[cfg(not(feature = "oibit"))]
                         impl<V, A> $TraitAssign<$t> for $System<V, A> where
                             V: $TraitAssign<$t>
@@ -338,7 +338,7 @@ macro_rules! make_units {
                 rhs_units_differ!(Shl, shl, ShlAssign, shl_assign);
                 rhs_units_differ!(Shr, shr, ShrAssign, shr_assign);
 
-// Mul: Primitive on lhs, units on rhs
+                // Mul: Primitive on lhs, units on rhs
                 impl<V, A> Mul<$System<V, A>> for $t where $t: Mul<V> {
                     type Output = $System<Prod<$t, V>, A>;
                     #[inline]
@@ -347,7 +347,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Div: Primitive on lhs, units on rhs
+                // Div: Primitive on lhs, units on rhs
                 impl<V, A> Div<$System<V, A>> for $t where $t: Div<V>, A: Neg {
                     type Output = $System<Quot<$t, V>, <A as Neg>::Output>;
                     #[inline]
@@ -356,7 +356,7 @@ macro_rules! make_units {
                     }
                 }
 
-// Rem: Primitive on lhs, units on rhs
+                // Rem: Primitive on lhs, units on rhs
                 impl<V, A> Rem<$System<V, A>> for $t where $t: Rem<V> {
                     type Output = $Unitless<<$t as Rem<V>>::Output>;
                     #[inline]
@@ -438,7 +438,7 @@ macro_rules! make_units {
 
     (@fmt false S $System:ident $(R $Root:ident P $print_as:expr;)* T $Trait:ident E $token:expr) => ();
 
-// define arrays for all the base units
+    // define arrays for all the base units
     (@base_arrays $Unitless:ident, $Unit:ident, $Root:ident, $($Units:ident, $Roots:ident,)*) => (
         pub type $Unitless = tarr![Z0, $(make_units!(@convert_to_zero $Units)),*];
         make_units!(@next_array U $Unit R $Root $(U $Units R $Roots)* $(E $Units)*);
@@ -482,27 +482,27 @@ macro_rules! make_units {
 
         #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash)]
         pub struct $System<V, A> {
-/// This is the value of whatever type we're giving units. Using it directly bypasses
-/// all of the dimensional analysis that having a unit system provides, and should be
-/// avoided whenever possible.
-///
-/// If using this member is necessary, it is strongly encouraged to wrap the
-/// calculation in a dimensionally-safe interface.
+            /// This is the value of whatever type we're giving units. Using it directly bypasses
+            /// all of the dimensional analysis that having a unit system provides, and should be
+            /// avoided whenever possible.
+            ///
+            /// If using this member is necessary, it is strongly encouraged to wrap the
+            /// calculation in a dimensionally-safe interface.
             pub value_unsafe: V,
 
-/// This member is only temporarily public and so its use is considered unstable.
-/// Right now, the only way to create a `const` with units is with this pattern:
-///
-/// ```rust
-/// extern crate dimensioned as dim;
-/// use dim::si;
-///
-/// const x: si::Meter<f64> = si::Meter { value_unsafe: 3.4, _marker: std::marker::PhantomData };
-/// # fn main() {}
-/// ```
-///
-/// Once `const_fns` is stabilized, that will be able to be replaced with a call to
-/// `Meter::new` and `_marker` will be made private.
+            /// This member is only temporarily public and so its use is considered unstable.
+            /// Right now, the only way to create a `const` with units is with this pattern:
+            ///
+            /// ```rust
+            /// extern crate dimensioned as dim;
+            /// use dim::si;
+            ///
+            /// const x: si::Meter<f64> = si::Meter { value_unsafe: 3.4, _marker: std::marker::PhantomData };
+            /// # fn main() {}
+            /// ```
+            ///
+            /// Once `const_fns` is stabilized, that will be able to be replaced with a call to
+            /// `Meter::new` and `_marker` will be made private.
             pub _marker: marker::PhantomData<A>,
         }
 
@@ -513,8 +513,8 @@ macro_rules! make_units {
             }
         }
 
-// --------------------------------------------------------------------------------
-// Implement traits defined in dim::traits
+        // --------------------------------------------------------------------------------
+        // Implement traits defined in dim::traits
 
         impl<V, A> Dimensioned for $System<V, A> {
             type Value = V;
@@ -549,8 +549,8 @@ macro_rules! make_units {
             }
         }
 
-// --------------------------------------------------------------------------------
-// Define type aliases
+        // --------------------------------------------------------------------------------
+        // Define type aliases
 
         #[cfg(feature = "oibit")]
         use $crate::NotDim;
@@ -564,7 +564,7 @@ macro_rules! make_units {
             #[allow(unused_imports)]
             use $crate::typenum::consts::*;
             make_units!(@base_arrays $Unitless, $($Unit, $Root,)*);
-            $(pub type $Derived = derived!(@commas $($derived_rhs)+);)*
+            $(pub type $Derived = derived_internal!(@commas $($derived_rhs)+);)*
         }
 
         pub type $Unitless<__TypeParameter> = $System<__TypeParameter, inner::$Unitless>;
@@ -579,8 +579,8 @@ macro_rules! make_units {
 
         $(pub type $Derived<__TypeParameter> = $System<__TypeParameter, inner::$Derived>;)*
 
-// --------------------------------------------------------------------------------
-// Define consts
+        // --------------------------------------------------------------------------------
+        // Define consts
             pub mod f32consts {
                 use super::*;
                 use core::marker::PhantomData;
@@ -599,8 +599,8 @@ macro_rules! make_units {
                 $(pub const $constant: $ConstantUnit<f64> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
         }
 
-// --------------------------------------------------------------------------------
-// Formatting
+        // --------------------------------------------------------------------------------
+        // Formatting
         use core::fmt;
         use $crate::typenum::{Len, Length, TypeArray};
         use $crate::generic_array::{GenericArray, ArrayLength};
@@ -616,8 +616,8 @@ macro_rules! make_units {
         make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T LowerExp E "{:e}");
         make_units!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T UpperExp E "{:E}");
 
-// --------------------------------------------------------------------------------
-// Operator traits from this crate
+        // --------------------------------------------------------------------------------
+        // Operator traits from this crate
 
         impl<V, A> $crate::Recip for $System<V, A> where V: $crate::Recip, A: ::core::ops::Neg, {
             type Output = $System<<V as $crate::Recip>::Output, $crate::typenum::Negate<A>>;
@@ -645,7 +645,7 @@ macro_rules! make_units {
             #[inline]
             fn root(self, idx: Index) -> Self::Output {
                 $System::new( self.value_unsafe.root(idx) )
-// self.map_unsafe(|v| v.root(idx))
+                // self.map_unsafe(|v| v.root(idx))
             }
         }
 
@@ -673,8 +673,8 @@ macro_rules! make_units {
             }
         }
 
-// --------------------------------------------------------------------------------
-// Operators
+        // --------------------------------------------------------------------------------
+        // Operators
 
         use core::ops::{Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign,
                         BitXor, BitXorAssign, Div, DivAssign, Mul, MulAssign, Sub,
@@ -684,8 +684,8 @@ macro_rules! make_units {
 
         make_units!(@ops $System, $Unitless);
 
-// --------------------------------------------------------------------------------
-// Deref only for dimensionless things
+        // --------------------------------------------------------------------------------
+        // Deref only for dimensionless things
 
         use core::ops::Deref;
         impl<V, A> Deref for $System<V, A> where $System<V, A>: Dimensionless {
@@ -696,8 +696,8 @@ macro_rules! make_units {
             }
         }
 
-// --------------------------------------------------------------------------------
-// Index
+        // --------------------------------------------------------------------------------
+        // Index
 
         use core::ops::Index;
         impl<V, A, Idx> Index<Idx> for $System<V, A>
@@ -707,7 +707,7 @@ macro_rules! make_units {
             type Output = $System<<V as Index<Idx>>::Output, A>;
             #[inline]
             fn index(&self, index: Idx) -> &Self::Output {
-// fixme: ensure this is safe
+                // fixme: ensure this is safe
                 unsafe {
                     ::core::mem::transmute(&self.value_unsafe[index])
                 }
@@ -723,14 +723,14 @@ macro_rules! make_units {
         {
             #[inline]
             fn index_mut(&mut self, index: Idx) -> &mut Self::Output{
-// fixme: ensure this is safe
+                // fixme: ensure this is safe
                 unsafe {
                     ::core::mem::transmute(self.value_unsafe.index_mut(index))
                 }
             }
         }
 
-// --------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------
     );
 }
 
@@ -751,27 +751,28 @@ macro_rules! make_units {
 /// }
 /// ```
 ///
-/// This macro is a bit fragile. It requires precise syntax, only supporting the operators `*` and
-/// `/`. It also requires the base type of your unit system and all things from its `inner` module
-/// to be in scope. As the `inner` module contains types that will likely conflict with types you
-/// have in scope, this macro is best used within its own module.
+/// This macro is a bit fragile. It only supports the operators `*` and `/` and no parentheses. It
+/// requires the base type of your unit system and the module it was defined in to be in scope.
+///
+/// Use it like so:
+///
+/// ```rust
+/// # #[macro_use] extern crate dimensioned as dim;
+/// use dim::si::{self, SI};
+/// derived!(si, SI: InverseMeter3 = Unitless / Meter3);
+/// # fn main() {}
+/// ```
 ///
 /// # Example
 /// ```rust
-/// #[macro_use]
-/// extern crate dimensioned as dim;
+/// #[macro_use] extern crate dimensioned as dim;
 ///
-/// mod derived {
-///     use dim::si::inner::*;
-///     use dim::si::SI;
+/// use dim::si::{self, SI};
 ///
-///     derived!(SI: InverseMeter3 = Unitless / Meter3);
-///     derived!(SI: Newton2PerSecond = Newton * Newton / Second);
-/// }
-/// use derived::InverseMeter3;
+/// derived!(si, SI: InverseMeter3 = Unitless / Meter3);
+/// derived!(si, SI: Newton2PerSecond = Newton * Newton / Second);
 ///
-/// use dim::{Recip, si};
-///
+/// use dim::Recip;
 /// fn invert_volume(v: si::Meter3<f64>) -> InverseMeter3<f64> {
 ///     v.recip()
 /// }
@@ -785,12 +786,39 @@ macro_rules! make_units {
 /// ```
 #[macro_export]
 macro_rules! derived {
+    (@eval $m:ident, $a:ty,) => ($a);
+
+    // Both qualify as identifiers
+    (@eval $m:ident, $a:ident, /, $b:ident, $($tail:tt)*) => (
+        derived!(@eval $m, $crate::typenum::Diff<$m::inner::$a, $m::inner::$b>, $($tail)* )
+    );
+    (@eval $m:ident, $a:ident, *, $b:ident, $($tail:tt)*) => (
+        derived!(@eval $m, $crate::typenum::Sum<$m::inner::$a, $m::inner::$b>, $($tail)* )
+    );
+
+    // $a is an intermediate result:
+    (@eval $m:ident, $a:ty, /, $b:ident, $($tail:tt)*) => (
+        derived!(@eval $m, $crate::typenum::Diff<$a, $m::inner::$b>, $($tail)* )
+    );
+    (@eval $m:ident, $a:ty, *, $b:ident, $($tail:tt)*) => (
+        derived!(@eval $m, $crate::typenum::Sum<$a, $m::inner::$b>, $($tail)* )
+    );
+
+    (@commas $m:ident, $t:ty) => ($t);
+    (@commas $m:ident, $($tail:tt)*) => (derived!(@eval $m, $($tail,)*));
+
+    ($m:ident, $System:ident: $name:ident = $($tail:tt)*) => (
+        pub type $name<__TypeParameter> = $System<__TypeParameter, derived!(@commas $m, $($tail)*)>;
+    );
+}
+
+#[doc_hidden]
+macro_rules! derived_internal {
     (@eval $a:ty,) => ($a);
     (@eval $a:ty, *, $b:ty, $($tail:tt)*) =>
-        (derived!(@eval $crate::typenum::Sum<$a, $b>, $($tail)* ));
+        (derived_internal!(@eval $crate::typenum::Sum<$a, $b>, $($tail)* ));
     (@eval $a:ty, /, $b:ty, $($tail:tt)*) =>
-        (derived!(@eval $crate::typenum::Diff<$a, $b>, $($tail)* ));
+        (derived_internal!(@eval $crate::typenum::Diff<$a, $b>, $($tail)* ));
     (@commas $t:ty) => ($t);
-    (@commas $($tail:tt)*) => (derived!(@eval $($tail,)*));
-    ($System:ident: $name:ident = $($tail:tt)*) => ( pub type $name<__TypeParameter> = $System<__TypeParameter, derived!(@commas $($tail)*)>;);
+    (@commas $($tail:tt)*) => (derived_internal!(@eval $($tail,)*));
 }
