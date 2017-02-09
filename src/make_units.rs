@@ -564,7 +564,7 @@ macro_rules! make_units {
             #[allow(unused_imports)]
             use $crate::typenum::consts::*;
             make_units!(@base_arrays $Unitless, $($Unit, $Root,)*);
-            $(pub type $Derived = derived_internal!(@commas $($derived_rhs)+);)*
+            $(pub type $Derived = __derived_internal!(@mu commas $($derived_rhs)+);)*
         }
 
         pub type $Unitless<__TypeParameter> = $System<__TypeParameter, inner::$Unitless>;
@@ -743,12 +743,12 @@ macro_rules! make_units {
 /// like so:
 ///
 /// ```rust
-/// extern crate dimensioned as dim;
+/// # extern crate dimensioned as dim;
 /// use dim::si::M;
 ///
-/// fn main() {
-///     let inverse_volume = 3.0 / M/M/M;
-/// }
+/// # fn main() {
+/// let inverse_volume = 3.0 / M/M/M;
+/// # }
 /// ```
 ///
 /// This macro is a bit fragile. It only supports the operators `*` and `/` and no parentheses. It
@@ -763,9 +763,13 @@ macro_rules! make_units {
 /// # fn main() {}
 /// ```
 ///
+/// You may use any of the base or derived units that come with a unit system (but none created
+/// after) on the right-hand side of the expression.
+///
 /// # Example
 /// ```rust
-/// #[macro_use] extern crate dimensioned as dim;
+/// #[macro_use]
+/// extern crate dimensioned as dim;
 ///
 /// use dim::si::{self, SI};
 ///
@@ -786,39 +790,46 @@ macro_rules! make_units {
 /// ```
 #[macro_export]
 macro_rules! derived {
-    (@eval $m:ident, $a:ty,) => ($a);
-
-    // Both qualify as identifiers
-    (@eval $m:ident, $a:ident, /, $b:ident, $($tail:tt)*) => (
-        derived!(@eval $m, $crate::typenum::Diff<$m::inner::$a, $m::inner::$b>, $($tail)* )
-    );
-    (@eval $m:ident, $a:ident, *, $b:ident, $($tail:tt)*) => (
-        derived!(@eval $m, $crate::typenum::Sum<$m::inner::$a, $m::inner::$b>, $($tail)* )
-    );
-
-    // $a is an intermediate result:
-    (@eval $m:ident, $a:ty, /, $b:ident, $($tail:tt)*) => (
-        derived!(@eval $m, $crate::typenum::Diff<$a, $m::inner::$b>, $($tail)* )
-    );
-    (@eval $m:ident, $a:ty, *, $b:ident, $($tail:tt)*) => (
-        derived!(@eval $m, $crate::typenum::Sum<$a, $m::inner::$b>, $($tail)* )
-    );
-
-    (@commas $m:ident, $t:ty) => ($t);
-    (@commas $m:ident, $($tail:tt)*) => (derived!(@eval $m, $($tail,)*));
-
-    ($m:ident, $System:ident: $name:ident = $($tail:tt)*) => (
-        pub type $name<__TypeParameter> = $System<__TypeParameter, derived!(@commas $m, $($tail)*)>;
+    ($module:ident, $System:ident: $name:ident = $($tail:tt)*) => (
+        pub type $name<__TypeParameter> = $System<__TypeParameter, __derived_internal!(@commas $module, $($tail)*)>;
     );
 }
 
-#[doc_hidden]
-macro_rules! derived_internal {
-    (@eval $a:ty,) => ($a);
-    (@eval $a:ty, *, $b:ty, $($tail:tt)*) =>
-        (derived_internal!(@eval $crate::typenum::Sum<$a, $b>, $($tail)* ));
-    (@eval $a:ty, /, $b:ty, $($tail:tt)*) =>
-        (derived_internal!(@eval $crate::typenum::Diff<$a, $b>, $($tail)* ));
-    (@commas $t:ty) => ($t);
-    (@commas $($tail:tt)*) => (derived_internal!(@eval $($tail,)*));
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __derived_internal {
+    //------------------------------------------
+    // For derived:
+
+    (@eval $module:ident, $a:ty,) => ($a);
+
+    // Both qualify as identifiers
+    (@eval $module:ident, $a:ident, /, $b:ident, $($tail:tt)*) => (
+        __derived_internal!(@eval $module, $crate::typenum::Diff<$module::inner::$a, $module::inner::$b>, $($tail)* )
+    );
+    (@eval $module:ident, $a:ident, *, $b:ident, $($tail:tt)*) => (
+        __derived_internal!(@eval $module, $crate::typenum::Sum<$module::inner::$a, $module::inner::$b>, $($tail)* )
+    );
+
+    // $a is an intermediate result:
+    (@eval $module:ident, $a:ty, /, $b:ident, $($tail:tt)*) => (
+        __derived_internal!(@eval $module, $crate::typenum::Diff<$a, $module::inner::$b>, $($tail)* )
+    );
+    (@eval $module:ident, $a:ty, *, $b:ident, $($tail:tt)*) => (
+        __derived_internal!(@eval $module, $crate::typenum::Sum<$a, $module::inner::$b>, $($tail)* )
+    );
+
+    (@commas $module:ident, $t:ty) => ($t);
+    (@commas $module:ident, $($tail:tt)*) => (__derived_internal!(@eval $module, $($tail,)*));
+
+
+    //------------------------------------------
+    // For make_units:
+    (@mu eval $a:ty,) => ($a);
+    (@mu eval $a:ty, *, $b:ty, $($tail:tt)*) =>
+        (__derived_internal!(@mu eval $crate::typenum::Sum<$a, $b>, $($tail)* ));
+    (@mu eval $a:ty, /, $b:ty, $($tail:tt)*) =>
+        (__derived_internal!(@mu eval $crate::typenum::Diff<$a, $b>, $($tail)* ));
+    (@mu commas $t:ty) => ($t);
+    (@mu commas $($tail:tt)*) => (__derived_internal!(@mu eval $($tail,)*));
 }
