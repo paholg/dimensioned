@@ -17,8 +17,8 @@ before_script:
   # - test -x $HOME/.cargo/bin/rustfmt || cargo install rustfmt # Only install rustfmt if it's not there
 
 script:
-  - |
     # PATH=$PATH:~/.cargo/bin cargo fmt -- --write-mode=diff &&
+  - |
     travis-cargo --only stable test &&
     travis-cargo --only beta test &&
     travis-cargo --only nightly test -- --features "oibit qc clippy" &&
