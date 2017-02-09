@@ -20,6 +20,6 @@
 [dependencies]
   typenum = "1.5.2"
   generic-array = "0.5.1"
-  clippy = { version = "0.0.113", optional = true }
+  clippy = { version = "=0.0.113", optional = true }
   quickcheck = { version = "0.4.1", optional = true }
   quickcheck_macros = { version = "0.4.1", optional = true }

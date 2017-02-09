@@ -22,7 +22,7 @@ please submit an issue.
 
 ## Use
 
-*Dimensioned* requires at least Rust version 1.15.
+*Dimensioned* requires at least Rust version 1.15. It does not depend on `std`.
 
 If you are using Rust nightly, then you may enable the "oibit" feature of dimensioned. This will
 make it work a bit better for wrapping non-primitives in units. The recommended way to use
