@@ -1,4 +1,4 @@
-language: rust
+blanguage: rust
 sudo: false
 rust:
   - stable
@@ -14,15 +14,14 @@ notifications:
 before_script:
   - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
   - export TRAVIS_CARGO_NIGHTLY_FEATURE=""
-  # - (cargo install rustfmt || true) # the || true keeps cargo from throwing an error if it's already installed
+  # - test -x $HOME/.cargo/bin/rustfmt || cargo install rustfmt # Only install rustfmt if it's not there
 
 script:
   - |
     # PATH=$PATH:~/.cargo/bin cargo fmt -- --write-mode=diff &&
-    travis-cargo test &&
-    travis-cargo --only nightly test -- --no-default-features --features "oibit" &&
-    travis-cargo --only nightly test -- --features "oibit" &&
-    travis-cargo --only nightly test -- --features "clippy" &&
+    travis-cargo --only stable test &&
+    travis-cargo --only beta test &&
+    travis-cargo --only nightly test -- --features "oibit qc clippy" &&
     travis-cargo --only stable doc
 
 after_success:

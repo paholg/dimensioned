@@ -1,7 +1,5 @@
-//! The **si** module provides a unit system for use with SI units. It was generated using
+//! The `si` module provides a unit system for use with SI units. It was generated using
 //! the `make_units!` macro. See its documentation for more information.
-//!
-//! It will also define derived units, although this is not implemented yet.
 //!
 
 #![allow(missing_docs)]
@@ -9,14 +7,15 @@
 make_units! {
     SI;
     ONE: Unitless;
+
     base {
-        P1, M:   Meter,    "m";
-        P1, KG:  Kilogram, "kg";
-        P1, S:   Second,   "s";
-        P1, A:   Ampere,   "A";
-        P1, K:   Kelvin,   "K";
-        P1, CD:  Candela,  "cd";
-        P1, MOL: Mole,     "mol";
+        M:   Meter,    "m",   P1;
+        KG:  Kilogram, "kg",  P1;
+        S:   Second,   "s",   P1;
+        A:   Ampere,   "A",   P1;
+        K:   Kelvin,   "K",   P1;
+        CD:  Candela,  "cd",  P1;
+        MOL: Mole,     "mol", P1;
     }
 
     derived {
@@ -43,6 +42,10 @@ make_units! {
         M2: Meter2 = (Meter * Meter);
         M3: Meter3 = (Meter2 * Meter);
 
+        IM: InverseMeter = (Unitless / Meter);
+        IM2: InverseMeter2 = (InverseMeter / Meter);
+        IM3: InverseMeter3 = (InverseMeter2 / Meter);
+
         S2: Second2 = (Second * Second);
         S3: Second3 = (Second2 * Second);
         S4: Second4 = (Second3 * Second);
@@ -64,11 +67,13 @@ make_units! {
         JS: JouleSecond = (Joule * Second);
         NPS: NewtonPerSecond = (Newton / Second);
     }
+
     constants {
         MIN: Second = 60.0;
         HR: Second = 60.0*60.0;
         DAY: Second = 24.0*60.0*60.0;
     }
+
     fmt = true;
 }
 
@@ -79,7 +84,7 @@ pub use self::f64consts::*;
 fn test_si() {
     use si::f64consts::*;
 
-    let mut x = 2.25 * M*M/S/KG*N;
+    let mut x = 2.25 * M * M / S / KG * N;
     let y = x / 3.0;
     x /= 3.0;
 
@@ -91,23 +96,23 @@ fn test_si() {
     assert_eq!(z, w);
 }
 
-#[cfg(feature = "std")]
-#[test]
-fn test_index() {
-    use si::Meter;
-    let mut v = Meter::new(vec![1.0, 2.0]);
-
-    v[0] += 1.2 * M;
-    assert_eq!(v, Meter::new(vec![2.2, 2.0]));
-}
-
+// #[cfg(feature = "std")]
 // #[test]
-// fn kg_test() {
-//     use si::consts::{kg, m, s};
-//     let mass = 3.0 * kg;
-//     let dist = 2.0 * m;
-//     let time = 2.0 * s;
-//     let f = Newton::new(1.5);
+// fn test_index() {
+//     use si::Meter;
+//     let mut v = Meter::new(vec![1.0, 2.0]);
 
-//     assert_eq!(f, mass * dist / time / time);
+//     v[0] += 1.2 * M;
+//     assert_eq!(v, Meter::new(vec![2.2, 2.0]));
 // }
+
+#[test]
+fn kg_test() {
+    use si::{KG, M, S};
+    let mass = 3.0 * KG;
+    let dist = 2.0 * M;
+    let time = 2.0 * S;
+    let force = Newton::new(1.5);
+
+    assert_eq!(force, mass * dist / time / time);
+}

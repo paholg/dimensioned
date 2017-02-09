@@ -1,7 +1,13 @@
 //! Traits that are useful.
 
+/// Allows one to use units generically. `Dimensioned` is implemented for all units created in this
+/// library or by the `make_units` macro.
+///
+/// It is not recommened to implement it for anything else.
 pub trait Dimensioned {
+    /// The type of the value that has units. E.g. In `let x: Meter<f64>;`, the `Value` would be `f64`.
     type Value;
+    /// The units of a type from dimensioned. This will be a type-array of type-numbers.
     type Units;
 
     fn new(val: Self::Value) -> Self;
@@ -82,16 +88,10 @@ macro_rules! impl_root {
     ($t: ty, $f: ident) => (
         impl<Index: Integer> Root<Index> for $t {
             type Output = $t;
-            #[cfg(feature = "std")]
+
             fn root(self, _: Index) -> Self::Output {
                 let exp = (Index::to_i32() as $t).recip();
                 self.powf(exp)
-            }
-
-            #[cfg(not(feature = "std"))]
-            fn root(self, _: Index) -> Self::Output {
-                let exp = (Index::to_i32() as $t).recip();
-                unsafe { ::core::intrinsics::$f(self, exp) }
             }
         }
     );
@@ -107,46 +107,42 @@ fn test_root() {
 
     for &r in radicands {
         assert_eq!(r, r.root(P1::new()));
-        assert_eq!(r, (r*r).root(P2::new()));
-        assert_eq!(r, (r*r*r).root(P3::new()));
-        assert_eq!(r, (r*r*r*r*r).root(P5::new()));
+        assert_eq!(r, (r * r).root(P2::new()));
+        assert_eq!(r, (r * r * r).root(P3::new()));
+        assert_eq!(r, (r * r * r * r * r).root(P5::new()));
     }
 }
 
 
 /// `Sqrt` provides a `sqrt` member function for types that are not necessarily preserved under square root.
-///
-/// It is automatically implemented for all types `T` for which `T::Root<typenum::P2>` is implemented.
 pub trait Sqrt {
     type Output;
     fn sqrt(self) -> Self::Output;
 }
 
-use typenum::P2;
-impl<T> Sqrt for T
-    where T: Root<P2>
-{
-    type Output = <T as Root<P2>>::Output;
-    fn sqrt(self) -> Self::Output {
-        self.root(P2::new())
-    }
-}
-
-
-/// `Cbrt` provides a `cbrt` member function for types that are not necessarily preserved under square root.
-///
-/// It is automatically implemented for all types `T` for which `T::Root<typenum::P3>` is implemented.
+/// `Cbrt` provides a `cbrt` member function for types that are not necessarily preserved under cube root.
 pub trait Cbrt {
     type Output;
     fn cbrt(self) -> Self::Output;
 }
 
-use typenum::P3;
-impl<T> Cbrt for T
-    where T: Root<P3>
-{
-    type Output = <T as Root<P3>>::Output;
-    fn cbrt(self) -> Self::Output {
-        self.root(P3::new())
-    }
+macro_rules! impl_sqcbroot {
+    ($t: ty) => (
+        impl Sqrt for $t {
+            type Output = $t;
+            fn sqrt(self) -> Self::Output {
+                self.sqrt()
+            }
+        }
+
+        impl Cbrt for $t {
+            type Output = $t;
+            fn cbrt(self) -> Self::Output {
+                self.cbrt()
+            }
+        }
+    );
 }
+
+impl_sqcbroot!(f32);
+impl_sqcbroot!(f64);

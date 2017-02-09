@@ -2,21 +2,20 @@
 
 This project follows semantic versioning.
 
-### Unpublished
+### 0.6.0 (Unpublished)
+- `[changed]` ***BREAKING*** Dimensioned has been rewritten from the ground up. It still does the
+  same thing but the internals are completely different. The changes are too many to list (although
+  I will try), and no compatibility with the previous version should be expected.
+- `[changed]` ***BREAKING*** Removal of the `Dim` struct. Now, types will look like `SI<Units, T>`
+  instead of `Dim<SI<Units>, T>` and type aliases will look like `Meter<T>` instead of `Dim<Meter,
+  T>`. One can still be unit system agnostic by using the `Dimensioned` trait.
 - `[added]` Many derived units added to unit systems.
 - `[added]` The derived block of `make_units!` now works. Derived units can also be made
-  separately, but that is currently a bit cumbersome.
-- `[chaned]` ***BREAKING*** Type aliases has been changed. E.g. what used to be `Dim<Meter, T>` is now simply `Meter<T>`.
-- `[added]` Usable from rust version 1.13.0. There is now a default feature `nightly`, without which
-  dimensioned does not need a nightly version of the compiler. Note that this makes multiplication
-  and division not work as well, to the point that you can pretty much only use `Dim` with
-  primitives.
-- `[added]` Usable without libstd. There is now a default feature `std`, without which `libcore`
-  will be used. This uses some unstable features.
-- `[added]` Unit conversion example.
-- `[changed]` Removed `Dimensioned` constraint for `D` in `Dim<D, V>`. This enables derived types
-  to work properly. It is a temporary change only until the bug with Rust is fixed. See
-  [issue #6](https://github.com/paholg/dimensioned/issues/6).
+  separately. Many derived units have been added to unit systems.
+- `[added]` Usable on stable Rust version >= 1.13.0. There is now a feature `oibit` that requires
+  nightly Rust and makes multiplication and division more painless with non-primitives.
+- `[removed]` Dependency on libstd.
+- `[added]` Unit conversion API.
 
 ### 0.5.0 (2015-12-02)
 - `[added]` This change log!

@@ -1,6 +1,6 @@
 [package]
   name = "dimensioned"
-  version = "0.5.0"
+  version = "0.6.0"
   authors = ["Paho Lurie-Gregg <paho@paholg.com>"]
   description = "Compile-time type checking of arbitrary unit systems."
   homepage = "http://paholg.com/project/dimensioned"
@@ -13,11 +13,13 @@
   name = "dimensioned"
 
 [features]
-  default = ["std"]
-  std = []
+  default = []
   oibit = []
+  qc = ["quickcheck", "quickcheck_macros"]
 
 [dependencies]
-  typenum = "1.5.1"
+  typenum = "1.5.2"
   generic-array = "0.5.1"
-  clippy = { version = "0.0.98", optional = true }
+  clippy = { version = "0.0.113", optional = true }
+  quickcheck = { version = "0.4.1", optional = true }
+  quickcheck_macros = { version = "0.4.1", optional = true }

@@ -1,18 +1,37 @@
 //! Some tools for converting from type arrays of type numbers to generic arrays.
 //!
-//! This module is implemented very hackily and will be replaced with something better in the
-//! future.
-//!
-//! Don't rely on or use directly anything here.
+//! This module may change, and should be considered unstable.
 
 use typenum::*;
 
 use generic_array::{GenericArray, ArrayLength};
 
-use reexported::ops::Add;
+use core::ops::Add;
 
+/// Implemented for `TArr` (a type-level array of type numbers), this gives the equivalent `GenericArray`.
+///
+/// # Example
+/// ```rust
+/// #[macro_use]
+/// extern crate dimensioned as dim;
+/// #[macro_use]
+/// extern crate generic_array;
+///
+/// use dim::typenum::consts::*;
+/// type TArr = tarr![P3, P2, N5, N8, P2];
+///
+/// fn main() {
+///     use dim::array::ToGA;
+///     let x = TArr::to_ga();
+///     let y = arr![isize; 3, 2, -5, -8, 2];
+///
+///     assert_eq!(x, y);
+/// }
+/// ```
 pub trait ToGA {
     type Output;
+
+    /// Create a `GenericArray` of integers from a `TArr` of type numbers.
     fn to_ga() -> Self::Output;
 }
 
@@ -38,8 +57,28 @@ impl<V, A> ToGA for TArr<V, A>
     }
 }
 
+
+/// Implemented for `GenericArray`, this allows growable `GenericArray`s by appending elements to the front.
+///
+/// # Example
+/// ```rust
+/// extern crate dimensioned as dim;
+/// #[macro_use]
+/// extern crate generic_array;
+///
+/// use dim::array::AppendFront;
+///
+/// fn main() {
+///     let a = arr![u32; 1, 2];
+///     let a2 = arr![u32; 0, 1, 2];
+///
+///     assert_eq!(a.append_front(0), a2);
+/// }
+
 pub trait AppendFront<T> {
     type Output;
+
+    /// Append `element` to the front of `self`.
     fn append_front(self, element: T) -> Self::Output;
 }
 

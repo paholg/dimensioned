@@ -1,4 +1,4 @@
-//! The **cgs** module provides a unit system for use with Gaussian CGS units. It was
+//! The `cgs` module provides a unit system for use with Gaussian CGS units. It was
 //! generated using the `make_units!` macro. See its documentation for more information.
 //!
 
@@ -8,9 +8,9 @@ make_units! {
     CGS;
     ONE: Unitless;
     base {
-        P2, CM: Centimeter, "cm";
-        P2, G: Gram, "g";
-        P1, S: Second, "s";
+        CM: Centimeter, "cm", P2;
+        G:  Gram,       "g",  P2;
+        S:  Second,     "s",  P1;
     }
     derived {
         CM2: Centimeter2 = (Centimeter * Centimeter);
@@ -57,7 +57,7 @@ pub use self::f64consts::*;
 
 
 use typenum::{Integer};
-use reexported::convert::From;
+use core::convert::From;
 use mks;
 impl<V, Meter, Kilogram, Second> From<mks::MKS<V, tarr![Meter, Kilogram, Second]>>
     for CGS<Prod<V, f64>, tarr![Meter, Kilogram, Second]> where
@@ -70,13 +70,15 @@ impl<V, Meter, Kilogram, Second> From<mks::MKS<V, tarr![Meter, Kilogram, Second]
         // powers. E.g. The unit for area will really be `m^4`.
         let mfac = 100.0f64.powf(Meter::to_i32() as f64 / 2.0);
         let kgfac = 1000.0f64.powf(Meter::to_i32() as f64 / 2.0);
-        // Factor due to seconds are always 1!
-        // let sfac = 1.0f64.powi(Meter::to_i32());
+
         let fac = mfac * kgfac;
 
         CGS::new( other.value_unsafe * fac )
     }
 }
+
+// use si;
+// impl<V, Meter, Kilogram, Second, Ampere, Kelvin, Candela, Mole> From<si::SI<
 
 #[test]
 fn test_convert() {
