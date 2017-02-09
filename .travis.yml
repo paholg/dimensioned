@@ -1,4 +1,4 @@
-blanguage: rust
+language: rust
 sudo: false
 rust:
   - stable
