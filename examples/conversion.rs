@@ -71,8 +71,8 @@ impl<V, Length, Time> From<ms::MS<V, tarr![Length, Time]>> for fm::FM<Prod<V, f6
     where V: Mul<f64>, Length: Integer, Time: Integer,
 {
     fn from(other: ms::MS<V, tarr![Length, Time]>) -> Self {
-        let length_fac = (1.0_f64 / 0.3048).powf(Length::to_i32() as f64);
-        let time_fac = (1.0_f64 / 60.0).powf(Time::to_i32() as f64);
+        let length_fac = (1.0_f64 / 0.3048).powi(Length::to_i32());
+        let time_fac = (1.0_f64 / 60.0).powi(Time::to_i32());
         let fac = length_fac * time_fac;
 
         fm::FM::new( other.value_unsafe * fac )
@@ -83,8 +83,8 @@ impl<V, Length, Time> From<fm::FM<V, tarr![Length, Time]>> for ms::MS<Prod<V, f6
     where V: Mul<f64>, Length: Integer, Time: Integer,
 {
     fn from(other: fm::FM<V, tarr![Length, Time]>) -> Self {
-        let length_fac = 0.3048_f64.powf(Length::to_i32() as f64);
-        let time_fac = 60_f64.powf(Time::to_i32() as f64);
+        let length_fac = 0.3048_f64.powi(Length::to_i32());
+        let time_fac = 60_f64.powi(Time::to_i32());
         let fac = length_fac * time_fac;
 
         ms::MS::new( other.value_unsafe * fac )
