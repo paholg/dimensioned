@@ -25,7 +25,7 @@ macro_rules! make_units {
      }
      fmt = $to_fmt:ident;
     ) => (
-        use core::marker;
+        use $crate::dimcore::marker;
         use $crate::{Dimensioned, Dimensionless};
 
         #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash)]
@@ -131,25 +131,25 @@ macro_rules! make_units {
         // Define consts
         pub mod f32consts {
             use super::*;
-            use core::marker::PhantomData;
-            pub const $one: $Unitless<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };
-            $(pub const $base: $Unit<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
-            $(pub const $derived_const: $Derived<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
-            $(pub const $constant: $ConstantUnit<f32> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
+            use $crate::dimcore::marker::PhantomData;
+            #[allow(dead_code)] pub const $one: $Unitless<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };
+            $(#[allow(dead_code)] pub const $base: $Unit<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+            $(#[allow(dead_code)] pub const $derived_const: $Derived<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+            $(#[allow(dead_code)] pub const $constant: $ConstantUnit<f32> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
         }
 
         pub mod f64consts {
             use super::*;
-            use core::marker::PhantomData;
-            pub const $one: $Unitless<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };
-            $(pub const $base: $Unit<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
-            $(pub const $derived_const: $Derived<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
-            $(pub const $constant: $ConstantUnit<f64> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
+            use $crate::dimcore::marker::PhantomData;
+            #[allow(dead_code)] pub const $one: $Unitless<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };
+            $(#[allow(dead_code)] pub const $base: $Unit<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+            $(#[allow(dead_code)] pub const $derived_const: $Derived<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+            $(#[allow(dead_code)] pub const $constant: $ConstantUnit<f64> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
         }
 
         // --------------------------------------------------------------------------------
         // Formatting
-        use core::fmt;
+        use $crate::dimcore::fmt;
         use $crate::typenum::{Len, Length, TypeArray};
         use $crate::generic_array::{GenericArray, ArrayLength};
         use $crate::array::ToGA;
@@ -167,7 +167,7 @@ macro_rules! make_units {
         // --------------------------------------------------------------------------------
         // Operator traits from this crate
 
-        impl<V, A> $crate::Recip for $System<V, A> where V: $crate::Recip, A: ::core::ops::Neg, {
+        impl<V, A> $crate::Recip for $System<V, A> where V: $crate::Recip, A: $crate::dimcore::ops::Neg, {
             type Output = $System<<V as $crate::Recip>::Output, $crate::typenum::Negate<A>>;
             #[inline]
             fn recip(self) -> Self::Output { $System::new(self.value_unsafe.recip()) }
@@ -176,7 +176,7 @@ macro_rules! make_units {
         use $crate::typenum::Pow;
         impl<Exp, V, A> Pow<Exp> for $System<V, A>
             where V: Pow<Exp>,
-                  A: ::core::ops::Mul<Exp>,
+                  A: $crate::dimcore::ops::Mul<Exp>,
         {
             type Output = $System< <V as Pow<Exp>>::Output, $crate::typenum::Prod<A, Exp>>;
             #[inline]
@@ -187,7 +187,7 @@ macro_rules! make_units {
 
         impl<Index, V, A> $crate::Root<Index> for $System<V, A>
             where V: $crate::Root<Index>,
-                  A: ::core::ops::Div<Index>,
+                  A: $crate::dimcore::ops::Div<Index>,
         {
             type Output = $System< <V as $crate::Root<Index>>::Output, $crate::typenum::Quot<A, Index>>;
             #[inline]
@@ -200,7 +200,7 @@ macro_rules! make_units {
         use $crate::typenum::P2;
         impl<V, A> $crate::Sqrt for $System<V, A>
             where V: $crate::Sqrt,
-                  A: ::core::ops::Div<P2>,
+                  A: $crate::dimcore::ops::Div<P2>,
         {
             type Output = $System< <V as $crate::Sqrt>::Output, $crate::typenum::Quot<A, P2>>;
             #[inline]
@@ -212,7 +212,7 @@ macro_rules! make_units {
         use $crate::typenum::P3;
         impl<V, A> $crate::Cbrt for $System<V, A>
             where V: $crate::Cbrt,
-                  A: ::core::ops::Div<P3>,
+                  A: $crate::dimcore::ops::Div<P3>,
         {
             type Output = $System< <V as $crate::Cbrt>::Output, $crate::typenum::Quot<A, P3>>;
             #[inline]
@@ -224,7 +224,7 @@ macro_rules! make_units {
         // --------------------------------------------------------------------------------
         // Operators
 
-        use core::ops::{Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign,
+        use $crate::dimcore::ops::{Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign,
                         BitXor, BitXorAssign, Div, DivAssign, Mul, MulAssign, Sub,
                         SubAssign, Rem, RemAssign, Neg, Not, Shl, ShlAssign, Shr,
                         ShrAssign};
@@ -235,7 +235,7 @@ macro_rules! make_units {
         // --------------------------------------------------------------------------------
         // Deref only for dimensionless things
 
-        use core::ops::Deref;
+        use $crate::dimcore::ops::Deref;
         impl<V, A> Deref for $System<V, A> where $System<V, A>: Dimensionless {
             type Target = V;
             #[inline]
@@ -247,7 +247,7 @@ macro_rules! make_units {
         // --------------------------------------------------------------------------------
         // Index
 
-        use core::ops::Index;
+        use $crate::dimcore::ops::Index;
         impl<V, A, Idx> Index<Idx> for $System<V, A>
             where V: Index<Idx>,
         <V as Index<Idx>>::Output: Sized,
@@ -257,12 +257,12 @@ macro_rules! make_units {
             fn index(&self, index: Idx) -> &Self::Output {
                 // fixme: ensure this is safe
                 unsafe {
-                    ::core::mem::transmute(&self.value_unsafe[index])
+                    $crate::dimcore::mem::transmute(&self.value_unsafe[index])
                 }
             }
         }
 
-        use core::ops::IndexMut;
+        use $crate::dimcore::ops::IndexMut;
         impl<V, A, Idx> IndexMut<Idx> for $System<V, A>
             where $System<V, A>: Index<Idx>,
                   V: Index<Idx> + IndexMut<Idx>,
@@ -273,7 +273,7 @@ macro_rules! make_units {
             fn index_mut(&mut self, index: Idx) -> &mut Self::Output{
                 // fixme: ensure this is safe
                 unsafe {
-                    ::core::mem::transmute(self.value_unsafe.index_mut(index))
+                    $crate::dimcore::mem::transmute(self.value_unsafe.index_mut(index))
                 }
             }
         }

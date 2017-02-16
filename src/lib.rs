@@ -60,10 +60,8 @@ macro_rules! tarr {
     ($n:ty, $($tail:ty),+,) => ( $crate::typenum::TArr<$n, tarr![$($tail),+]> );
 }
 
-// Get a warning without this
-#[allow(unused_imports)]
 #[macro_use]
-extern crate generic_array;
+pub extern crate generic_array;
 
 pub mod traits;
 
@@ -77,3 +75,7 @@ pub use traits::*;
 
 
 pub mod array;
+
+pub mod dimcore {
+    pub use core::{marker, fmt, ops, mem};
+}
