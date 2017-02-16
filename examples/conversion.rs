@@ -91,6 +91,8 @@ impl<V, Length, Time> From<fm::FM<V, tarr![Length, Time]>> for ms::MS<Prod<V, f6
     }
 }
 
+// ---------------------------------------------------------------------------------------
+
 fn main() {
     let x1 = 3.0 * ms::M + 2.0 * ms::FT + ms::Meter::new(1.2);
     let x2 = 3.0 * fm::M + 2.0 * fm::FT + 1.2 * fm::M;
