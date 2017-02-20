@@ -77,5 +77,5 @@ pub use traits::*;
 pub mod array;
 
 pub mod dimcore {
-    pub use core::{marker, fmt, ops, mem};
+    pub use core::{marker, fmt, ops, mem, f32, f64};
 }

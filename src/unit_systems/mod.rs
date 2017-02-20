@@ -6,3 +6,4 @@ pub mod f32prefixes;
 pub mod si;
 pub mod cgs;
 pub mod mks;
+pub mod ucum;

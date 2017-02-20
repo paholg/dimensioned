@@ -132,6 +132,7 @@ macro_rules! make_units {
         pub mod f32consts {
             use super::*;
             use $crate::dimcore::marker::PhantomData;
+            #[allow(unused_imports)] use $crate::dimcore::f32::consts::*;
             #[allow(dead_code)] pub const $one: $Unitless<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };
             $(#[allow(dead_code)] pub const $base: $Unit<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
             $(#[allow(dead_code)] pub const $derived_const: $Derived<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
@@ -141,6 +142,7 @@ macro_rules! make_units {
         pub mod f64consts {
             use super::*;
             use $crate::dimcore::marker::PhantomData;
+            #[allow(unused_imports)] use $crate::dimcore::f64::consts::*;
             #[allow(dead_code)] pub const $one: $Unitless<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };
             $(#[allow(dead_code)] pub const $base: $Unit<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
             $(#[allow(dead_code)] pub const $derived_const: $Derived<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
