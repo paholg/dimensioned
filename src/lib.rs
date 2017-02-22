@@ -66,10 +66,13 @@ pub extern crate generic_array;
 pub mod traits;
 
 #[macro_use]
-mod make_units;
+pub mod make_units;
+
+pub mod f32prefixes;
+pub mod f64prefixes;
 
 pub mod unit_systems;
-pub use unit_systems::{cgs, si, mks};
+pub use unit_systems::{cgs, si, mks, ucum};
 
 pub use traits::*;
 
