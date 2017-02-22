@@ -354,3 +354,30 @@ make_units! {
 }
 
 pub use self::f64consts::*;
+
+
+mod conversion {
+    // Convert from SI
+    use super::UCUM;
+    use typenum::{Integer, Diff, Prod, Z0};
+    use core::convert::From;
+    use core::ops::{Mul, Sub};
+    use si;
+    use f64prefixes::*;
+
+    impl<V, Meter, Kilogram, Second, Ampere, Kelvin, Candela, Mole> From<
+            si::SI<V, tarr![Meter, Kilogram, Second, Ampere, Kelvin, Candela, Mole]>>
+        for UCUM<Prod<V, f64>, tarr![Meter, Diff<Second, Ampere>, Kilogram, Z0, Kelvin, Ampere, Candela]> where
+        Meter: Integer, Kilogram: Integer, Second: Integer + Sub<Ampere>, Ampere: Integer, Kelvin: Integer, Candela: Integer, Mole: Integer,
+        V: Mul<f64>,
+    {
+        fn from(other: si::SI<V, tarr![Meter, Kilogram, Second, Ampere, Kelvin, Candela, Mole]>) -> Self {
+            let kgfac = KILO.powi(Kilogram::to_i32());
+            let molfac = (super::MOL.value_unsafe).powi(Mole::to_i32());
+
+            let fac = kgfac * molfac;
+
+            UCUM::new( other.value_unsafe * fac )
+        }
+    }
+}
