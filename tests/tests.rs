@@ -36,7 +36,7 @@ mod quickchecking {
     #[quickcheck]
     fn div(x: f64, y: f64) -> bool {
         (x*M) / y == Meter::new(x / y) &&
-        x / (y*M) == InverseMeter::new(x / y) &&
+        x / (y*M) == PerMeter::new(x / y) &&
         (x*M) * (y*M) == Meter2::new(x * y)
     }
 

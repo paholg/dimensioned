@@ -9,10 +9,9 @@
        html_root_url = "http://paholg.com/dimensioned")]
 
 // fixme #![warn(missing_docs)]
+#![no_std]
 
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
-
-#![no_std]
 
 // For clippy:
 #![cfg_attr(feature="clippy", feature(plugin))]
@@ -20,7 +19,7 @@
 
 #![allow(unknown_lints)]
 #![deny(clippy)]
-#![allow(type_complexity, len_without_is_empty, float_cmp, useless_attribute)]
+#![allow(type_complexity, float_cmp, useless_attribute)]
 
 // Macro debugging
 // #![feature(trace_macros)]
@@ -60,13 +59,15 @@ macro_rules! tarr {
     ($n:ty, $($tail:ty),+,) => ( $crate::typenum::TArr<$n, tarr![$($tail),+]> );
 }
 
+// Get a warning without this. If it's fixed, remove `useless_attribute` from clippy allow list
+#[allow(unused_imports)]
 #[macro_use]
 pub extern crate generic_array;
 
 pub mod traits;
 
 #[macro_use]
-pub mod make_units;
+mod make_units;
 
 pub mod f32prefixes;
 pub mod f64prefixes;
