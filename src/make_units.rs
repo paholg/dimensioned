@@ -191,22 +191,21 @@ macro_rules! make_units {
 
         impl<Index, V, A> $crate::Root<Index> for $System<V, A>
             where V: $crate::Root<Index>,
-                  A: $crate::dimcore::ops::Div<Index>,
+                  A: $crate::typenum::PartialDiv<Index>,
         {
-            type Output = $System< <V as $crate::Root<Index>>::Output, $crate::typenum::Quot<A, Index>>;
+            type Output = $System< <V as $crate::Root<Index>>::Output, $crate::typenum::PartialQuot<A, Index>>;
             #[inline]
             fn root(self, idx: Index) -> Self::Output {
                 $System::new( self.value_unsafe.root(idx) )
-                // self.map_unsafe(|v| v.root(idx))
             }
         }
 
         use $crate::typenum::P2;
         impl<V, A> $crate::Sqrt for $System<V, A>
             where V: $crate::Sqrt,
-                  A: $crate::dimcore::ops::Div<P2>,
+                  A: $crate::typenum::PartialDiv<P2>,
         {
-            type Output = $System< <V as $crate::Sqrt>::Output, $crate::typenum::Quot<A, P2>>;
+            type Output = $System< <V as $crate::Sqrt>::Output, $crate::typenum::PartialQuot<A, P2>>;
             #[inline]
             fn sqrt(self) -> Self::Output {
                 $System::new( self.value_unsafe.sqrt() )
@@ -216,9 +215,9 @@ macro_rules! make_units {
         use $crate::typenum::P3;
         impl<V, A> $crate::Cbrt for $System<V, A>
             where V: $crate::Cbrt,
-                  A: $crate::dimcore::ops::Div<P3>,
+                  A: $crate::typenum::PartialDiv<P3>,
         {
-            type Output = $System< <V as $crate::Cbrt>::Output, $crate::typenum::Quot<A, P3>>;
+            type Output = $System< <V as $crate::Cbrt>::Output, $crate::typenum::PartialQuot<A, P3>>;
             #[inline]
             fn cbrt(self) -> Self::Output {
                 $System::new( self.value_unsafe.cbrt() )

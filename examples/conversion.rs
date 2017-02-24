@@ -102,4 +102,9 @@ fn main() {
 
     // prints: x1 = 4.81 m, x2 = 15.78 ft
     println!("x1 = {:.2}, x2 = {:.2}", x1, x2);
+
+    let x = 4.0*ms::M*ms::M;
+
+    use dim::Sqrt;
+    println!("{}", x.sqrt());
 }
