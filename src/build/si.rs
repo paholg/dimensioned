@@ -51,9 +51,9 @@ It was generated using the `make_units!` macro.
             S3: Second3 = Second2 * Second;
             S4: Second4 = Second3 * Second;
 
-            MPS: MeterPerSecond = Meter / Second, Speed;
+            MPS: MeterPerSecond = Meter / Second, Velocity;
             MPS2: MeterPerSecond2 = Meter / Second2, Acceleration;
-            MPS3: MeterPerSecond3 = Meter / Second3;
+            MPS3: MeterPerSecond3 = Meter / Second3, Jerk;
             MPS4: MeterPerSecond4 = Meter / Second4;
 
             M2PS: Meter2PerSecond = Meter2 / Second;

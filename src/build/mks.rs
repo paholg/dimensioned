@@ -17,7 +17,7 @@ It was generated using the `make_units!` macro.
             S: Second, s, P1, Time;
         ),
         derived: derived_units!(
-            MPS: MeterPerSecond = Meter / Second, Speed;
+            MPS: MeterPerSecond = Meter / Second, Velocity;
         ),
         constants: constants!(
         )

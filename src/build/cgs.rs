@@ -24,8 +24,8 @@ It was generated using the `make_units!` macro.
             S3: Second3 = Second2 * Second;
             S4: Second4 = Second3 * Second;
 
-            CMPS: CentimeterPerSecond = Centimeter / Second, Speed;
-            CMPS3: CentimeterPerSecond3 = Centimeter / Second3;
+            CMPS: CentimeterPerSecond = Centimeter / Second, Velocity;
+            CMPS3: CentimeterPerSecond3 = Centimeter / Second3, Jerk;
             CMPS4: CentimeterPerSecond4 = Centimeter / Second4;
 
             CM2PS: Centimeter2PerSecond = Centimeter2 / Second;

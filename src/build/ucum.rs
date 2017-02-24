@@ -67,8 +67,9 @@ It was generated using the `make_units!` macro.
 
             PM: PerMeter = Unitless / Meter, ReciprocalLength;
 
-            MPS: MeterPerSecond = Meter / Second, Speed;
+            MPS: MeterPerSecond = Meter / Second, Velocity;
             MPS2: MeterPerSecond2 = Meter / Second2, Acceleration;
+            MPS3: MeterPerSecond3 = Meter / Second3, Jerk;
             M2PS: Meter2PerSecond = Meter2 / Second;
             M2PS2: Meter2PerSecond2 = Meter2 / Second2;
 
