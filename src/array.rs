@@ -2,7 +2,7 @@
 //!
 //! This module may change, and should be considered unstable.
 
-use typenum::*;
+use typenum::{Add1, B1, Length, TArr, ATerm, Len, Integer, Unsigned, U0};
 
 use generic_array::{GenericArray, ArrayLength};
 
@@ -100,6 +100,7 @@ impl<T, N> AppendFront<T> for GenericArray<T, N>
 
 #[test]
 fn test_array() {
+    use typenum::consts::*;
     type A = tarr![P1, N3, P4];
     let a = A::to_ga();
 
