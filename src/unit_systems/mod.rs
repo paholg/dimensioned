@@ -3,6 +3,6 @@
 mod conversion;
 
 include!(concat!(env!("OUT_DIR"), "/si.rs"));
+include!(concat!(env!("OUT_DIR"), "/ucum.rs"));
 pub mod cgs;
 pub mod mks;
-pub mod ucum;

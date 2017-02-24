@@ -19,7 +19,7 @@
 
 #![allow(unknown_lints)]
 #![deny(clippy)]
-#![allow(type_complexity, float_cmp, useless_attribute)]
+#![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
 
 // Macro debugging
 // #![feature(trace_macros)]
@@ -65,6 +65,7 @@ macro_rules! tarr {
 pub extern crate generic_array;
 
 pub mod traits;
+pub mod dimensions;
 
 #[macro_use]
 mod make_units;
