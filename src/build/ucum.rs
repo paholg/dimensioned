@@ -29,29 +29,29 @@ It was generated using the `make_units!` macro.
 
 ",
         base: base_units!(
-            M:   Meter,    m,   P1;
-            S:   Second,   s,   P1;
-            G:   Gram,     g,   P1;
+            M:   Meter,    m,   P1, Length;
+            S:   Second,   s,   P1, Time;
+            G:   Gram,     g,   P1, Mass;
             RAD: Radian,   rad, P1;
-            K:   Kelvin,   K,   P1;
-            C:   Coulomb,  C,   P1;
-            CD:  Candela,  cd,  P1;
+            K:   Kelvin,   K,   P1, Temperature;
+            C:   Coulomb,  C,   P1, Charge;
+            CD:  Candela,  cd,  P1, LuminousIntensity;
         ),
         derived: derived_units!(
             SR:       Steradian   = Radian * Radian;
-            HZ:       Hertz       = Unitless / Second;
-            MILLIN:   MilliNewton = Gram * Meter / Second / Second;
-            MILLIPA:  MilliPascal = MilliNewton / Meter / Meter;
-            MILLIJ:   MilliJoule  = MilliNewton * Meter;
-            MILLIW:   MilliWatt   = MilliJoule / Second;
-            A:        Ampere      = Coulomb / Second;
-            MILLIV:    MilliVolt   = MilliJoule / Coulomb;
-            KILOF:    KiloFarad   = Coulomb / MilliVolt;
-            MILLIOHM: MilliOhm    = MilliVolt / Ampere;
-            KILOSIE:  KiloSiemens = Unitless / MilliOhm;
-            MILLIWB:  MilliWeber  = MilliVolt * Second;
+            HZ:       Hertz       = Unitless / Second, Frequency;
+            MILLIN:   MilliNewton = Gram * Meter / Second / Second, Force;
+            MILLIPA:  MilliPascal = MilliNewton / Meter / Meter, Pressure;
+            MILLIJ:   MilliJoule  = MilliNewton * Meter, Energy;
+            MILLIW:   MilliWatt   = MilliJoule / Second, Power;
+            A:        Ampere      = Coulomb / Second, Current;
+            MILLIV:    MilliVolt   = MilliJoule / Coulomb, ElectricPotential;
+            KILOF:    KiloFarad   = Coulomb / MilliVolt, Capacitance;
+            MILLIOHM: MilliOhm    = MilliVolt / Ampere, Resistance;
+            KILOSIE:  KiloSiemens = Unitless / MilliOhm, Conductance;
+            MILLIWB:  MilliWeber  = MilliVolt * Second, MagneticFlux;
             MILLIT:   MilliTesla  = MilliWeber / Meter / Meter;
-            MILLIH:   MilliHenry  = MilliWeber / Ampere;
+            MILLIH:   MilliHenry  = MilliWeber / Ampere, Inductance;
             LM:       Lumen       = Candela * Steradian;
             LX:       Lux         = Lumen / Meter / Meter;
             BQ:       Becquerel   = Unitless / Second;
@@ -62,14 +62,13 @@ It was generated using the `make_units!` macro.
             S2: Second2 = Second * Second;
             S3: Second3 = Second2 * Second;
 
-            M2: Meter2 = Meter * Meter;
-            M3: Meter3 = Meter2 * Meter;
+            M2: Meter2 = Meter * Meter, Area;
+            M3: Meter3 = Meter2 * Meter, Volume;
 
             PM: PerMeter = Unitless / Meter;
-            PS: PerSecond = Unitless / Second;
 
-            MPS: MeterPerSecond = Meter / Second;
-            MPS2: MeterPerSecond2 = Meter / Second2;
+            MPS: MeterPerSecond = Meter / Second, Speed;
+            MPS2: MeterPerSecond2 = Meter / Second2, Acceleration;
             M2PS: Meter2PerSecond = Meter2 / Second;
             M2PS2: Meter2PerSecond2 = Meter2 / Second2;
 
@@ -325,8 +324,8 @@ It was generated using the `make_units!` macro.
             S_: Second = 1.0e-13 * S.value_unsafe;
             HPF: Unitless = 1.0 * ONE.value_unsafe;
             LPF: Unitless = 100.0 * ONE.value_unsafe;
-            KAT: PerSecond = MOL.value_unsafe / S.value_unsafe;
-            U: PerSecond = MICRO*MOL.value_unsafe / MIN.value_unsafe;
+            KAT: Hertz = MOL.value_unsafe / S.value_unsafe;
+            U: Hertz = MICRO*MOL.value_unsafe / MIN.value_unsafe;
 
 
             // Levels (UCUM Section 46):
