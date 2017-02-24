@@ -1,6 +1,6 @@
 use super::*;
 
-pub fn ucum() -> System {
+pub fn new() -> System {
     System {
         name: "UCUM", module: "ucum",
         doc_prelude: "
@@ -65,7 +65,7 @@ It was generated using the `make_units!` macro.
             M2: Meter2 = Meter * Meter, Area;
             M3: Meter3 = Meter2 * Meter, Volume;
 
-            PM: PerMeter = Unitless / Meter;
+            PM: PerMeter = Unitless / Meter, ReciprocalLength;
 
             MPS: MeterPerSecond = Meter / Second, Speed;
             MPS2: MeterPerSecond2 = Meter / Second2, Acceleration;

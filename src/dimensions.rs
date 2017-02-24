@@ -22,6 +22,7 @@
 use Dimensioned;
 
 pub trait Length: Dimensioned {}
+pub trait ReciprocalLength: Dimensioned {}
 pub trait Area: Dimensioned {}
 pub trait Volume: Dimensioned {}
 

@@ -70,17 +70,24 @@ pub mod dimensions;
 #[macro_use]
 mod make_units;
 
+
 pub mod f32prefixes;
 pub mod f64prefixes;
 
-pub mod unit_systems;
-pub use unit_systems::{cgs, si, mks, ucum};
+include!(concat!(env!("OUT_DIR"), "/unit_systems.rs"));
+pub use unit_systems::{si, ucum, mks, cgs};
+
+mod conversion;
 
 pub use traits::*;
 
 
 pub mod array;
 
+
+
+// Used for the make_units macro
+#[doc(hidden)]
 pub mod dimcore {
     pub use core::{marker, fmt, ops, mem, f32, f64};
 }

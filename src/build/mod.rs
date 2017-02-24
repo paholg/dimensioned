@@ -76,10 +76,28 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
         }
 
         write!(f, "# Constants\n")?;
-        write!(f, "Constant | Value | Unit\n")?;
-        write!(f, "---|---|---\n")?;
-        for c in &self.constants {
-            write!(f, "{} | {} | {}\n", c.constant, c.nice_value(), c.unit)?;
+        write!(f, "Constant | Value | Unit | Dimension\n")?;
+        write!(f, "---|---|---|---\n")?;
+        for b in &self.base {
+            let mut newline = false;
+            for c in self.constants.iter().filter(|c| c.unit == b.name) {
+                write!(f, "{} | {} | {} | {}\n", c.constant, c.nice_value(), c.unit, b.dim)?;
+                newline = true;
+            }
+            if newline {
+                write!(f, "|\n")?;
+            }
+        }
+
+        for d in &self.derived {
+            let mut newline = false;
+            for c in self.constants.iter().filter(|c| c.unit == d.name) {
+                write!(f, "{} | {} | {} | {}\n", c.constant, c.nice_value(), c.unit, d.dim)?;
+                newline = true;
+            }
+            if newline {
+                write!(f, "|\n")?;
+            }
         }
 
         Ok(())
@@ -182,7 +200,7 @@ macro_rules! constants {
     );
 }
 
-fn make_system(s: System) {
+fn make_system(s: &System) {
     let out_dir = std::env::var("OUT_DIR").unwrap();
 
     let dest = std::path::Path::new(&out_dir).join(format!("{}.rs", s.module));
@@ -194,10 +212,31 @@ fn make_system(s: System) {
 
 mod si;
 mod ucum;
+mod mks;
+mod cgs;
 
 fn main() {
-    let systems = [si::si, ucum::ucum];
+    let systems = [si::new(), ucum::new(), mks::new(), cgs::new()];
     for s in &systems {
-        make_system(s());
+        make_system(s);
     }
+
+    let out_dir = std::env::var("OUT_DIR").unwrap();
+
+    let dest = std::path::Path::new(&out_dir).join("unit_systems.rs");
+    let mut f = std::fs::File::create(&dest).unwrap();
+
+    use std::io::Write;
+    write!(f, "
+/// The unit systems with which dimensioned ships
+
+pub mod unit_systems {{").unwrap();
+
+    for s in &systems {
+        write!(f, "
+    include!(concat!(env!(\"OUT_DIR\"), \"/{}.rs\"));", s.module).unwrap();
+    }
+
+    write!(f, "
+}}").unwrap();
 }

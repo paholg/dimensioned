@@ -1,9 +1,11 @@
 use super::*;
 
-pub fn si() -> System {
+pub fn new() -> System {
     System {
         name: "SI", module: "si",
         doc_prelude: "The SI unit system.
+
+Note: Incomplete - fixme.
 
 It was generated using the `make_units!` macro.
 
@@ -41,7 +43,7 @@ It was generated using the `make_units!` macro.
             M2: Meter2 = Meter * Meter, Area;
             M3: Meter3 = Meter2 * Meter, Volume;
 
-            PM: PerMeter = Unitless / Meter;
+            PM: PerMeter = Unitless / Meter, ReciprocalLength;
             PM2: PerMeter2 = PerMeter / Meter;
             PM3: PerMeter3 = PerMeter2 / Meter;
 
