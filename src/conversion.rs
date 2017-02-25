@@ -56,17 +56,18 @@ mod to_cgs {
     use core::convert::From;
     use core::ops::{Mul};
     use mks;
-    impl<V, Meter, Kilogram, Second> From<mks::MKS<V, tarr![Meter, Kilogram, Second]>>
-        for CGS<Prod<V, f64>, tarr![Meter, Kilogram, Second]> where
-        Meter: Integer, Kilogram: Integer, Second: Integer,
+    use f64prefixes::*;
+    impl<V, SqrtMeter, SqrtKilogram, Second> From<mks::MKS<V, tarr![SqrtMeter, SqrtKilogram, Second]>>
+        for CGS<Prod<V, f64>, tarr![SqrtMeter, SqrtKilogram, Second]> where
+        SqrtMeter: Integer, SqrtKilogram: Integer, Second: Integer,
         V: Mul<f64>,
     {
-        fn from(other: mks::MKS<V, tarr![Meter, Kilogram, Second]>) -> Self {
-            // Note we have to be a bit careful here because these unit systems are special and use
-            // double the regular unit power, so that they can be represented with half integer
-            // powers. E.g. The unit for area will really be `m^4`. That is why we take a sqrt first.
-            let mfac = 100.0f64.sqrt().powi(Meter::to_i32());
-            let kgfac = 1000.0f64.sqrt().powi(Kilogram::to_i32());
+        fn from(other: mks::MKS<V, tarr![SqrtMeter, SqrtKilogram, Second]>) -> Self {
+            let mfac = HECTO.sqrt().powi(SqrtMeter::to_i32());
+            let kgfac = match SqrtKilogram::to_i32() {
+                e if e % 2 == 0 => KILO.powi(e / 2),
+                e => KILO.sqrt().powi(e),
+            };
 
             let fac = mfac * kgfac;
 
@@ -82,17 +83,18 @@ mod to_mks {
     use core::convert::From;
     use core::ops::{Mul};
     use cgs;
-    impl<V, Centimeter, Gram, Second> From<cgs::CGS<V, tarr![Centimeter, Gram, Second]>>
-        for MKS<Prod<V, f64>, tarr![Centimeter, Gram, Second]> where
-        Centimeter: Integer, Gram: Integer, Second: Integer,
+    use f64prefixes::*;
+    impl<V, SqrtCentimeter, SqrtGram, Second> From<cgs::CGS<V, tarr![SqrtCentimeter, SqrtGram, Second]>>
+        for MKS<Prod<V, f64>, tarr![SqrtCentimeter, SqrtGram, Second]> where
+        SqrtCentimeter: Integer, SqrtGram: Integer, Second: Integer,
         V: Mul<f64>,
     {
-        fn from(other: cgs::CGS<V, tarr![Centimeter, Gram, Second]>) -> Self {
-            // Note we have to be a bit careful here because these unit systems are special and use
-            // double the regular unit power, so that they can be represented with half integer
-            // powers. E.g. The unit for area will really be `cm^4`. That is why we take a sqrt first.
-            let cmfac = 0.01f64.sqrt().powi(Centimeter::to_i32());
-            let gfac = 0.001f64.sqrt().powi(Gram::to_i32());
+        fn from(other: cgs::CGS<V, tarr![SqrtCentimeter, SqrtGram, Second]>) -> Self {
+            let cmfac = CENTI.sqrt().powi(SqrtCentimeter::to_i32());
+            let gfac = match SqrtGram::to_i32() {
+                e if e % 2 == 0 => MILLI.powi(e / 2),
+                e => MILLI.sqrt().powi(e),
+            };
 
             let fac = cmfac * gfac;
 

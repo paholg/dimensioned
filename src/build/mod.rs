@@ -15,7 +15,6 @@ pub struct BaseUnit {
     pub name: &'static str,
     pub constant: &'static str,
     pub token: &'static str,
-    pub root: &'static str,
     pub dim: &'static str,
 }
 
@@ -62,10 +61,10 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
 
 
         write!(f, "# Base Units\n")?;
-        write!(f, "Constant | Unit | Dimension | Print Token | Allowed Root\n")?;
-        write!(f, "---|---|---|---|---\n")?;
+        write!(f, "Constant | Unit | Dimension | Print Token\n")?;
+        write!(f, "---|---|---|---\n")?;
         for b in &self.base {
-            write!(f, "{} | {} | {} | {} | {}\n", b.constant, b.name, b.dim, b.token, b.root)?;
+            write!(f, "{} | {} | {} | {}\n", b.constant, b.name, b.dim, b.token)?;
         }
 
         write!(f, "# Derived Units\n")?;
@@ -120,7 +119,7 @@ pub mod {} {{
 
         base {{\n", self.module, self.name)?;
         for unit in &self.base {
-            write!(f, "            {}: {}, \"{}\", {};\n", unit.constant, unit.name, unit.token, unit.root)?;
+            write!(f, "            {}: {}, \"{}\";\n", unit.constant, unit.name, unit.token)?;
         }
 
         write!(f, "        }}
@@ -183,8 +182,8 @@ pub mod {} {{
 }
 
 macro_rules! base_units {
-    ($($constant:ident: $unit:ident, $token:ident, $root:ident $(, $dim:ident)*;)*) => (
-        vec![$(BaseUnit{name: stringify!($unit), constant: stringify!($constant), token: stringify!($token), root: stringify!($root), dim: stringify!($($dim)*)}),*];
+    ($($constant:ident: $unit:ident, $token:ident $(, $dim:ident)*;)*) => (
+        vec![$(BaseUnit{name: stringify!($unit), constant: stringify!($constant), token: stringify!($token), dim: stringify!($($dim)*)}),*];
     );
 }
 

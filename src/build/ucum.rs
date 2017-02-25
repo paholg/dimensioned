@@ -29,13 +29,13 @@ It was generated using the `make_units!` macro.
 
 ",
         base: base_units!(
-            M:   Meter,    m,   P1, Length;
-            S:   Second,   s,   P1, Time;
-            G:   Gram,     g,   P1, Mass;
-            RAD: Radian,   rad, P1;
-            K:   Kelvin,   K,   P1, Temperature;
-            C:   Coulomb,  C,   P1, Charge;
-            CD:  Candela,  cd,  P1, LuminousIntensity;
+            M:   Meter,    m,   Length;
+            S:   Second,   s,   Time;
+            G:   Gram,     g,   Mass;
+            RAD: Radian,   rad;
+            K:   Kelvin,   K,   Temperature;
+            C:   Coulomb,  C,   Charge;
+            CD:  Candela,  cd,  LuminousIntensity;
         ),
         derived: derived_units!(
             SR:       Steradian   = Radian * Radian;

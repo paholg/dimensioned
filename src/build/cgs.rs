@@ -12,11 +12,14 @@ It was generated using the `make_units!` macro.
 
 ",
         base: base_units!(
-            CM: Centimeter, cm, P2, Length;
-            G: Gram, g, P2, Mass;
-            S: Second, s, P1, Time;
+            SQRTCM: SqrtCentimeter, sqrtcm;
+            SQRTG: SqrtGram, sqrtg;
+            S: Second, s, Time;
         ),
         derived: derived_units!(
+            CM: Centimeter = SqrtCentimeter * SqrtCentimeter, Length;
+            G: Gram = SqrtGram * SqrtGram, Mass;
+
             CM2: Centimeter2 = Centimeter * Centimeter, Area;
             CM3: Centimeter3 = Centimeter2 * Centimeter, Volume;
 
@@ -45,12 +48,9 @@ It was generated using the `make_units!` macro.
             ST: Stokes = Centimeter2 / Second;
             K: Kayser = Unitless / Centimeter, ReciprocalLength;
 
-            // SQRT_CM: SqrtCentimeter = <Centimeter as Sqrt>::Output);
-            // SQRT_G: SqrtGram = <Gram as Sqrt>::Output);
-
-            // STATC: StatCoulomb = SqrtGram * SqrtCentimeter * Centimeter / Second);
-            // STATA: StatAmpere = StatCoulomb / Second);
-            // STATV: StatVolt = Erg / StatCoulomb);
+            STATC: StatCoulomb = SqrtGram * SqrtCentimeter * Centimeter / Second;
+            STATA: StatAmpere = StatCoulomb / Second;
+            STATV: StatVolt = Erg / StatCoulomb;
         ),
         constants: constants!(
         )

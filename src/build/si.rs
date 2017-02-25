@@ -11,13 +11,13 @@ It was generated using the `make_units!` macro.
 
 ",
         base: base_units!(
-            M: Meter, m, P1, Length;
-            KG: Kilogram, kg, P1, Mass;
-            S: Second, s, P1, Time;
-            A: Ampere, A, P1, Current;
-            K: Kelvin, K, P1, Temperature;
-            CD: Candela, cd, P1, LuminousIntensity;
-            MOL: Mole, mol, P1;
+            M: Meter, m, Length;
+            KG: Kilogram, kg, Mass;
+            S: Second, s, Time;
+            A: Ampere, A, Current;
+            K: Kelvin, K, Temperature;
+            CD: Candela, cd, LuminousIntensity;
+            MOL: Mole, mol;
         ),
         derived: derived_units!(
             HZ: Hertz = Unitless / Second, Frequency;

@@ -15,7 +15,7 @@ macro_rules! make_units {
     ($System:ident;
      $one:ident: $Unitless:ident;
      base {
-         $($base:ident: $Unit:ident, $print_as:expr, $Root:ident;)+
+         $($base:ident: $Unit:ident, $print_as:expr;)+
      }
      derived {
          $($derived_const:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
@@ -111,7 +111,7 @@ macro_rules! make_units {
             use $crate::traits::*;
             #[allow(unused_imports)]
             use $crate::typenum::consts::*;
-            __make_units_internal!(@base_arrays $Unitless, $($Unit, $Root,)*);
+            __make_units_internal!(@base_arrays $Unitless $($Unit)*);
             $(pub type $Derived = __derived_internal!(@mu commas $($derived_rhs)+);)*
         }
 
@@ -158,15 +158,15 @@ macro_rules! make_units {
         use $crate::generic_array::{GenericArray, ArrayLength};
         use $crate::array::ToGA;
 
-        __make_units_internal!(@fmt true S $System $(R $Root P $print_as;)* T Debug E "{:?}");
-        __make_units_internal!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Display E "{}");
-        __make_units_internal!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Octal E "{:o}");
-        __make_units_internal!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T LowerHex E "{:x}");
-        __make_units_internal!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T UpperHex E "{:X}");
-        __make_units_internal!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Pointer E "{:p}");
-        __make_units_internal!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T Binary E "{:b}");
-        __make_units_internal!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T LowerExp E "{:e}");
-        __make_units_internal!(@fmt $to_fmt S $System $(R $Root P $print_as;)* T UpperExp E "{:E}");
+        __make_units_internal!(@fmt true S $System $(P $print_as;)* T Debug E "{:?}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T Display E "{}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T Octal E "{:o}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T LowerHex E "{:x}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T UpperHex E "{:X}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T Pointer E "{:p}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T Binary E "{:b}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T LowerExp E "{:e}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T UpperExp E "{:E}");
 
         // --------------------------------------------------------------------------------
         // Operator traits from this crate
@@ -662,7 +662,7 @@ macro_rules! __make_units_internal {
         prim!(char);
     );
 
-    (@fmt true S $System:ident $(R $Root:ident P $print_as:expr;)* T $Trait:ident E $token:expr) => (
+    (@fmt true S $System:ident $(P $print_as:expr;)* T $Trait:ident E $token:expr) => (
         impl<V, A> fmt::$Trait for $System<V, A> where
             V: fmt::$Trait,
         Length<A>: ArrayLength<isize>,
@@ -670,39 +670,31 @@ macro_rules! __make_units_internal {
         {
             fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error>
             {
-                use $crate::typenum::consts::*;
-                use $crate::typenum::Integer;
-                let allowed_roots = [$($Root::to_isize()),*];
                 let exponents = A::to_ga();
                 let print_tokens = [$($print_as),*];
 
                 let mut first = true;
 
-                try!(self.value_unsafe.fmt(f));
+                self.value_unsafe.fmt(f)?;
 
-                for ((&root, exp), token) in
-                    allowed_roots.into_iter()
-                    .zip(exponents.into_iter())
+                for (exp, token) in
+                    exponents.into_iter()
                     .zip(print_tokens.iter())
                 {
                     if first {
                         first = false;
                         if exp != 0 {
-                            try!(write!(f, " "));
+                            write!(f, " ")?;
                         }
                     } else if exp != 0 {
-                        try!(write!(f, "*"));
+                        write!(f, "*")?;
                     }
 
                     match exp {
                         0 => (),
-                        _ if exp == root => try!(write!(f, "{}", token)),
+                        1 => write!(f, "{}", token)?,
                         _ => {
-                            if exp % root == 0 {
-                                try!(write!(f, "{}^{}", token, exp/root))
-                            } else {
-                                try!(write!(f, "{}^{:.2}", token, exp as f32/root as f32))
-                            }
+                            write!(f, "{}^{}", token, exp)?
                         },
                     }
                 }
@@ -711,28 +703,28 @@ macro_rules! __make_units_internal {
         }
     );
 
-    (@fmt false S $System:ident $(R $Root:ident P $print_as:expr;)* T $Trait:ident E $token:expr) => ();
+    (@fmt false S $System:ident $(P $print_as:expr;)* T $Trait:ident E $token:expr) => ();
 
     // define arrays for all the base units
-    (@base_arrays $Unitless:ident, $Unit:ident, $Root:ident, $($Units:ident, $Roots:ident,)*) => (
+    (@base_arrays $Unitless:ident $Unit:ident $($Units:ident)*) => (
         pub type $Unitless = tarr![Z0, $(__make_units_internal!(@convert_to_zero $Units)),*];
-        __make_units_internal!(@next_array U $Unit R $Root $(U $Units R $Roots)* $(E $Units)*);
+        __make_units_internal!(@next_array U $Unit $(U $Units)* $(E $Units)*);
     );
 
-    (@next_array U $Unit:ident R $Root:ident $(U $Units:ident R $Roots:ident)*
+    (@next_array U $Unit:ident $(U $Units:ident)*
      $(F $FrontZeros:ident)* E $Zero:ident $(E $EndZeros:ident)*) => (
         pub type $Unit = tarr![
             $(__make_units_internal!(@convert_to_zero $FrontZeros),)*
-                $Root,
+                P1,
             Z0 $(, __make_units_internal!(@convert_to_zero $EndZeros))*
         ];
-        __make_units_internal!(@next_array $(U $Units R $Roots)* $(F $FrontZeros)* F $Zero $(E $EndZeros)*);
+        __make_units_internal!(@next_array $(U $Units)* $(F $FrontZeros)* F $Zero $(E $EndZeros)*);
     );
 
-    (@next_array U $Unit:ident R $Root:ident $(F $FrontZeros:ident)*) => (
+    (@next_array U $Unit:ident $(F $FrontZeros:ident)*) => (
         pub type $Unit = tarr![
             $(__make_units_internal!(@convert_to_zero $FrontZeros),)*
-                $Root
+                P1
         ];
     );
 
@@ -841,3 +833,18 @@ macro_rules! __derived_internal {
     (@mu commas $($tail:tt)*) => (__derived_internal!(@mu eval $($tail,)*));
 }
 
+
+
+pub mod poop {
+    make_units! {
+        TEST;
+        ONE: Unis;
+        base {
+            A: Apple, "a";
+        }
+        derived {
+        }
+        constants {}
+        fmt = true;
+    }
+}

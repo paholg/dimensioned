@@ -12,11 +12,14 @@ It was generated using the `make_units!` macro.
 
 ",
         base: base_units!(
-            M: Meter, m, P2, Length;
-            KG: Kilogram, kg, P2, Mass;
-            S: Second, s, P1, Time;
+            SQRTM: SqrtMeter, sqrtm;
+            SQRTKG: SqrtKilogram, sqrtkg;
+            S: Second, s, Time;
         ),
         derived: derived_units!(
+            M: Meter = SqrtMeter * SqrtMeter, Length;
+            KG: Kilogram = SqrtKilogram * SqrtKilogram, Mass;
+
             MPS: MeterPerSecond = Meter / Second, Velocity;
         ),
         constants: constants!(

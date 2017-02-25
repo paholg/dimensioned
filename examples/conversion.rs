@@ -9,8 +9,8 @@ mod ms {
         ONE: Unitless;
 
         base {
-            M: Meter, "m", P1;
-            S: Second, "s", P1;
+            M: Meter, "m";
+            S: Second, "s";
         }
 
         derived {
@@ -39,8 +39,8 @@ mod fm {
         ONE: Unitless;
 
         base {
-            FT: Foot, "ft", P1;
-            MIN: Minute, "min", P1;
+            FT: Foot, "ft";
+            MIN: Minute, "min";
 
         }
 
