@@ -10,6 +10,8 @@
 /// As this macro makes some imports and creates a module named `inner`, it is **highly** recommended
 /// that you place any call to it in its own module.
 ///
+/// NOTE: consts (PI, E, etc.) and prefixes (MILLI, KILO, etc) are imported and off-limits
+
 #[macro_export]
 macro_rules! make_units {
     ($System:ident;
@@ -129,27 +131,22 @@ macro_rules! make_units {
 
         // --------------------------------------------------------------------------------
         // Define consts
-        pub mod f32consts {
-            use super::*;
-            use $crate::dimcore::marker::PhantomData;
-            #[allow(unused_imports)] use $crate::dimcore::f32::consts::*;
-            #[allow(unused_imports)] use $crate::f32prefixes::*;
-            #[allow(dead_code)] pub const $one: $Unitless<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };
-            $(#[allow(dead_code)] pub const $base: $Unit<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
-            $(#[allow(dead_code)] pub const $derived_const: $Derived<f32> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
-            $(#[allow(dead_code)] pub const $constant: $ConstantUnit<f32> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
+        macro_rules! define_consts {
+            ($module:ident, $prefixes:ident, $t:ident) => (
+                pub mod $module {
+                    use super::*;
+                    use $crate::dimcore::marker::PhantomData;
+                    #[allow(unused_imports)] use $crate::dimcore::$t::consts::*;
+                    #[allow(unused_imports)] use $crate::$prefixes::*;
+                    #[allow(dead_code)] pub const $one: $Unitless<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };
+                    $(#[allow(dead_code)] pub const $base: $Unit<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+                    $(#[allow(dead_code)] pub const $derived_const: $Derived<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+                    $(#[allow(dead_code)] pub const $constant: $ConstantUnit<$t> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
+                }
+            );
         }
-
-        pub mod f64consts {
-            use super::*;
-            use $crate::dimcore::marker::PhantomData;
-            #[allow(unused_imports)] use $crate::dimcore::f64::consts::*;
-            #[allow(unused_imports)] use $crate::f64prefixes::*;
-            #[allow(dead_code)] pub const $one: $Unitless<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };
-            $(#[allow(dead_code)] pub const $base: $Unit<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
-            $(#[allow(dead_code)] pub const $derived_const: $Derived<f64> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
-            $(#[allow(dead_code)] pub const $constant: $ConstantUnit<f64> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
-        }
+        define_consts!(f32consts, f32prefixes, f32);
+        define_consts!(f64consts, f64prefixes, f64);
 
         // --------------------------------------------------------------------------------
         // Formatting

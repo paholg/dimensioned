@@ -8,8 +8,6 @@
 //! generate a test to ensure that `MIN == 60.0 * S`. This would not be necessary if we could
 //! perform these operations at compile time.
 
-#![cfg_attr(feature = "spec", feature(specialization))]
-
 use std::fmt;
 
 #[derive(Debug)]
@@ -108,6 +106,7 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
             let mut newline = false;
             for c in self.constants.iter().filter(|c| c.unit == b.name) {
                 write!(f, "{} | {} | {} | {}\n", c.constant, c.nice_value(), c.unit, b.dim)?;
+
                 newline = true;
             }
             if newline {
@@ -283,7 +282,6 @@ pub mod unit_systems {{").unwrap();
 
     #[cfg(feature = "test")]
     make_conversion_tests(&systems, &out_dir).unwrap();
-
 }
 
 #[cfg(feature = "test")]

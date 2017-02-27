@@ -4,6 +4,7 @@
 //!
 //! For in depth tutorials, check [here](http://paholg.com/project/dimensioned).
 //!
+
 #![doc(html_logo_url = "http://paholg.com/dimensioned/imgs/favicon.png",
        html_favicon_url = "http://paholg.com/dimensioned/imgs/favicon.png",
        html_root_url = "http://paholg.com/dimensioned")]
