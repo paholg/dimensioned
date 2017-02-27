@@ -31,7 +31,7 @@
 
 pub extern crate typenum;
 
-// Copied from typenum so that users don't have to import typenum.
+// Copied from typenum so that users don't have to import typenum for the make_units macro to work.
 // Only change is the paths.
 /// Construct a type-level array of type-level integers.
 ///
@@ -78,7 +78,7 @@ pub mod f32prefixes;
 pub mod f64prefixes;
 
 include!(concat!(env!("OUT_DIR"), "/unit_systems.rs"));
-pub use unit_systems::{si, ucum, mks, cgs};
+pub use unit_systems::*;
 
 pub mod conversion;
 

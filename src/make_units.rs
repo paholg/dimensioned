@@ -762,8 +762,8 @@ macro_rules! __make_units_internal {
 /// # fn main() {}
 /// ```
 ///
-/// You may use any of the base or derived units that come with a unit system (but none created
-/// after) on the right-hand side of the expression.
+/// You may use any of the base or derived units that come with a unit system (but none created by
+/// this macro) on the right-hand side of the expression.
 ///
 /// # Example
 /// ```rust

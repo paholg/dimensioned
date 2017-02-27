@@ -33,17 +33,17 @@ make it work a bit better for wrapping non-primitives in units. The recommended 
 ```rust
 extern crate dimensioned as dim;
 
-use dim::{mks, cgs};
+use dim::{si, cgs};
 use std::convert::From;
 
-fn speed(dist: mks::Meter<f64>, time: mks::Second<f64>) -> mks::MeterPerSecond<f64> {
+fn speed(dist: si::Meter<f64>, time: si::Second<f64>) -> si::MeterPerSecond<f64> {
     dist / time
 }
 
 fn main() {
-    let x = 6.0 * mks::M;
-    let t = 3.0 * mks::S;
-    let v = 2.0 * mks::M/mks::S;
+    let x = 6.0 * si::M;
+    let t = 3.0 * si::S;
+    let v = 2.0 * si::M/si::S;
     let v2 = speed(x, t);
     assert_eq!(v, v2);
 
