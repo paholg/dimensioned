@@ -12,6 +12,9 @@
 #![no_std]
 
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
+#![cfg_attr(feature = "spec", feature(specialization))]
+
+
 
 // For clippy:
 #![cfg_attr(feature="clippy", feature(plugin))]
@@ -77,7 +80,7 @@ pub mod f64prefixes;
 include!(concat!(env!("OUT_DIR"), "/unit_systems.rs"));
 pub use unit_systems::{si, ucum, mks, cgs};
 
-mod conversion;
+pub mod conversion;
 
 pub use traits::*;
 

@@ -2,7 +2,7 @@ use super::*;
 
 pub fn new() -> System {
     System {
-        name: "UCUM", module: "ucum",
+        name: UCUM, module: "ucum",
         doc_prelude: "
 
 The Unified Code for Units of Measure (UCUM)
@@ -85,6 +85,7 @@ It was generated using the `make_units!` macro.
             MILLINPA2: MilliNewtonPerAmpere2 = MilliNewton / Ampere / Ampere;
             M3PGS2: Meter3PerGramSecond2 = Meter3 / Gram / Second2;
             MILLIPS: MilliPascalSecond = MilliPascal * Second;
+
 
             M3PSG: Meter3PerSecondGram = Meter3 / Second / Gram;
         ),
@@ -344,5 +345,9 @@ It was generated using the `make_units!` macro.
             CAR_AU: Unitless = 1.0 / 24.0 * ONE.value_unsafe;
             SMOOT: Meter = 67.0 * IN_I.value_unsafe;
         ),
+        from: vec![
+            SI,
+        ],
+        refl_blacklist: vec!["RAD", "SR", "GON", "DEG", "CIRC", "LM", "SPH", "PHT", "LX"],
     }
 }

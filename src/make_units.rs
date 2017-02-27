@@ -282,6 +282,7 @@ macro_rules! make_units {
         }
 
         // --------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------
     );
 }
 
@@ -682,8 +683,8 @@ macro_rules! __make_units_internal {
                     .zip(print_tokens.iter())
                 {
                     if first {
-                        first = false;
                         if exp != 0 {
+                            first = false;
                             write!(f, " ")?;
                         }
                     } else if exp != 0 {

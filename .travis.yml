@@ -21,7 +21,7 @@ script:
   - |
     travis-cargo --only stable test &&
     travis-cargo --only beta test &&
-    travis-cargo --only nightly test -- --features "oibit qc clippy" &&
+    travis-cargo --only nightly test -- --features "test" &&
     travis-cargo --only stable doc
 
 after_success:

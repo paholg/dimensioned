@@ -2,7 +2,7 @@ use super::*;
 
 pub fn new() -> System {
     System {
-        name: "SI", module: "si",
+        name: SI, module: "si",
         doc_prelude: "The SI unit system.
 
 Note: Incomplete - fixme.
@@ -72,6 +72,12 @@ It was generated using the `make_units!` macro.
             MIN: Second = 60.0 * S.value_unsafe;
             HR: Second = 60.0 * MIN.value_unsafe;
             DAY: Second = 24.0 * HR.value_unsafe;
-        )
+
+            DYN: Newton = 1.0e-5 * N.value_unsafe;
+        ),
+        from: vec![
+            UCUM,
+        ],
+        refl_blacklist: vec!["MOL", "KAT"],
     }
 }

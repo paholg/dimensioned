@@ -1,9 +1,8 @@
-
 use super::*;
 
 pub fn new() -> System {
     System {
-        name: "MKS", module: "mks",
+        name: MKS, module: "mks",
         doc_prelude: "The Gaussian MKS unit system.
 
 Note: Incomplete - fixme.
@@ -23,6 +22,11 @@ It was generated using the `make_units!` macro.
             MPS: MeterPerSecond = Meter / Second, Velocity;
         ),
         constants: constants!(
-        )
+        ),
+        from: vec![
+            SI,
+            CGS,
+        ],
+        refl_blacklist: Vec::new(),
     }
 }

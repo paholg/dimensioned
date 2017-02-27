@@ -1,9 +1,8 @@
-
 use super::*;
 
 pub fn new() -> System {
     System {
-        name: "CGS", module: "cgs",
+        name: CGS, module: "cgs",
         doc_prelude: "The Gaussian CGS unit system.
 
 Note: Incomplete - fixme.
@@ -53,6 +52,12 @@ It was generated using the `make_units!` macro.
             STATV: StatVolt = Erg / StatCoulomb;
         ),
         constants: constants!(
-        )
+            M: Centimeter = HECTO * CM.value_unsafe;
+        ),
+        from: vec![
+            SI,
+            MKS,
+        ],
+        refl_blacklist: Vec::new(),
     }
 }
