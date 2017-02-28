@@ -80,9 +80,11 @@ impl System {
 
         write!(f, "
 
+This unit system was generated using the `make_units!` macro. See its documentation if you're
+curious how it works.
+
 Following, we list all of the [base units](#base-units), [derived units](#derived-units), and
 [constants](#constants) that are defined in this unit system.
-
 ")?;
 
 

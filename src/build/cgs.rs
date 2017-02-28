@@ -3,11 +3,9 @@ use super::*;
 pub fn new() -> System {
     System {
         name: CGS, module: "cgs",
-        doc_prelude: "The Gaussian CGS unit system.
+        doc_prelude: "The Gaussian CGS unit system
 
 Note: Incomplete - fixme.
-
-It was generated using the `make_units!` macro.
 
 ",
         base: base_units!(

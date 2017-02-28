@@ -3,8 +3,9 @@
 //! The traits in this module can be useful for writing code that is generic with regards to unit
 //! system, but involves a specific dimension.
 //!
-//! Where appropriate, these traits are implemented for the unit systems in this library, but they
-//! are not automatically implemented by the `make_units` macro.
+//! Where appropriate, these traits are implemented for the unit systems in this library.
+//!
+//! If you find it lacking, please feel free to submit an issue or pull request to add more.
 //!
 //! # Example
 //! ```rust

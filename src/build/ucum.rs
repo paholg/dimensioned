@@ -25,9 +25,6 @@ constant `MILLIN` and `MilliJoule` with constant `MILLIJ`. Note that the constan
 are still defined with the appropriate values.
 
 fixme: Note that we use more current value of electron charge
-
-It was generated using the `make_units!` macro.
-
 ",
         base: base_units!(
             M:   Meter,    m,   Length;

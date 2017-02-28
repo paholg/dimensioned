@@ -3,12 +3,9 @@ use super::*;
 pub fn new() -> System {
     System {
         name: SI, module: "si",
-        doc_prelude: "The International System of Units (SI).
+        doc_prelude: "The International System of Units (SI)
 
 Note: Incomplete - fixme.
-
-It was generated using the `make_units!` macro.
-
 ",
         base: base_units!(
             M: Meter, m, Length;
@@ -151,18 +148,18 @@ It was generated using the `make_units!` macro.
             HA: Meter2 = 10000.0 * M2.value_unsafe;
             L: Meter3 = 0.001 * M3.value_unsafe;
             TONNE: Kilogram = 1.0e3 * KG.value_unsafe;
-            AU: Meter = 1.495978707e11 * M.value_unsafe;
+            AU: Meter = 149_597_870_700.0 * M.value_unsafe;
 
-            EV: Joule = 1.6021766208e-19 * J.value_unsafe;
-            U: Kilogram = 1.66053886e-27 * KG.value_unsafe;
+            E_: Coulomb = 1.6021766208e-19 * C.value_unsafe;
+            EV: Joule = E_.value_unsafe * V.value_unsafe;
+            U: Kilogram = 1.660539040e-27 * KG.value_unsafe;
 
             C0: MeterPerSecond = 299792458.0 * MPS.value_unsafe;
 
-            HBAR: JouleSecond = 1.05457168e-34 * JS.value_unsafe;
+            HBAR: JouleSecond = 1.054571800e-34 * JS.value_unsafe;
             M_E: Kilogram = 9.10938356e-31 * KG.value_unsafe;
-            E_: Coulomb = EV.value_unsafe / V.value_unsafe;
-            R_BOHR: Meter = 0.5291772108e-10 * M.value_unsafe;
-            HARTREE: Joule = 4.35974417e-18 * J.value_unsafe;
+            R_BOHR: Meter = 0.52917721067e-10 * M.value_unsafe;
+            HARTREE: Joule = 4.359744650e-18 * J.value_unsafe;
             AO: Meter = 1e-10 * M.value_unsafe;
             ARE: Meter2 = 100.0 * M2.value_unsafe;
             BARN: Meter2 = 1e-28 * M2.value_unsafe;
