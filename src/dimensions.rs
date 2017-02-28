@@ -62,3 +62,5 @@ pub trait Force: Dimensioned {}
 pub trait Pressure: Dimensioned {}
 pub trait Energy: Dimensioned {}
 pub trait Power: Dimensioned {}
+
+pub trait AmountOfSubstance: Dimensioned {}

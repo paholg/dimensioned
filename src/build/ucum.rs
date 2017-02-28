@@ -24,6 +24,7 @@ energy, so we define many derived units with `Milli` in front. For example, `Mil
 constant `MILLIN` and `MilliJoule` with constant `MILLIJ`. Note that the constants `N` and `J`
 are still defined with the appropriate values.
 
+fixme: Note that we use more current value of electron charge
 
 It was generated using the `make_units!` macro.
 
@@ -138,7 +139,8 @@ It was generated using the `make_units!` macro.
             K_: MilliJoulePerKelvin = 1.380658e-23 * J.value_unsafe / K.value_unsafe;
             EPS_0: KiloFaradPerMeter = 8.854187817e-12 * F.value_unsafe / M.value_unsafe;
             MU_0: MilliNewtonPerAmpere2 = 4.0e-7 * PI * N.value_unsafe / A.value_unsafe / A.value_unsafe;
-            E_: Coulomb = 1.60217733e-19 * C.value_unsafe;
+            // NOTE: This is more current than that specified by UCUM
+            E_: Coulomb = 1.6021766208e-19 * C.value_unsafe;
             M_E: Gram = 9.1093897e-28 * G.value_unsafe;
             M_P: Gram = 1.6726231e-24 * G.value_unsafe;
             GC: Meter3PerGramSecond2 = 6.67259e-11 * M3.value_unsafe / KG.value_unsafe / S2.value_unsafe;

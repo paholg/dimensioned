@@ -97,9 +97,13 @@ fn main() {
     let x1 = 3.0 * ms::M + 2.0 * ms::FT + ms::Meter::new(1.2);
     let x2 = 3.0 * fm::M + 2.0 * fm::FT + 1.2 * fm::M;
 
-    assert_eq!(x1, ms::MS::from(x2));
-    assert_eq!(fm::FM::from(x1), x2);
+    assert_eq!(x1, x2.into());
+    assert_eq!(x2, x1.into());
 
     // prints: x1 = 4.81 m, x2 = 15.78 ft
     println!("x1 = {:.2}, x2 = {:.2}", x1, x2);
+
+    let x3 = x1 + x2.into();
+    println!("x3 = {}", x3);
+
 }

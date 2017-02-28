@@ -270,6 +270,12 @@ fn main() {
 
     write!(f, "
 /// The unit systems with which dimensioned ships
+///
+/// fixme: Note on temperature
+///
+/// fixme: Note on conversions, when defined, etc.
+///
+/// fixme: Naming convetions (PM3, Second2, etc.)
 
 pub mod unit_systems {{").unwrap();
 
@@ -320,9 +326,9 @@ mod constant_conversion {{
     fn reflexivity_of_{c}_from_{mod1}_to_{mod2}() {{
         let a = {mod1}::{c};
         let b = {mod1}::{sys1}::from({mod2}::{sys2}::from({mod1}::{c}));
-        a + b; // ensure type hasn't changed
-        assert_ulps_eq!(a.value_unsafe, b.value_unsafe, max_ulps = 2); // ensures value hasn't changed
-        assert_relative_eq!(a.value_unsafe, b.value_unsafe); // ensures value hasn't changed
+        a + b; // ensure type hasn't changed for {c} from {mod1} to {mod2}
+        assert_ulps_eq!(a.value_unsafe, b.value_unsafe, epsilon = 0.0, max_ulps = 2); // ensures value hasn't changed
+        assert_relative_eq!(a.value_unsafe, b.value_unsafe, epsilon = 0.0); // ensures value hasn't changed
     }}", mod1=s.module, mod2=s2.module, c=c, sys1=s.name, sys2=s2.name)?;
                 }
             }

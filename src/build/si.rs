@@ -3,7 +3,7 @@ use super::*;
 pub fn new() -> System {
     System {
         name: SI, module: "si",
-        doc_prelude: "The SI unit system.
+        doc_prelude: "The International System of Units (SI).
 
 Note: Incomplete - fixme.
 
@@ -17,7 +17,7 @@ It was generated using the `make_units!` macro.
             A: Ampere, A, Current;
             K: Kelvin, K, Temperature;
             CD: Candela, cd, LuminousIntensity;
-            MOL: Mole, mol;
+            MOL: Mole, mol, AmountOfSubstance;
         ),
         derived: derived_units!(
             HZ: Hertz = Unitless / Second, Frequency;
@@ -29,7 +29,7 @@ It was generated using the `make_units!` macro.
             V: Volt = Watt / Ampere, ElectricPotential;
             F: Farad = Coulomb / Volt, Capacitance;
             OHM: Ohm = Volt / Ampere, Resistance;
-            SIEMENS: Siemens = Ampere / Volt, Conductance;
+            SIE: Siemens = Ampere / Volt, Conductance;
             WB: Weber = Joule / Ampere, MagneticFlux;
             T: Tesla = Weber / Meter2;
             H: Henry = Ohm * Second, Inductance;
@@ -51,6 +51,10 @@ It was generated using the `make_units!` macro.
             S3: Second3 = Second2 * Second;
             S4: Second4 = Second3 * Second;
 
+            PS2: PerSecond2 = Unitless / Second2;
+            PS3: PerSecond3 = Unitless / Second3;
+            PS4: PerSecond4 = Unitless / Second4;
+
             MPS: MeterPerSecond = Meter / Second, Velocity;
             MPS2: MeterPerSecond2 = Meter / Second2, Acceleration;
             MPS3: MeterPerSecond3 = Meter / Second3, Jerk;
@@ -67,11 +71,95 @@ It was generated using the `make_units!` macro.
             NS: NewtonSecond = Newton * Second;
             JS: JouleSecond = Joule * Second;
             NPS: NewtonPerSecond = Newton / Second;
+
+            KGPM: KilogramPerMeter = Kilogram / Meter;
+            KGPM2: KilogramPerMeter2 = Kilogram / Meter2;
+            KGPM3: KilogramPerMeter3 = Kilogram / Meter3;
+
+            MPKG: MeterPerKilogram = Meter / Kilogram;
+            M2PKG: Meter2PerKilogram = Meter2 / Kilogram;
+            M3PKG: Meter3PerKilogram = Meter3 / Kilogram;
+
+            MOLPM: MolePerMeter = Mole / Meter;
+            MOLPM2: MolePerMeter2 = Mole / Meter2;
+            MOLPM3: MolePerMeter3 = Mole / Meter3;
+
+            MPMOL: MeterPerMole = Meter / Mole;
+            M2PMOL: Meter2PerMole = Meter2 / Mole;
+            M3PMOL: Meter3PerMole = Meter3 / Mole;
+
+            JPK: JoulePerKelvin = Joule / Kelvin;
+            JPKMOL: JoulePerKelvinMole = JoulePerKelvin / Mole;
+            JPKGK: JoulePerKilogramKelvin = JoulePerKelvin / Kilogram;
+            JPMOL: JoulePerMole = Joule / Mole;
+            JPKG: JoulePerKilogram = Joule / Kilogram;
+            JPM2: JoulePerMeter2 = Joule / Meter2;
+            JPM3: JoulePerMeter3 = Joule / Meter3;
+
+            NPM: NewtonPerMeter = JoulePerMeter2;
+            WPM2: WattPerMeter2 = Watt / Meter2;
+            WPMK: WattPerMeterKelvin = Watt / Meter / Kelvin;
+
+            PAS: PascalSecond = Pascal * Second;
+
+            CPM2: CoulombPerMeter2 = Coulomb / Meter2;
+            CPM3: CoulombPerMeter3 = Coulomb / Meter3;
+            APM2: AmperePerMeter2 = Ampere / Meter2;
+            SIEPM: SiemensPerMeter = Siemens / Meter;
+            SIEM2PMOL: SiemensMeter2PerMole = Siemens * Meter2 / Mole;
+            FPM: FaradPerMeter = Farad / Meter;
+            HPM: HenryPerMeter = Henry / Meter;
+            VPM: VoltPerMeter = Volt / Meter;
+            APM: AmperePerMeter = Ampere / Meter;
+            CDPM2: CandelaPerMeter2 = Candela / Meter2;
+            LMS: LumenSecond = Lumen * Second;
+            LXS: LuxSecond = Lux * Second;
+            CPKG: CoulombPerKilogram = Coulomb / Kilogram;
+            GYPS: GrayPerSecond = Gray / Second;
+            OHMM: OhmMeter = Ohm * Meter;
+            CPM: CoulombPerMeter = Coulomb / Meter;
+            MOLPKG: MolePerKilogram = Mole / Kilogram;
+            KGPMOL: KilogramPerMole = Kilogram / Mole;
+            KGPS: KilogramPerSecomd = Kilogram / Second;
+            JPT: JoulePerTesla = Joule / Tesla;
+            WPM3: WattPerMeter3 = Watt / Meter3;
+            KPW: KelvinPerWatt = Kelvin / Watt;
+            PK: PerKelvin = Unitless / Kelvin;
+            KPM: KelvinPerMeter = Kelvin / Meter;
+            M2PVS: Meter2PerVoltSecond = Meter2 / Volt / Second;
+            JPM2S: JoulePerMeter2Second = JoulePerMeter2 / Second;
+            PPA: PerPascal = Unitless / Pascal;
+            PH: PerHenry = Unitless / Henry;
+            WBPM: WeberPerMeter = Weber / Meter;
+            WBM: WeberMeter = Weber * Meter;
+            TM: TeslaMeter = Tesla * Meter;
+            M3PMOLS: Meter3PerMoleSecond = Meter3 / Mole / Second;
+            NMSPKG: NewtonMeterSecondPerKilogram = Newton * Meter * Second / Kilogram;
+            LMPW: LumenPerWatt = Lumen / Watt;
+            MPH: MeterPerHenry = Meter / Henry;
+            WPM: WattPerMeter = Watt / Meter;
         ),
         constants: constants!(
+            RAD: Unitless = 1.0 * ONE.value_unsafe;
+            SR: Unitless = 1.0 * ONE.value_unsafe;
+
             MIN: Second = 60.0 * S.value_unsafe;
             HR: Second = 60.0 * MIN.value_unsafe;
             DAY: Second = 24.0 * HR.value_unsafe;
+
+            DEG: Unitless = PI / 180.0 * RAD.value_unsafe;
+            HA: Meter2 = 10000.0 * M2.value_unsafe;
+            L: Meter3 = 0.001 * M3.value_unsafe;
+            TONNE: Kilogram = 1.0e3 * KG.value_unsafe;
+            AU: Meter = 1.495978707e11 * M.value_unsafe;
+
+            EV: Joule = 1.6021766208e-19 * J.value_unsafe;
+            U: Kilogram = 1.66053886e-27 * KG.value_unsafe;
+
+            C0: MeterPerSecond = 299792458.0 * MPS.value_unsafe;
+
+            HBAR: JouleSecond = 1.05457168e-34 * JS.value_unsafe;
+            ME: Kilogram = 9.1093826e-31 * KG.value_unsafe;
 
             DYN: Newton = 1.0e-5 * N.value_unsafe;
         ),
@@ -79,6 +167,8 @@ It was generated using the `make_units!` macro.
         from: vec![
             UCUM,
         ],
-        refl_blacklist: vec!["MOL", "KAT"],
+        refl_blacklist: vec!
+            ["MOL", "KAT", "MOLPM", "MPMOL", "MOLPKG", "KGPMOL", "M2PMOL", "M3PMOL",
+             "SIEM2PMOL", "JPKMOL", "JPMOL", "MOLPM2", "MOLPM3", "M3PMOLS"],
     }
 }
