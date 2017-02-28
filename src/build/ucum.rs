@@ -141,7 +141,7 @@ It was generated using the `make_units!` macro.
             MU_0: MilliNewtonPerAmpere2 = 4.0e-7 * PI * N.value_unsafe / A.value_unsafe / A.value_unsafe;
             // NOTE: This is more current than that specified by UCUM
             E_: Coulomb = 1.6021766208e-19 * C.value_unsafe;
-            M_E: Gram = 9.1093897e-28 * G.value_unsafe;
+            M_E: Gram = 9.10938356e-31 * KG.value_unsafe;
             M_P: Gram = 1.6726231e-24 * G.value_unsafe;
             GC: Meter3PerGramSecond2 = 6.67259e-11 * M3.value_unsafe / KG.value_unsafe / S2.value_unsafe;
             G_: MeterPerSecond2 = 9.80665 * M.value_unsafe / S2.value_unsafe;

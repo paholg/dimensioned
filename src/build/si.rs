@@ -159,7 +159,19 @@ It was generated using the `make_units!` macro.
             C0: MeterPerSecond = 299792458.0 * MPS.value_unsafe;
 
             HBAR: JouleSecond = 1.05457168e-34 * JS.value_unsafe;
-            ME: Kilogram = 9.1093826e-31 * KG.value_unsafe;
+            M_E: Kilogram = 9.10938356e-31 * KG.value_unsafe;
+            E_: Coulomb = EV.value_unsafe / V.value_unsafe;
+            R_BOHR: Meter = 0.5291772108e-10 * M.value_unsafe;
+            HARTREE: Joule = 4.35974417e-18 * J.value_unsafe;
+            AO: Meter = 1e-10 * M.value_unsafe;
+            ARE: Meter2 = 100.0 * M2.value_unsafe;
+            BARN: Meter2 = 1e-28 * M2.value_unsafe;
+            BAR: Pascal = 1e5 * PA.value_unsafe;
+            MBAR: Pascal = 100.0 * PA.value_unsafe;
+            ATM: Pascal = 101325.0 * PA.value_unsafe;
+            BA: Pascal = 0.1 * PA.value_unsafe;
+            MMHG: Pascal = 133.322387415 * PA.value_unsafe;
+            TORR: Pascal = ATM.value_unsafe / 760.0;
 
             DYN: Newton = 1.0e-5 * N.value_unsafe;
         ),

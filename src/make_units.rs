@@ -17,10 +17,10 @@ macro_rules! make_units {
     ($System:ident;
      $one:ident: $Unitless:ident;
      base {
-         $($base:ident: $Unit:ident, $print_as:expr;)+
+         $($base:ident: $Unit:ident, $print_as:expr $(, $base_dim:ident)*;)+
      }
      derived {
-         $($derived_const:ident: $Derived:ident = ($($derived_rhs:tt)+);)*
+         $($derived_const:ident: $Derived:ident = ($($derived_rhs:tt)+) $(, $derived_dim:ident)*;)*
      }
      constants {
          $($constant:ident: $ConstantUnit:ident = $constant_value:expr;)*
@@ -117,8 +117,10 @@ macro_rules! make_units {
             $(pub type $Derived = __derived_internal!(@mu commas $($derived_rhs)+);)*
         }
 
-        pub type $Unitless<__TypeParameter> = $System<__TypeParameter, inner::$Unitless>;
-        $(pub type $Unit<__TypeParameter> = $System<__TypeParameter, inner::$Unit>;)*
+        pub type $Unitless<V> = $System<V, inner::$Unitless>;
+        $(pub type $Unit<V> = $System<V, inner::$Unit>;
+          $(impl<V> $crate::dimensions::$base_dim for $Unit<V> {})*
+        )*
 
         impl<Value> $crate::Dimensionless for $Unitless<Value> {
             #[inline]
@@ -127,7 +129,9 @@ macro_rules! make_units {
             }
         }
 
-        $(pub type $Derived<__TypeParameter> = $System<__TypeParameter, inner::$Derived>;)*
+        $(pub type $Derived<V> = $System<V, inner::$Derived>;
+          $(impl<V> $crate::dimensions::$derived_dim for $Derived<V> {})*
+        )*
 
         // --------------------------------------------------------------------------------
         // Define consts
@@ -787,7 +791,7 @@ macro_rules! __make_units_internal {
 #[macro_export]
 macro_rules! derived {
     ($module:ident, $System:ident: $name:ident = $($tail:tt)*) => (
-        pub type $name<__TypeParameter> = $System<__TypeParameter, __derived_internal!(@commas $module, $($tail)*)>;
+        pub type $name<V> = $System<V, __derived_internal!(@commas $module, $($tail)*)>;
     );
 }
 
@@ -829,20 +833,4 @@ macro_rules! __derived_internal {
         (__derived_internal!(@mu eval $crate::typenum::Diff<$a, $b>, $($tail)* ));
     (@mu commas $t:ty) => ($t);
     (@mu commas $($tail:tt)*) => (__derived_internal!(@mu eval $($tail,)*));
-}
-
-
-
-pub mod poop {
-    make_units! {
-        TEST;
-        ONE: Unis;
-        base {
-            A: Apple, "a";
-        }
-        derived {
-        }
-        constants {}
-        fmt = true;
-    }
 }

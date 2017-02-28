@@ -146,7 +146,11 @@ pub mod {} {{
 
         base {{\n", self.module, self.name)?;
         for unit in &self.base {
-            write!(f, "            {}: {}, \"{}\";\n", unit.constant, unit.name, unit.token)?;
+            let dim = match unit.dim {
+                "" => String::new(),
+                d => format!(", {}", d),
+            };
+            write!(f, "            {}: {}, \"{}\"{};\n", unit.constant, unit.name, unit.token, dim)?;
         }
 
         write!(f, "        }}
@@ -154,7 +158,11 @@ pub mod {} {{
         derived {{\n")?;
 
         for unit in &self.derived {
-            write!(f, "            {}: {} = ({});\n", unit.constant, unit.name, unit.expression)?;
+            let dim = match unit.dim {
+                "" => String::new(),
+                d => format!(", {}", d),
+            };
+            write!(f, "            {}: {} = ({}){};\n", unit.constant, unit.name, unit.expression, dim)?;
         }
 
         write!(f, "        }}
@@ -174,19 +182,19 @@ pub mod {} {{
 
 ", self.fmt)?;
 
-        for u in &self.base {
-            if u.dim.len() > 0 {
-                write!(f, "
-    impl<T> ::dimensions::{} for {}<T> {{}}\n", u.dim, u.name)?;
-            }
-        }
+    //     for u in &self.base {
+    //         if u.dim.len() > 0 {
+    //             write!(f, "
+    // impl<T> ::dimensions::{} for {}<T> {{}}\n", u.dim, u.name)?;
+    //         }
+    //     }
 
-        for u in &self.derived {
-            if u.dim.len() > 0 {
-                write!(f, "
-    impl<T> ::dimensions::{} for {}<T> {{}}\n", u.dim, u.name)?;
-            }
-        }
+    //     for u in &self.derived {
+    //         if u.dim.len() > 0 {
+    //             write!(f, "
+    // impl<T> ::dimensions::{} for {}<T> {{}}\n", u.dim, u.name)?;
+    //         }
+    //     }
 
         write!(f, "
     #[test]
