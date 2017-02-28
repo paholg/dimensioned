@@ -68,26 +68,21 @@ macro_rules! tarr {
 #[macro_use]
 pub extern crate generic_array;
 
+#[macro_use] mod make_units;
+mod fmt;
+
+
+include!(concat!(env!("OUT_DIR"), "/unit_systems.rs"));
 pub mod traits;
 pub mod dimensions;
-
-#[macro_use]
-mod make_units;
-
-
+pub mod conversion;
+pub mod array;
 pub mod f32prefixes;
 pub mod f64prefixes;
 
-include!(concat!(env!("OUT_DIR"), "/unit_systems.rs"));
-pub use unit_systems::*;
-
-pub mod conversion;
 
 pub use traits::*;
-
-
-pub mod array;
-
+pub use unit_systems::*;
 
 
 // Used for the make_units macro
@@ -95,3 +90,5 @@ pub mod array;
 pub mod dimcore {
     pub use core::{marker, fmt, ops, mem, f32, f64};
 }
+
+

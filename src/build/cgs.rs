@@ -54,6 +54,7 @@ It was generated using the `make_units!` macro.
         constants: constants!(
             M: Centimeter = HECTO * CM.value_unsafe;
         ),
+        fmt: false,
         from: vec![
             SI,
             MKS,

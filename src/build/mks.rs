@@ -23,6 +23,7 @@ It was generated using the `make_units!` macro.
         ),
         constants: constants!(
         ),
+        fmt: false,
         from: vec![
             SI,
             CGS,

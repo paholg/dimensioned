@@ -345,6 +345,7 @@ It was generated using the `make_units!` macro.
             CAR_AU: Unitless = 1.0 / 24.0 * ONE.value_unsafe;
             SMOOT: Meter = 67.0 * IN_I.value_unsafe;
         ),
+        fmt: true,
         from: vec![
             SI,
         ],

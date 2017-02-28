@@ -72,6 +72,7 @@ pub struct System {
     pub constants: Vec<Constant>,
     pub from: Vec<SName>,
     pub refl_blacklist: Vec<&'static str>,
+    pub fmt: bool,
 }
 
 impl System {
@@ -166,12 +167,12 @@ pub mod {} {{
 
         write!(f, "        }}
 
-        fmt = true;
+        fmt = {};
     }}
 
     pub use self::f64consts::*;
 
-")?;
+", self.fmt)?;
 
         for u in &self.base {
             if u.dim.len() > 0 {

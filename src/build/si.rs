@@ -75,6 +75,7 @@ It was generated using the `make_units!` macro.
 
             DYN: Newton = 1.0e-5 * N.value_unsafe;
         ),
+        fmt: true,
         from: vec![
             UCUM,
         ],
