@@ -204,7 +204,7 @@ pub mod {} {{
         #[allow(unused_imports)]
         use f64prefixes::*;
         #[allow(unused_imports)]
-        use core::f64::consts::*;
+        use core::f64::consts;
 ", self.module)?;
 
         for c in &self.constants {
@@ -278,14 +278,20 @@ fn main() {
     let dest = std::path::Path::new(&out_dir).join("unit_systems.rs");
     let mut f = std::fs::File::create(&dest).unwrap();
 
-    write!(f, "
-/// The unit systems with which dimensioned ships
-///
-/// fixme: Note on temperature
-///
-/// fixme: Note on conversions, when defined, etc.
-///
-/// fixme: Naming convetions (PM3, Second2, etc.)
+    write!(f, "/**
+The unit systems with which dimensioned ships
+
+fixme: Note on temperature
+
+fixme: Note on conversions, when defined, etc.
+
+fixme: Naming convetions (PM3, Second2, etc.)
+
+Note that the unit systems included here should not be considered complete. New units and
+systems will be added. If there are any particular units or unit systems that you think should be
+added, please submit an issue on github.
+
+*/
 
 pub mod unit_systems {{").unwrap();
 

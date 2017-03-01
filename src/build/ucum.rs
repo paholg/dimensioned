@@ -108,7 +108,7 @@ fixme: Note that we use more current value of electron charge
 
             // Units from ISO 1000, ISO 2955, and ANSI X3.50 (UCUM Section 31):
             GON: Radian = 0.9 * DEG.value_unsafe;
-            DEG: Radian = 2.0 * PI / 360.0 * RAD.value_unsafe;
+            DEG: Radian = 2.0 * consts::PI / 360.0 * RAD.value_unsafe;
             L: Meter3 = 0.1 * 0.1 * 0.1 * M3.value_unsafe;
             AR: Meter2 = 100.0 * M2.value_unsafe;
             MIN: Second = 60.0 * S.value_unsafe;
@@ -126,7 +126,7 @@ fixme: Note that we use more current value of electron charge
             TNE: Gram = 1.0e3 * KG.value_unsafe;
             BAR: MilliPascal = 1.0e5 * PA.value_unsafe;
             AMU: Gram = 1.6605402e-24*G.value_unsafe;
-            EV: MilliJoule =  E_.value_unsafe * V.value_unsafe;
+            EV: MilliJoule =  E.value_unsafe * V.value_unsafe;
             ASU: Meter = 149597.870691e6*M.value_unsafe;
             PRS: Meter = 3.085678e16*M.value_unsafe;
 
@@ -135,9 +135,8 @@ fixme: Note that we use more current value of electron charge
             H_: MilliJouleSecond = 6.6260755e-34 * J.value_unsafe * S.value_unsafe;
             K_: MilliJoulePerKelvin = 1.380658e-23 * J.value_unsafe / K.value_unsafe;
             EPS_0: KiloFaradPerMeter = 8.854187817e-12 * F.value_unsafe / M.value_unsafe;
-            MU_0: MilliNewtonPerAmpere2 = 4.0e-7 * PI * N.value_unsafe / A.value_unsafe / A.value_unsafe;
-            // NOTE: This is more current than that specified by UCUM
-            E_: Coulomb = 1.6021766208e-19 * C.value_unsafe;
+            MU_0: MilliNewtonPerAmpere2 = 4.0e-7 * consts::PI * N.value_unsafe / A.value_unsafe / A.value_unsafe;
+            E: Coulomb = 1.6021766208e-19 * C.value_unsafe;
             M_E: Gram = 9.10938356e-31 * KG.value_unsafe;
             M_P: Gram = 1.6726231e-24 * G.value_unsafe;
             GC: Meter3PerGramSecond2 = 6.67259e-11 * M3.value_unsafe / KG.value_unsafe / S2.value_unsafe;
@@ -157,10 +156,10 @@ fixme: Note that we use more current value of electron charge
             ST: Meter2PerSecond = CM.value_unsafe * CM.value_unsafe / S.value_unsafe;
             MX: MilliWeber = 1.0e-8 * WB.value_unsafe;
             GS: MilliTesla = 1.0e-4 * T.value_unsafe;
-            OE: AmperePerMeter = 250.0 / PI * A.value_unsafe / M.value_unsafe;
+            OE: AmperePerMeter = 250.0 / consts::PI * A.value_unsafe / M.value_unsafe;
             GB: Ampere = OE.value_unsafe * CM.value_unsafe;
             SB: CandelaPerMeter2 = CD.value_unsafe / CM.value_unsafe / CM.value_unsafe;
-            LMB: CandelaPerMeter2 = SB.value_unsafe / PI;
+            LMB: CandelaPerMeter2 = SB.value_unsafe / consts::PI;
             PHT: Lux = 1.0e-4 * LX.value_unsafe;
             CI: Becquerel = 3.7e10 * BQ.value_unsafe;
             ROE: CoulombPerGram = 2.58e-4 * C.value_unsafe / KG.value_unsafe;
@@ -184,7 +183,7 @@ fixme: Note that we use more current value of electron charge
             BF_I: Meter3 = 144.0 * CIN_I.value_unsafe;
             CR_I: Meter3 = 128.0 * CFT_I.value_unsafe;
             MIL_I: Meter = 1.0e-3 * IN_I.value_unsafe;
-            CML_I: Meter2 = PI/4.0 * MIL_I.value_unsafe * MIL_I.value_unsafe;
+            CML_I: Meter2 = consts::PI/4.0 * MIL_I.value_unsafe * MIL_I.value_unsafe;
             HD_I: Meter = 4.0 * IN_I.value_unsafe;
 
             // US Servey Lengths (UCUM Section 35):
@@ -338,8 +337,8 @@ fixme: Note that we use more current value of electron charge
             ATT: MilliPascal = KILO*GF.value_unsafe / CM.value_unsafe / CM.value_unsafe;
             MHO: KiloSiemens = MILLI*SIE.value_unsafe;
             PSI: MilliPascal = LBF_AV.value_unsafe / IN_I.value_unsafe / IN_I.value_unsafe;
-            CIRC: Radian = 2.0 * PI * RAD.value_unsafe;
-            SPH: Steradian = 4.0 * PI * SR.value_unsafe;
+            CIRC: Radian = 2.0 * consts::PI * RAD.value_unsafe;
+            SPH: Steradian = 4.0 * consts::PI * SR.value_unsafe;
             CAR_M: Gram = 0.2 * G.value_unsafe;
             CAR_AU: Unitless = 1.0 / 24.0 * ONE.value_unsafe;
             SMOOT: Meter = 67.0 * IN_I.value_unsafe;

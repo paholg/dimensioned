@@ -144,14 +144,14 @@ Note: Incomplete - fixme.
             HR: Second = 60.0 * MIN.value_unsafe;
             DAY: Second = 24.0 * HR.value_unsafe;
 
-            DEG: Unitless = PI / 180.0 * RAD.value_unsafe;
+            DEG: Unitless = consts::PI / 180.0 * RAD.value_unsafe;
             HA: Meter2 = 10000.0 * M2.value_unsafe;
             L: Meter3 = 0.001 * M3.value_unsafe;
             TONNE: Kilogram = 1.0e3 * KG.value_unsafe;
             AU: Meter = 149_597_870_700.0 * M.value_unsafe;
 
-            E_: Coulomb = 1.6021766208e-19 * C.value_unsafe;
-            EV: Joule = E_.value_unsafe * V.value_unsafe;
+            E: Coulomb = 1.6021766208e-19 * C.value_unsafe;
+            EV: Joule = E.value_unsafe * V.value_unsafe;
             U: Kilogram = 1.660539040e-27 * KG.value_unsafe;
 
             C0: MeterPerSecond = 299792458.0 * MPS.value_unsafe;
@@ -171,6 +171,10 @@ Note: Incomplete - fixme.
             TORR: Pascal = ATM.value_unsafe / 760.0;
 
             DYN: Newton = 1.0e-5 * N.value_unsafe;
+
+            FT: Meter = 0.3048 * M.value_unsafe;
+            IN: Meter = FT.value_unsafe / 12.0;
+            YD: Meter = 3.0 * FT.value_unsafe;
         ),
         fmt: true,
         from: vec![

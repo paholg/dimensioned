@@ -140,7 +140,7 @@ macro_rules! make_units {
                 pub mod $module {
                     use super::*;
                     use $crate::dimcore::marker::PhantomData;
-                    #[allow(unused_imports)] use $crate::dimcore::$t::consts::*;
+                    #[allow(unused_imports)] use $crate::dimcore::$t::consts;
                     #[allow(unused_imports)] use $crate::$prefixes::*;
                     #[allow(dead_code)] pub const $one: $Unitless<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };
                     $(#[allow(dead_code)] pub const $base: $Unit<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
