@@ -17,7 +17,8 @@
   default = []
   oibit = []
   spec = []
-  test = ["clippy", "quickcheck", "quickcheck_macros", "approx", "oibit", "spec"]
+  # fixme: re-enable clippy
+  test = ["quickcheck", "quickcheck_macros", "approx", "oibit", "spec"]
 
 [dependencies]
   typenum = "1.6.0"
