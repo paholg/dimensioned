@@ -1,3 +1,4 @@
+//! Constants for all SI prefixes as `f64`s
 
 /// The SI prefix for 10^24
 pub const YOTTA: f64 = 1e24;

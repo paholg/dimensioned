@@ -1,4 +1,4 @@
-//! Marker traits for various dimensions.
+//! Marker traits for various dimensions
 //!
 //! The traits in this module can be useful for writing code that is generic with regards to unit
 //! system, but involves a specific dimension.
