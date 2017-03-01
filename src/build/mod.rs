@@ -45,6 +45,7 @@ pub enum SName {
     CGS,
     MKS,
     UCUM,
+    FPS,
 }
 use SName::*;
 
@@ -55,6 +56,7 @@ impl fmt::Display for SName {
             CGS => "CGS",
             MKS => "MKS",
             UCUM => "UCUM",
+            FPS => "FPS",
         };
 
         write!(f, "{}", s)?;
@@ -184,20 +186,6 @@ pub mod {} {{
 
 ", self.fmt)?;
 
-    //     for u in &self.base {
-    //         if u.dim.len() > 0 {
-    //             write!(f, "
-    // impl<T> ::dimensions::{} for {}<T> {{}}\n", u.dim, u.name)?;
-    //         }
-    //     }
-
-    //     for u in &self.derived {
-    //         if u.dim.len() > 0 {
-    //             write!(f, "
-    // impl<T> ::dimensions::{} for {}<T> {{}}\n", u.dim, u.name)?;
-    //         }
-    //     }
-
         write!(f, "
     #[test]
     fn test_{}_constants() {{
@@ -264,11 +252,12 @@ mod si;
 mod ucum;
 mod mks;
 mod cgs;
+mod fps;
 
 use std::io::Write;
 
 fn main() {
-    let systems = [si::new(), ucum::new(), mks::new(), cgs::new()];
+    let systems = [si::new(), ucum::new(), mks::new(), cgs::new(), fps::new()];
     for s in &systems {
         make_system(s);
     }

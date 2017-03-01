@@ -1,30 +1,91 @@
-//! Traits that are useful.
+//! Traits for working generically with dimensioned
 
 /// Allows one to use units generically. `Dimensioned` is implemented for all units created in this
-/// library or by the `make_units` macro.
+/// library or by the `make_units!` macro.
 ///
 /// It is not recommened to implement it for anything else.
 pub trait Dimensioned {
-    /// The type of the value that has units. E.g. In `let x: Meter<f64>;`, the `Value` would be `f64`.
+
+    /// The type of the value that has units. E.g. For `si::Meter<f64>`, `Value` is `f64`.
     type Value;
-    /// The units of a type from dimensioned. This will be a type-array of type-numbers.
+
+    /// The units of a type from dimensioned. This will be a type-array of type-numbers. E.g. For
+    /// `si::Meter<f64>`, `Units` is `tarr![P1, Z0, Z0, Z0, Z0, Z0, Z0]`.
     type Units;
 
+    /// Construct a new variable with units.
     fn new(val: Self::Value) -> Self;
 
+    /// Extract the value from a variable with units. As this ignores the units completely, it is
+    /// dimensionally unsafe.
     fn value_unsafe(&self) -> &Self::Value;
 }
 
+/// This trait is implemented for all unit systems when their units all have a power of 0; that is,
+/// for the `Unitless` type.
 pub trait Dimensionless: Dimensioned {
+
+    /// Extract the value from a variable with no units. As there are no units to ignore,
+    /// it is dimensionally.
     fn value(&self) -> &Self::Value;
 }
 
 /// Perform an operation on the contained value and/or its units.
 ///
-/// Use of this function is discouraged, as the operation may be one that does not
-/// perserve units, and this function has no way to protect against that.
+/// Use of this function is discouraged, as the operation may be one that does not perserve units,
+/// and this function has no way to protect against that. If you do use it, consider placing it in
+/// a trait or function that you can verify is dimensionally safe.
+///
+/// If associated type constructors or higher kinded types are implemented, then this trait should
+/// no longer be necessary and may become deprecated.
+///
+/// # Example
+///
+/// Let's say we have a function that, when given something of value type `Value` and unit type
+/// `Units`, should have output with value type `(Value, Value)` and should square the units. Then,
+/// we could generically implement it for `Dimensioned` as follows:
+///
+/// ```rust
+/// extern crate dimensioned as dim;
+///
+/// use dim::{Dimensioned, MapUnsafe};
+/// use dim::typenum::{Prod, P2};
+/// use std::ops::Mul;
+///
+/// pub trait Weird {
+///     type Output;
+///     fn weird(self) -> Self::Output;
+/// }
+///
+/// impl<D, Value, Units> Weird for D where
+///     Value: Clone,
+///     Units: Mul<P2>,
+///     D: Dimensioned<Value=Value, Units=Units> +
+///        MapUnsafe<(Value, Value), Prod<Units, P2>>,
+/// {
+///     type Output = <D as MapUnsafe<(Value, Value), Prod<Units, P2>>>::Output;
+///     fn weird(self) -> Self::Output {
+///         self.map_unsafe(|v| (v.clone(), v))
+///     }
+/// }
+///
+/// fn main() {
+///     use dim::si;
+///     let x = 3.0 * si::M;
+///     let w = x.weird();
+///
+///     assert_eq!(w, si::Meter2::new((3.0, 3.0)));
+///
+///     println!("w: {:?}", w);
+///     // prints: w: (3, 3) m^2
+/// }
+/// ```
 pub trait MapUnsafe<ValueOut, UnitsOut>: Dimensioned {
+
+    /// The type to which the input is mapped.
     type Output;
+
+    /// Perform a map.
     fn map_unsafe<F: FnOnce(Self::Value) -> ValueOut>(self, f: F) -> Self::Output;
 }
 
