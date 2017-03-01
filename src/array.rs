@@ -1,6 +1,8 @@
-//! Some tools for converting from type arrays of type numbers to generic arrays.
+//! Tools for converting from type arrays of type numbers to generic arrays.
 //!
-//! This module may change, and should be considered unstable.
+//! This module may change, and will likely be removed someday if this functionality is implemented into typenum.
+//!
+//! Consider this module **unstable**.
 
 use typenum::{Add1, B1, Length, TArr, ATerm, Len, Integer, Unsigned, U0};
 

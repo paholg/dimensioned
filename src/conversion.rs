@@ -1,3 +1,30 @@
+//! Conversion between unit systems
+//!
+//! Wherever it makes sense, we implement conversion between the unit systems that ship with
+//! dimensioned using `core::convert::From`.
+//!
+//! Note that it does not always make sense to do so. For example, while one can convert from a
+//! subset of the `SI` system to `CGS`, it makes no sense to convert from `CGS` to `SI`.
+//!
+//! If are interested in implementing conversion for your own unit system, [here is an
+//! example](https://github.com/paholg/dimensioned-examples/blob/master/src/conversion.md)
+//! demonstrating how to do so.
+//!
+//! Conversions between unit systems are implemented as follows:
+//!
+//! * `SI` to `UCUM`: As `UCUM` does not have a unit for amount of substance, this is defined only
+//! for `SI` units that don't contain `Mole`s. In addition, as `UCUM` defines radians as a unit, it
+//! is not correct to perform this conversion if the value expresses an angle.
+//!
+//! * `SI` to `CGS` and `MKS`: These conversions are only defined for `SI` units that are a
+//! combination of `Meter`, `Kilogram`, `Second`, and `Ampere`.
+//!
+//! * `UCUM` to `SI`: As `SI` does not have a unit for angle, this is only defined for `UCUM`
+//! units that don't contain `Radian`s.
+//!
+//! * `CGS` to `MKS`
+//! * `MKS` to `CGS`
+
 mod to_si {
     // From UCUM
     use si::SI;
