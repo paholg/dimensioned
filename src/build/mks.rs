@@ -5,7 +5,7 @@ pub fn new() -> System {
         name: "MKS", module: "mks",
         doc_prelude: "The Gaussian MKS unit system
 
-Note: Incomplete - fixme.
+Note: this system is incomplete. More derived units and constants are coming.
 
 ",
         base: base_units!(

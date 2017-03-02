@@ -8,23 +8,39 @@ pub fn new() -> System {
 The Unified Code for Units of Measure (UCUM)
 
 This is an attempt to define a unit system for [The Unified Code for Units of
-Measure](http://unitsofmeasure.org/ucum.html). Note that there are a few limitations:
+Measure](http://unitsofmeasure.org/ucum.html). It does not perfectly match the specification in the
+ways mentioned below.
 
-We don't define: symbols not allowed ('), non-linear conversion (log and shit), no definition
-provided (homeopathic stuff, etc.) fixme: make this betterer
+---
 
-2. For all unit systems in dimensioned, we define units as derived units wherever
-possible. Currently, that is limited to those with a value of 1.0 in the appropriate
-combination of the system's base units. Otherwise, we would end up with some inconsistencies
-with the `new` function. For example, we don't want `Foot::new(1.0)` to do the same thing as
-`Meter::new(1.0)`, which it would. This is especially relevent for UCUM as it has gram and not
-kilogram as a base unit, so, for example, Newton cannot be a derived unit and so cannot be
-used, for example, in a function signature. This becomes an issue of any unit having to do with
-energy, so we define many derived units with `Milli` in front. For example, `MilliNewton` with
-constant `MILLIN` and `MilliJoule` with constant `MILLIJ`. Note that the constants `N` and `J`
-are still defined with the appropriate values.
+The UCUM specification uses NIST values from 1980 for experimentally determined constants. For some
+of these, we use the 2014 values instead, which can be found
+[here](http://physics.nist.gov/cuu/Constants/).
 
-fixme: Note that we use more current value of electron charge
+---
+
+There are a few classifications of units that UCUM defines but that it does not make sense to
+define here, and so we do not. They are as follows:
+
+* Units defined in terms of characters that we can't use. For example, the
+symbol for minutes as measure of angle is given by a single quote, '.
+
+* Units that require conversions that involve more than multiplication. These include some
+temperature units (such as degrees Celcius) and logrithmic units (such as decibels).
+
+---
+
+A note on derived units:
+
+Mass is involved in a great many units. As the SI unit of mass is the kilogram, there are many
+units defined in terms of tffhe kilogram. To create a derived unit in dimensioned, it must have a
+value of 1.0. Since UCUM uses the gram and not the kilogram as a base unit, that leads to many
+common derived units being off by a factor of 1000. As a result, you will see many derived units
+with prefixes, such as `MilliNewton` and `KiloFarad`. The constants for the more common units (`N`
+and `F` for the two mentioned) are still defined, but if you need to refer to their types (such as
+in function signatures), this is something to bear in mind.
+
+---
 ",
         base: base_units!(
             M:   Meter,    m,   Length;
@@ -43,7 +59,7 @@ fixme: Note that we use more current value of electron charge
             MILLIJ:   MilliJoule  = MilliNewton * Meter, Energy;
             MILLIW:   MilliWatt   = MilliJoule / Second, Power;
             A:        Ampere      = Coulomb / Second, Current;
-            MILLIV:    MilliVolt   = MilliJoule / Coulomb, ElectricPotential;
+            MILLIV:   MilliVolt   = MilliJoule / Coulomb, ElectricPotential;
             KILOF:    KiloFarad   = Coulomb / MilliVolt, Capacitance;
             MILLIOHM: MilliOhm    = MilliVolt / Ampere, Resistance;
             KILOSIE:  KiloSiemens = Unitless / MilliOhm, Conductance;

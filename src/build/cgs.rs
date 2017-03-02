@@ -5,7 +5,7 @@ pub fn new() -> System {
         name: "CGS", module: "cgs",
         doc_prelude: "The Gaussian CGS unit system
 
-Note: Incomplete - fixme.
+Note: this system is incomplete. More derived units and constants are coming.
 
 ",
         base: base_units!(

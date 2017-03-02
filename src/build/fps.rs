@@ -5,9 +5,7 @@ pub fn new() -> System {
         name: "FPS", module: "fps",
         doc_prelude: "The foot, pound, second system, using the mass pound as a base unit.
 
-Note: Incomplete - fixme.
-
-It was generated using the `make_units!` macro.
+Note: this system is incomplete. More derived units and constants are coming.
 
 ",
         base: base_units!(
