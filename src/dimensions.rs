@@ -11,23 +11,25 @@
 //! ```rust
 //! extern crate dimensioned as dim;
 //!
-//! use dim::dimensions::Length;
-//! use std::ops::Add;
+//! use std::ops::Div;
+//! use dim::dimensions::{Length, Time};
+//! use dim::typenum::Quot;
 //!
-//! fn add_lengths<T: Length + Add<T, Output=T>>(a: T, b: T) -> T {
-//!     a + b
+//! fn speed<L, T>(dist: L, time: T) -> Quot<L, T> where L: Length + Div<T>, T: Time {
+//!     dist / time
 //! }
 //!
 //! fn main() {
-//!     use dim::si::{M, S};
+//!     use dim::si;
 //!
-//!     let x = 3.0*M;
-//!     let y = 1.0*M;
+//!     let x = 3.0 * si::M;
+//!     let t = 2.0 * si::S;
+//!     let v = speed(x, t);
 //!
-//!     assert_eq!(x+y, add_lengths(x, y));
+//!     assert_eq!(v, x/t);
 //!
 //!     // Compiler error:
-//!     // add_lengths(1.0*S, 2.0*S);
+//!     // speed(x, x);
 //! }
 //! ```
 

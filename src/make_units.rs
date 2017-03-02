@@ -1,16 +1,159 @@
-/// Create a new unit system
-///
-/// This macro is the heart of this library and is used to create the unit systems with which it
-/// ships.
-///
-///
-/// fixme: Discussion of operations
-/// fixme: Example
-///
-/// As this macro makes some imports and creates a module named `inner`, it is **highly** recommended
-/// that you place any call to it in its own module.
-///
-/// fixme: note consts (PI, E, etc.) and prefixes (MILLI, KILO, etc) are imported
+/** Create a new unit system
+
+This macro is the heart of this library and is used to create the unit systems with which it
+ships.
+
+If you find yourself using this macro, please think about whether the unit system you are creating
+would be useful to others; if so, submit an issue to get it added to dimensioned.
+
+Rather than try to parse the definition above, we will show an example of calling it, and then
+walk through it line by line.
+
+```rust
+# #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
+#[macro_use]
+extern crate dimensioned as dim;
+
+pub mod ms {
+    make_units! {
+        MS;
+        ONE: Unitless;
+
+        base {
+            M: Meter, "m", Length;
+            S: Second, "s", Time;
+        }
+
+        derived {
+            MPS: MeterPerSecond = (Meter / Second), Velocity;
+            HZ: Hertz = (Unitless / Second), Frequency;
+
+            M3: Meter3 = (Meter * Meter * Meter), Volume;
+            M5: Meter5 = (Meter3 * Meter * Meter);
+        }
+
+        constants {
+            FT: Meter = 0.3048;
+            CM: Meter = CENTI * M.value_unsafe;
+
+            MIN: Second = 60.0;
+            HR: Second = 60.0 * MIN.value_unsafe;
+
+            PI: Unitless = consts::PI;
+        }
+
+        fmt = true;
+    }
+    pub use self::f64consts::*;
+}
+# fn main() {}
+```
+
+Okay, now let's walk through it.
+
+The macro performs some imports and defines quite a few things, so it's strongly recommended to put it
+in its own module.
+
+```ignore
+pub mod ms {
+```
+
+The first line after calling the macro is just the name we want to give the unit system followed
+by a semi-colon. This will be the name of the only type we define; all other type definitions are
+aliases to this type with different parameters.
+
+```ignore
+    make_units! {
+        MS;
+```
+
+The next line is the name of the constant and type alias we want for a dimensionless quantity in
+your system. That is, when all units have power of 0.
+
+```ignore
+        ONE: Unitless;
+```
+
+In the `base` block, we define the base units for our system. Each line is of the format `CONST:
+Type, "token", Dimension;` where `CONST` is the constant we create, `Type` is the type alias that
+we'll make for this unit, `token` is what will show up when we print it, and `Dimension` is
+optional. If present, the macro will implement said dimension from the `dimensions` module for this unit.
+
+```ignore
+        base {
+            M: Meter, "m", Length;
+            S: Second, "s", Time;
+        }
+```
+
+In the `derived` block, we can make derived units from our base units. The beginning is similar; we
+have `CONST: Type`. After the equal signs, we have a formula to define this unit. The parentheses
+are required, and the only things that can be inside them are the names of other units, and the *
+and / operators. Hopefully, this part of the macro will be made more flexibile in the
+future. Finally, we again end with an optional dimension. Note that there is none present for the
+`M5` line.
+
+```ignore
+        derived {
+            MPS: MeterPerSecond = (Meter / Second), Velocity;
+            HZ: Hertz = (Unitless / Second), Frequency;
+
+            M3: Meter3 = (Meter * Meter * Meter), Volume;
+            M5: Meter5 = (Meter3 * Meter * Meter);
+        }
+
+```
+
+In the `constants` block, we can define constants of whatever values we wish. Note that the
+constants in the `base` and `derived` blocks are always created with a value of 1.0.
+
+All constants are created in both `f32` and `f64` flavors, in the submodules `f32consts` and
+`f64consts`, respectively.
+
+In these submodules, the consts from the respective version of `f32prefixes` or `f64prefixes` are in
+scope, hence the use of `CENTI` in the `CM` definition.
+
+In addition, the the respective version of `core::f32::consts` or `core::f64::consts` is in scope,
+which allows the use of `consts::PI` in the `PI definition.
+
+```ignore
+        constants {
+            FT: Meter = 0.3048;
+            CM: Meter = CENTI * M.value_unsafe;
+
+            MIN: Second = 60.0;
+            HR: Second = 60.0 * MIN.value_unsafe;
+
+            PI: Unitless = consts::PI;
+        }
+```
+
+Finally, we have the `fmt` line. This line can either be `fmt = true;` or `fmt = false;`. In either
+case, the trait `core::fmt::Debug` is implemented for your unit system, but all of the other `fmt`
+traits are implemented only if this is true. Setting it to false allows you to have custom printing for your system.
+
+```ignore
+        fmt = true;
+    }
+```
+
+This line isn't part of the macro, but I wanted to include it as it is in all of the unit systems
+defined in dimensioned. It lets us use the `f64` flavor of constants much easier. E.g. we can now
+type `ms::M` instead of `ms::f64consts::M`.
+
+```igore
+    pub use self::f64consts::*;
+}
+```
+
+And that's it! The macro may seem complicated at first, but if you end up using it, I hope that it
+starts seeming intuitive fairly quickly.
+
+---
+
+In addition to creating a type, type aliases, and constants, this macro implements many traits for
+your unit system, including (but not limited to) the traits in the `traits` module and arithmetic operations.
+*/
 
 #[macro_export]
 macro_rules! make_units {

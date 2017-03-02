@@ -40,6 +40,13 @@ fn speed(dist: si::Meter<f64>, time: si::Second<f64>) -> si::MeterPerSecond<f64>
     dist / time
 }
 
+use std::ops::Div;
+use dim::{Length, Time};
+use dim::typenum::Quot;
+fn generic_speed<L, T>(dist: L, time: T) -> Quot<L, T> where L: Length + Div<T>, T: Time {
+    dist / time;
+}
+
 fn main() {
     let x = 6.0 * si::M;
     let t = 3.0 * si::S;
