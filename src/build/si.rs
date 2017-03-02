@@ -139,50 +139,50 @@ Where experimental values are used for constants, the values are obtained from t
             WPM: WattPerMeter = Watt / Meter;
         ),
         constants: constants!(
-            RAD: Unitless = 1.0 * ONE.value_unsafe, "radian";
-            SR: Unitless = 1.0 * ONE.value_unsafe, "steradian";
+            RAD: Unitless = 1.0 * ONE.value_unsafe, "Radian";
+            SR: Unitless = 1.0 * ONE.value_unsafe, "Steradian";
 
-            MIN: Second = 60.0 * S.value_unsafe, "minute";
-            HR: Second = 60.0 * MIN.value_unsafe, "hour";
-            DAY: Second = 24.0 * HR.value_unsafe, "day";
+            MIN: Second = 60.0 * S.value_unsafe, "Minute";
+            HR: Second = 60.0 * MIN.value_unsafe, "Hour";
+            DAY: Second = 24.0 * HR.value_unsafe, "Day";
 
-            DEG: Unitless = consts::PI / 180.0 * RAD.value_unsafe, "degree";
-            HA: Meter2 = 10000.0 * M2.value_unsafe, "hectare";
-            L: Meter3 = 0.001 * M3.value_unsafe, "liter";
-            TNE: Kilogram = 1.0e3 * KG.value_unsafe, "tonne";
-            AU: Meter = 149_597_870_700.0 * M.value_unsafe, "astronomical unit";
+            DEG: Unitless = consts::PI / 180.0 * RAD.value_unsafe, "Degree";
+            HA: Meter2 = 10000.0 * M2.value_unsafe, "Hectare";
+            L: Meter3 = 0.001 * M3.value_unsafe, "Liter";
+            TNE: Kilogram = 1.0e3 * KG.value_unsafe, "Tonne";
+            AU: Meter = 149_597_870_700.0 * M.value_unsafe, "Astronomical unit";
 
-            E: Coulomb = 1.6021766208e-19 * C.value_unsafe, "elementary charge";
-            EV: Joule = E.value_unsafe * V.value_unsafe, "electronvolt";
-            U: Kilogram = 1.660539040e-27 * KG.value_unsafe, "unified atomic mass unit; dalton";
+            E: Coulomb = 1.6021766208e-19 * C.value_unsafe, "Elementary charge";
+            EV: Joule = E.value_unsafe * V.value_unsafe, "Electronvolt";
+            U: Kilogram = 1.660539040e-27 * KG.value_unsafe, "Unified atomic mass unit; dalton";
 
-            C0: MeterPerSecond = 299792458.0 * MPS.value_unsafe, "speed of light in a vacuum";
+            C0: MeterPerSecond = 299792458.0 * MPS.value_unsafe, "Speed of light in a vacuum";
 
-            HBAR: JouleSecond = 1.054571800e-34 * JS.value_unsafe, "reduced Planck constant";
-            M_E: Kilogram = 9.10938356e-31 * KG.value_unsafe, "electron mass";
+            HBAR: JouleSecond = 1.054571800e-34 * JS.value_unsafe, "Reduced Planck constant";
+            M_E: Kilogram = 9.10938356e-31 * KG.value_unsafe, "Electron mass";
             R_BOHR: Meter = 0.52917721067e-10 * M.value_unsafe, "Bohr radius";
             EH: Joule = 4.359744650e-18 * J.value_unsafe, "Hartree energy";
-            AO: Meter = 1e-10 * M.value_unsafe, "ångström";
-            ARE: Meter2 = 100.0 * M2.value_unsafe, "are";
-            BARN: Meter2 = 1e-28 * M2.value_unsafe, "barn";
-            BAR: Pascal = 1e5 * PA.value_unsafe, "bar";
-            MBAR: Pascal = 100.0 * PA.value_unsafe, "millibar";
-            ATM: Pascal = 101325.0 * PA.value_unsafe, "atmosphere";
-            BA: Pascal = 0.1 * PA.value_unsafe, "barye";
-            MMHG: Pascal = 133.322387415 * PA.value_unsafe, "millimeter of mercury";
-            TORR: Pascal = ATM.value_unsafe / 760.0, "torr";
+            AO: Meter = 1e-10 * M.value_unsafe, "Ångström";
+            ARE: Meter2 = 100.0 * M2.value_unsafe, "Are";
+            BARN: Meter2 = 1e-28 * M2.value_unsafe, "Barn";
+            BAR: Pascal = 1e5 * PA.value_unsafe, "Bar";
+            MBAR: Pascal = 100.0 * PA.value_unsafe, "Millibar";
+            ATM: Pascal = 101325.0 * PA.value_unsafe, "Atmosphere";
+            BA: Pascal = 0.1 * PA.value_unsafe, "Barye";
+            MMHG: Pascal = 133.322387415 * PA.value_unsafe, "Millimeter of mercury";
+            TORR: Pascal = ATM.value_unsafe / 760.0, "Torr";
 
-            DYN: Newton = 1.0e-5 * N.value_unsafe, "dyne";
+            DYN: Newton = 1.0e-5 * N.value_unsafe, "Dyne";
 
-            FT: Meter = 0.3048 * M.value_unsafe, "foot";
-            IN: Meter = FT.value_unsafe / 12.0, "inch";
-            YD: Meter = 3.0 * FT.value_unsafe, "yard";
-            MI: Meter = 5280.0 * FT.value_unsafe, "mile";
+            FT: Meter = 0.3048 * M.value_unsafe, "Foot";
+            IN: Meter = FT.value_unsafe / 12.0, "Inch";
+            YD: Meter = 3.0 * FT.value_unsafe, "Yard";
+            MI: Meter = 5280.0 * FT.value_unsafe, "Mile";
 
-            LB: Kilogram = 0.45359237 * KG.value_unsafe, "pound mass";
-            OZ: Kilogram = LB.value_unsafe / 16.0, "ounce";
+            LB: Kilogram = 0.45359237 * KG.value_unsafe, "Pound mass";
+            OZ: Kilogram = LB.value_unsafe / 16.0, "Ounce";
 
-            LBF: Newton = 4.4482216152605 * N.value_unsafe, "pound force";
+            LBF: Newton = 4.4482216152605 * N.value_unsafe, "Pound force";
         ),
         fmt: true,
         from: vec![

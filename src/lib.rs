@@ -15,8 +15,6 @@
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
 #![cfg_attr(feature = "spec", feature(specialization))]
 
-
-
 // For clippy:
 #![cfg_attr(feature="clippy", feature(plugin))]
 #![cfg_attr(feature="clippy", plugin(clippy))]
@@ -28,7 +26,6 @@
 // Macro debugging
 // #![feature(trace_macros)]
 // trace_macros!(true);
-
 
 pub extern crate typenum;
 

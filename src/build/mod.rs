@@ -31,7 +31,7 @@ pub struct Constant {
     pub constant: &'static str,
     pub unit: &'static str,
     pub value: &'static str,
-    pub desc: &'static str,
+    pub name: &'static str,
 }
 
 impl Constant {
@@ -78,12 +78,12 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
         }
 
         write!(f, "# Constants\n")?;
-        write!(f, "Constant | Value | Unit | Dimension | Description\n")?;
+        write!(f, "Name | Constant | Value | Unit | Dimension \n")?;
         write!(f, "---|---|---|---|---\n")?;
         for b in &self.base {
             let mut newline = false;
             for c in self.constants.iter().filter(|c| c.unit == b.name) {
-                write!(f, "{} | {} | {} | {} | {}\n", c.constant, c.nice_value(), c.unit, b.dim, c.desc)?;
+                write!(f, "{} | {} | {} | {} | {}\n", c.name, c.constant, c.nice_value(), c.unit, b.dim)?;
 
                 newline = true;
             }
@@ -95,7 +95,7 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
         for d in &self.derived {
             let mut newline = false;
             for c in self.constants.iter().filter(|c| c.unit == d.name) {
-                write!(f, "{} | {} | {} | {} | {}\n", c.constant, c.nice_value(), c.unit, d.dim, c.desc)?;
+                write!(f, "{} | {} | {} | {} | {}\n", c.name, c.constant, c.nice_value(), c.unit, d.dim)?;
                 newline = true;
             }
             if newline {
@@ -202,12 +202,12 @@ macro_rules! derived_units {
 }
 
 macro_rules! constants {
-    ($($constant:ident: $unit:ident =  $e:expr, $desc: expr;)* ) => (
+    ($($constant:ident: $unit:ident =  $e:expr, $name: expr;)* ) => (
         vec![$(Constant{
             unit: stringify!($unit),
             constant: stringify!($constant),
             value: stringify!($e),
-            desc: $desc,
+            name: $name,
         }),*];
     );
 }
@@ -244,11 +244,17 @@ fn main() {
     write!(f, "/**
 The unit systems with which dimensioned ships
 
-fixme: Note on temperature
+When it makes sense, conversions are defined between unit systems. See the `conversion` module for
+more information.
 
-fixme: Note on conversions, when defined, etc.
+Each unit system contained herein lists in tables its defined base units, derived units, and
+constants.
 
-fixme: Naming convetions (PM3, Second2, etc.)
+
+
+  fixme: Naming convetions (PM3, Second2, etc.)
+
+---
 
 Note that the unit systems included here should not be considered complete. New units and
 systems will be added. If there are any particular units or unit systems that you think should be

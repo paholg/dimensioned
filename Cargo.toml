@@ -18,7 +18,7 @@
   default = []
   oibit = []
   spec = []
-  # fixme: re-enable clippy
+  # fixme: re-enable clippy when working
   test = ["quickcheck", "quickcheck_macros", "approx", "oibit", "spec"]
 
 [dependencies]
