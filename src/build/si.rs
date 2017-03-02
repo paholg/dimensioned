@@ -5,7 +5,9 @@ pub fn new() -> System {
         name: "SI", module: "si",
         doc_prelude: "The International System of Units (SI)
 
-Note: Incomplete - fixme.
+Where experimental values are used for constants, the values are obtained from the 2014 values from
+[The NIST Reference on Constants, Unit, and Uncertainty](http://physics.nist.gov/cuu/Constants/).
+
 ",
         base: base_units!(
             M: Meter, m, Length;
@@ -175,6 +177,12 @@ Note: Incomplete - fixme.
             FT: Meter = 0.3048 * M.value_unsafe, "foot";
             IN: Meter = FT.value_unsafe / 12.0, "inch";
             YD: Meter = 3.0 * FT.value_unsafe, "yard";
+            MI: Meter = 5280.0 * FT.value_unsafe, "mile";
+
+            LB: Kilogram = 0.45359237 * KG.value_unsafe, "pound mass";
+            OZ: Kilogram = LB.value_unsafe / 16.0, "ounce";
+
+            LBF: Newton = 4.4482216152605 * N.value_unsafe, "pound force";
         ),
         fmt: true,
         from: vec![

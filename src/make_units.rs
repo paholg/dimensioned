@@ -10,7 +10,7 @@
 /// As this macro makes some imports and creates a module named `inner`, it is **highly** recommended
 /// that you place any call to it in its own module.
 ///
-/// NOTE: consts (PI, E, etc.) and prefixes (MILLI, KILO, etc) are imported and off-limits
+/// fixme: note consts (PI, E, etc.) and prefixes (MILLI, KILO, etc) are imported
 
 #[macro_export]
 macro_rules! make_units {
