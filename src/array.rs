@@ -31,6 +31,8 @@ use core::ops::Add;
 /// }
 /// ```
 pub trait ToGA {
+
+    /// The type of the `GenericArray` to which we've converted
     type Output;
 
     /// Create a `GenericArray` of integers from a `TArr` of type numbers.
@@ -78,6 +80,8 @@ impl<V, A> ToGA for TArr<V, A>
 /// }
 
 pub trait AppendFront<T> {
+
+    /// The resulting type after performing the append
     type Output;
 
     /// Append `element` to the front of `self`.

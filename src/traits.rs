@@ -123,6 +123,7 @@ pub trait Map<ValueOut>: Dimensionless {
 }
 
 #[cfg(feature = "oibit")]
+/// Everything that is not a quantity implements this trait
 pub trait NotDim {}
 #[cfg(feature = "oibit")]
 impl NotDim for .. {}
@@ -153,7 +154,11 @@ macro_rules! impl_unary {
 /// }
 /// ```
 pub trait Recip {
+
+    /// The resulting type after taking the reciprocal
     type Output;
+
+    /// The method for taking the reciprocal
     fn recip(self) -> Self::Output;
 }
 
@@ -180,7 +185,11 @@ impl_unary!(f64, Recip, recip);
 /// }
 /// ```
 pub trait Root<Index> {
+
+    /// The resulting type after taking the `Index` root
     type Output;
+
+    /// The method for taking the `idx` root
     fn root(self, idx: Index) -> Self::Output;
 }
 
@@ -233,7 +242,11 @@ fn test_root() {
 /// }
 /// ```
 pub trait Sqrt {
+
+    /// The resulting type after taking the square root
     type Output;
+
+    /// The method for taking the square root
     fn sqrt(self) -> Self::Output;
 }
 
@@ -255,7 +268,11 @@ pub trait Sqrt {
 /// }
 /// ```
 pub trait Cbrt {
+
+    /// The resulting type after taking the cube root
     type Output;
+
+    /// The method for taking the cube root
     fn cbrt(self) -> Self::Output;
 }
 

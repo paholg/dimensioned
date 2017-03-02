@@ -1,4 +1,4 @@
-/// Create a new unit system.
+/// Create a new unit system
 ///
 /// This macro is the heart of this library and is used to create the unit systems with which it
 /// ships.
@@ -30,6 +30,7 @@ macro_rules! make_units {
         use $crate::dimcore::marker;
         use $crate::{Dimensioned, Dimensionless};
 
+        /// The $System unit system
         #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash)]
         pub struct $System<V, U> {
             /// This is the value of whatever type we're giving units. Using it directly bypasses
@@ -57,6 +58,8 @@ macro_rules! make_units {
         }
 
         impl<V, U> $System<V, U> {
+
+            /// Create a new quantity in the $System unit system
             #[inline]
             pub fn new(v: V) -> Self {
                 $System { value_unsafe: v, _marker: marker::PhantomData }
@@ -114,11 +117,13 @@ macro_rules! make_units {
             #[allow(unused_imports)]
             use $crate::typenum::consts::*;
             __make_units_internal!(@base_arrays $Unitless $($Unit)*);
-            $(pub type $Derived = __derived_internal!(@mu commas $($derived_rhs)+);)*
+            $(#[allow(missing_docs)] pub type $Derived = __derived_internal!(@mu commas $($derived_rhs)+);)*
         }
 
+        #[allow(missing_docs)]
         pub type $Unitless<V> = $System<V, inner::$Unitless>;
-        $(pub type $Unit<V> = $System<V, inner::$Unit>;
+        $(#[allow(missing_docs)]
+          pub type $Unit<V> = $System<V, inner::$Unit>;
           $(impl<V> $crate::dimensions::$base_dim for $Unit<V> {})*
         )*
 
@@ -129,7 +134,7 @@ macro_rules! make_units {
             }
         }
 
-        $(pub type $Derived<V> = $System<V, inner::$Derived>;
+        $(#[allow(missing_docs)] pub type $Derived<V> = $System<V, inner::$Derived>;
           $(impl<V> $crate::dimensions::$derived_dim for $Derived<V> {})*
         )*
 
@@ -137,15 +142,20 @@ macro_rules! make_units {
         // Define consts
         macro_rules! define_consts {
             ($module:ident, $prefixes:ident, $t:ident) => (
+                /// Constants defined for $System of value type $t
                 pub mod $module {
                     use super::*;
                     use $crate::dimcore::marker::PhantomData;
                     #[allow(unused_imports)] use $crate::dimcore::$t::consts;
                     #[allow(unused_imports)] use $crate::$prefixes::*;
-                    #[allow(dead_code)] pub const $one: $Unitless<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };
-                    $(#[allow(dead_code)] pub const $base: $Unit<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
-                    $(#[allow(dead_code)] pub const $derived_const: $Derived<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
-                    $(#[allow(dead_code)] pub const $constant: $ConstantUnit<$t> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
+                    #[allow(dead_code, missing_docs)]
+                    pub const $one: $Unitless<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };
+                    $(#[allow(dead_code, missing_docs)]
+                      pub const $base: $Unit<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+                    $(#[allow(dead_code, missing_docs)]
+                      pub const $derived_const: $Derived<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+                    $(#[allow(dead_code, missing_docs)]
+                      pub const $constant: $ConstantUnit<$t> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
                 }
             );
         }
@@ -734,7 +744,7 @@ macro_rules! __make_units_internal {
     (@convert_to_zero) => ();
 }
 
-/// Create a derived unit based on existing ones.
+/// Create a derived unit based on existing ones
 ///
 /// This macro creates a type, so it is useful when you need to directly express the type of a
 /// derived unit that is not defined in its unit system.

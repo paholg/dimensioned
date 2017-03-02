@@ -9,7 +9,7 @@
        html_favicon_url = "http://paholg.com/dimensioned/imgs/favicon.png",
        html_root_url = "http://paholg.com/dimensioned")]
 
-// fixme #![warn(missing_docs)]
+#![warn(missing_docs)]
 #![no_std]
 
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
@@ -34,7 +34,7 @@ pub extern crate typenum;
 
 // Copied from typenum so that users don't have to import typenum for the make_units macro to work.
 // Only change is the paths.
-/// Construct a type-level array of type-level integers.
+/// Construct a type-level array of type-level integers
 ///
 /// # Example
 /// ```rust

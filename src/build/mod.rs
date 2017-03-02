@@ -58,9 +58,6 @@ impl System {
 
         write!(f, "
 
-This unit system was generated using the `make_units!` macro. See its documentation if you're
-curious how it works.
-
 Following, we list all of the [base units](#base-units), [derived units](#derived-units), and
 [constants](#constants) that are defined in this unit system.
 ")?;
@@ -256,6 +253,10 @@ fixme: Naming convetions (PM3, Second2, etc.)
 Note that the unit systems included here should not be considered complete. New units and
 systems will be added. If there are any particular units or unit systems that you think should be
 added, please submit an issue on github.
+
+
+All of these unit systems were generated using the `make_units!` macro. See its documentation for
+more information.
 
 */
 

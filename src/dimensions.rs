@@ -31,6 +31,8 @@
 //! }
 //! ```
 
+#![allow(missing_docs)]
+
 use Dimensioned;
 
 pub trait Length: Dimensioned {}
