@@ -50,7 +50,7 @@ Note: this system is incomplete. More derived units and constants are coming.
             STATV: StatVolt = Erg / StatCoulomb;
         ),
         constants: constants!(
-            M: Centimeter = HECTO * CM.value_unsafe, "";
+            M: Centimeter = HECTO * CM.value_unsafe, "Meter";
         ),
         fmt: false,
         from: vec![
