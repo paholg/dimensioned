@@ -31,7 +31,7 @@ macro_rules! make_units {
         use $crate::{Dimensioned, Dimensionless};
 
         #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash)]
-        pub struct $System<V, A> {
+        pub struct $System<V, U> {
             /// This is the value of whatever type we're giving units. Using it directly bypasses
             /// all of the dimensional analysis that having a unit system provides, and should be
             /// avoided whenever possible.
@@ -53,10 +53,10 @@ macro_rules! make_units {
             ///
             /// Once `const_fns` is stabilized, that will be able to be replaced with a call to
             /// `Meter::new` and `_marker` will be made private.
-            pub _marker: marker::PhantomData<A>,
+            pub _marker: marker::PhantomData<U>,
         }
 
-        impl<V, A> $System<V, A> {
+        impl<V, U> $System<V, U> {
             #[inline]
             pub fn new(v: V) -> Self {
                 $System { value_unsafe: v, _marker: marker::PhantomData }
@@ -66,9 +66,9 @@ macro_rules! make_units {
         // --------------------------------------------------------------------------------
         // Implement traits defined in dim::traits
 
-        impl<V, A> Dimensioned for $System<V, A> {
+        impl<V, U> Dimensioned for $System<V, U> {
             type Value = V;
-            type Units = A;
+            type Units = U;
             #[inline]
             fn new(val: V) -> Self {
                 $System::new(val)
@@ -105,7 +105,7 @@ macro_rules! make_units {
         #[cfg(feature = "oibit")]
         use $crate::NotDim;
         #[cfg(feature = "oibit")]
-        impl<V, A> !NotDim for $System<V, A> {}
+        impl<V, U> !NotDim for $System<V, U> {}
 
         #[doc(hidden)]
         pub mod inner {
@@ -172,29 +172,29 @@ macro_rules! make_units {
         // --------------------------------------------------------------------------------
         // Operator traits from this crate
 
-        impl<V, A> $crate::Recip for $System<V, A> where V: $crate::Recip, A: $crate::dimcore::ops::Neg, {
-            type Output = $System<<V as $crate::Recip>::Output, $crate::typenum::Negate<A>>;
+        impl<V, U> $crate::Recip for $System<V, U> where V: $crate::Recip, U: $crate::dimcore::ops::Neg, {
+            type Output = $System<<V as $crate::Recip>::Output, $crate::typenum::Negate<U>>;
             #[inline]
             fn recip(self) -> Self::Output { $System::new(self.value_unsafe.recip()) }
         }
 
         use $crate::typenum::Pow;
-        impl<Exp, V, A> Pow<Exp> for $System<V, A>
+        impl<Exp, V, U> Pow<Exp> for $System<V, U>
             where V: Pow<Exp>,
-                  A: $crate::dimcore::ops::Mul<Exp>,
+                  U: $crate::dimcore::ops::Mul<Exp>,
         {
-            type Output = $System< <V as Pow<Exp>>::Output, $crate::typenum::Prod<A, Exp>>;
+            type Output = $System< <V as Pow<Exp>>::Output, $crate::typenum::Prod<U, Exp>>;
             #[inline]
             fn powi(self, exp: Exp) -> Self::Output {
                 $System::new( self.value_unsafe.powi(exp) )
             }
         }
 
-        impl<Index, V, A> $crate::Root<Index> for $System<V, A>
+        impl<Index, V, U> $crate::Root<Index> for $System<V, U>
             where V: $crate::Root<Index>,
-                  A: $crate::typenum::PartialDiv<Index>,
+                  U: $crate::typenum::PartialDiv<Index>,
         {
-            type Output = $System< <V as $crate::Root<Index>>::Output, $crate::typenum::PartialQuot<A, Index>>;
+            type Output = $System< <V as $crate::Root<Index>>::Output, $crate::typenum::PartialQuot<U, Index>>;
             #[inline]
             fn root(self, idx: Index) -> Self::Output {
                 $System::new( self.value_unsafe.root(idx) )
@@ -202,11 +202,11 @@ macro_rules! make_units {
         }
 
         use $crate::typenum::P2;
-        impl<V, A> $crate::Sqrt for $System<V, A>
+        impl<V, U> $crate::Sqrt for $System<V, U>
             where V: $crate::Sqrt,
-                  A: $crate::typenum::PartialDiv<P2>,
+                  U: $crate::typenum::PartialDiv<P2>,
         {
-            type Output = $System< <V as $crate::Sqrt>::Output, $crate::typenum::PartialQuot<A, P2>>;
+            type Output = $System< <V as $crate::Sqrt>::Output, $crate::typenum::PartialQuot<U, P2>>;
             #[inline]
             fn sqrt(self) -> Self::Output {
                 $System::new( self.value_unsafe.sqrt() )
@@ -214,11 +214,11 @@ macro_rules! make_units {
         }
 
         use $crate::typenum::P3;
-        impl<V, A> $crate::Cbrt for $System<V, A>
+        impl<V, U> $crate::Cbrt for $System<V, U>
             where V: $crate::Cbrt,
-                  A: $crate::typenum::PartialDiv<P3>,
+                  U: $crate::typenum::PartialDiv<P3>,
         {
-            type Output = $System< <V as $crate::Cbrt>::Output, $crate::typenum::PartialQuot<A, P3>>;
+            type Output = $System< <V as $crate::Cbrt>::Output, $crate::typenum::PartialQuot<U, P3>>;
             #[inline]
             fn cbrt(self) -> Self::Output {
                 $System::new( self.value_unsafe.cbrt() )
@@ -240,7 +240,7 @@ macro_rules! make_units {
         // Deref only for dimensionless things
 
         use $crate::dimcore::ops::Deref;
-        impl<V, A> Deref for $System<V, A> where $System<V, A>: Dimensionless {
+        impl<V, U> Deref for $System<V, U> where $System<V, U>: Dimensionless {
             type Target = V;
             #[inline]
             fn deref(&self) -> &Self::Target {
@@ -252,11 +252,11 @@ macro_rules! make_units {
         // Index
 
         use $crate::dimcore::ops::Index;
-        impl<V, A, Idx> Index<Idx> for $System<V, A>
+        impl<V, U, Idx> Index<Idx> for $System<V, U>
             where V: Index<Idx>,
         <V as Index<Idx>>::Output: Sized,
         {
-            type Output = $System<<V as Index<Idx>>::Output, A>;
+            type Output = $System<<V as Index<Idx>>::Output, U>;
             #[inline]
             fn index(&self, index: Idx) -> &Self::Output {
                 // fixme: ensure this is safe
@@ -267,11 +267,11 @@ macro_rules! make_units {
         }
 
         use $crate::dimcore::ops::IndexMut;
-        impl<V, A, Idx> IndexMut<Idx> for $System<V, A>
-            where $System<V, A>: Index<Idx>,
+        impl<V, U, Idx> IndexMut<Idx> for $System<V, U>
+            where $System<V, U>: Index<Idx>,
                   V: Index<Idx> + IndexMut<Idx>,
         <V as Index<Idx>>::Output: Sized,
-        <$System<V, A> as Index<Idx>>::Output: Sized
+        <$System<V, U> as Index<Idx>>::Output: Sized
         {
             #[inline]
             fn index_mut(&mut self, index: Idx) -> &mut Self::Output{
@@ -296,10 +296,10 @@ macro_rules! __make_units_internal {
 
         macro_rules! unary_op {
             ($Trait:ident, $fun:ident) => (
-                impl<V, A> $Trait for $System<V, A> where
+                impl<V, U> $Trait for $System<V, U> where
                     V: $Trait,
                 {
-                    type Output = $System<<V as $Trait>::Output, A>;
+                    type Output = $System<<V as $Trait>::Output, U>;
                     #[inline]
                     fn $fun(self) -> Self::Output {
                         $System::new($Trait::$fun(self.value_unsafe))
@@ -317,22 +317,22 @@ macro_rules! __make_units_internal {
         macro_rules! binary_unit_preserve {
             ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
                 // Both have units
-                impl<Vl, A, Vr> $Trait<$System<Vr, A>> for $System<Vl, A> where
+                impl<Vl, U, Vr> $Trait<$System<Vr, U>> for $System<Vl, U> where
                     Vl: $Trait<Vr>,
                 {
-                    type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, U>;
                     #[inline]
-                    fn $fun(self, rhs: $System<Vr, A>) -> Self::Output {
+                    fn $fun(self, rhs: $System<Vr, U>) -> Self::Output {
                         $System::new($Trait::$fun(self.value_unsafe, rhs.value_unsafe))
                     }
                 }
 
                 // Unitless on lhs, scalar on rhs
                 #[cfg(feature = "oibit")]
-                impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
-                    Vl: $Trait<Vr>, Vr: NotDim, $System<Vl, A>: Dimensionless
+                impl<Vl, U, Vr> $Trait<Vr> for $System<Vl, U> where
+                    Vl: $Trait<Vr>, Vr: NotDim, $System<Vl, U>: Dimensionless
                 {
-                    type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, U>;
                     #[inline]
                     fn $fun(self, rhs: Vr) -> Self::Output {
                         $System::new($Trait::$fun(self.value_unsafe, rhs))
@@ -340,19 +340,19 @@ macro_rules! __make_units_internal {
                 }
 
                 // Assign: Both have units
-                impl<Vl, A, Vr> $TraitAssign<$System<Vr, A>> for $System<Vl, A> where
+                impl<Vl, U, Vr> $TraitAssign<$System<Vr, U>> for $System<Vl, U> where
                     Vl: $TraitAssign<Vr>,
                 {
                     #[inline]
-                    fn $fun_assign(&mut self, rhs: $System<Vr, A>) {
+                    fn $fun_assign(&mut self, rhs: $System<Vr, U>) {
                         $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs.value_unsafe)
                     }
                 }
 
                 // Assign: Unitless on lhs, scalar on rhs
                 #[cfg(feature = "oibit")]
-                impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
-                    Vl: $TraitAssign<Vr>, Vr: NotDim, $System<Vl, A>: Dimensionless
+                impl<Vl, U, Vr> $TraitAssign<Vr> for $System<Vl, U> where
+                    Vl: $TraitAssign<Vr>, Vr: NotDim, $System<Vl, U>: Dimensionless
                 {
                     #[inline]
                     fn $fun_assign(&mut self, rhs: Vr) {
@@ -374,22 +374,22 @@ macro_rules! __make_units_internal {
         macro_rules! binary_unit_change {
             ($Trait:ident, $fun:ident, $op:ident, $TraitAssign:ident, $fun_assign:ident) => (
                 // Both have units
-                impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
-                    Vl: $Trait<Vr>, Al: $op<Ar>,
+                impl<Vl, Ul, Vr, Ur> $Trait<$System<Vr, Ur>> for $System<Vl, Ul> where
+                    Vl: $Trait<Vr>, Ul: $op<Ur>,
                 {
-                    type Output = $System<<Vl as $Trait<Vr>>::Output, <Al as $op<Ar>>::Output>;
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, <Ul as $op<Ur>>::Output>;
                     #[inline]
-                    fn $fun(self, rhs: $System<Vr, Ar>) -> Self::Output {
+                    fn $fun(self, rhs: $System<Vr, Ur>) -> Self::Output {
                         $System::new( $Trait::$fun(self.value_unsafe, rhs.value_unsafe) )
                     }
                 }
 
                 // Lhs has units, scalar on rhs
                 #[cfg(feature = "oibit")]
-                impl<Vl, A, Vr> $Trait<Vr> for $System<Vl, A> where
+                impl<Vl, U, Vr> $Trait<Vr> for $System<Vl, U> where
                     Vl: $Trait<Vr>, Vr: NotDim,
                 {
-                    type Output = $System<<Vl as $Trait<Vr>>::Output, A>;
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, U>;
                     #[inline]
                     fn $fun(self, rhs: Vr) -> Self::Output {
                         $System::new( $Trait::$fun(self.value_unsafe, rhs) )
@@ -397,19 +397,19 @@ macro_rules! __make_units_internal {
                 }
 
                 // Assign: Lhs has units, rhs unitless
-                impl<Vl, Al, Vr, Ar> $TraitAssign<$System<Vr, Ar>> for $System<Vl, Al> where
+                impl<Vl, Ul, Vr, Ur> $TraitAssign<$System<Vr, Ur>> for $System<Vl, Ul> where
                     Vl: $TraitAssign<Vr>,
-                $System<Vr, Ar>: Dimensionless,
+                $System<Vr, Ur>: Dimensionless,
                 {
                     #[inline]
-                    fn $fun_assign(&mut self, rhs: $System<Vr, Ar>) {
+                    fn $fun_assign(&mut self, rhs: $System<Vr, Ur>) {
                         $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs.value_unsafe)
                     }
                 }
 
                 // Assign: Lhs has units, scalar on rhs
                 #[cfg(feature = "oibit")]
-                impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
+                impl<Vl, U, Vr> $TraitAssign<Vr> for $System<Vl, U> where
                     Vl: $TraitAssign<Vr>, Vr: NotDim,
                 {
                     #[inline]
@@ -427,22 +427,22 @@ macro_rules! __make_units_internal {
         // Rem (it's kinda its own thing)
 
         // Both have units
-        impl<Vl, Al, Vr, Ar> Rem<$System<Vr, Ar>> for $System<Vl, Al> where
+        impl<Vl, Ul, Vr, Ur> Rem<$System<Vr, Ur>> for $System<Vl, Ul> where
             Vl: Rem<Vr>
         {
-            type Output = $System<<Vl as Rem<Vr>>::Output, Al>;
+            type Output = $System<<Vl as Rem<Vr>>::Output, Ul>;
             #[inline]
-            fn rem(self, rhs: $System<Vr, Ar>) -> Self::Output {
+            fn rem(self, rhs: $System<Vr, Ur>) -> Self::Output {
                 $System::new( self.value_unsafe % rhs.value_unsafe )
             }
         }
 
         // Lhs has units, scalar on rhs
         #[cfg(feature = "oibit")]
-        impl<Vl, A, Vr> Rem<Vr> for $System<Vl, A> where
+        impl<Vl, U, Vr> Rem<Vr> for $System<Vl, U> where
             Vl: Rem<Vr>, Vr: NotDim,
         {
-            type Output = $System<<Vl as Rem<Vr>>::Output, A>;
+            type Output = $System<<Vl as Rem<Vr>>::Output, U>;
             #[inline]
             fn rem(self, rhs: Vr) -> Self::Output {
                 $System::new( self.value_unsafe % rhs )
@@ -450,18 +450,18 @@ macro_rules! __make_units_internal {
         }
 
         // Assign, both have units
-        impl<Vl, Al, Vr, Ar> RemAssign<$System<Vr, Ar>> for $System<Vl, Al> where
+        impl<Vl, Ul, Vr, Ur> RemAssign<$System<Vr, Ur>> for $System<Vl, Ul> where
             Vl: RemAssign<Vr>,
         {
             #[inline]
-            fn rem_assign(&mut self, rhs: $System<Vr, Ar>) {
+            fn rem_assign(&mut self, rhs: $System<Vr, Ur>) {
                 self.value_unsafe %= rhs.value_unsafe
             }
         }
 
         // Assign: Lhs has units, scalar on rhs
         #[cfg(feature = "oibit")]
-        impl<Vl, A, Vr> RemAssign<Vr> for $System<Vl, A> where
+        impl<Vl, U, Vr> RemAssign<Vr> for $System<Vl, U> where
             Vl: RemAssign<Vr>, Vr: NotDim,
         {
             #[inline]
@@ -476,22 +476,22 @@ macro_rules! __make_units_internal {
         macro_rules! binary_shift {
             ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
                 // Lhs has units, rhs unitless
-                impl<Vl, Al, Vr, Ar> $Trait<$System<Vr, Ar>> for $System<Vl, Al> where
-                    Vl: $Trait<Vr>, $System<Vr, Ar>: Dimensionless
+                impl<Vl, Ul, Vr, Ur> $Trait<$System<Vr, Ur>> for $System<Vl, Ul> where
+                    Vl: $Trait<Vr>, $System<Vr, Ur>: Dimensionless
                 {
-                    type Output = $System<<Vl as $Trait<Vr>>::Output, Al>;
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, Ul>;
                     #[inline]
-                    fn $fun(self, rhs: $System<Vr, Ar>) -> Self::Output {
+                    fn $fun(self, rhs: $System<Vr, Ur>) -> Self::Output {
                         $System::new( $Trait::$fun(self.value_unsafe, rhs.value_unsafe) )
                     }
                 }
 
                 // Lhs has units, scalar on rhs
                 #[cfg(feature = "oibit")]
-                impl<Vl, Al, Vr> $Trait<Vr> for $System<Vl, Al> where
+                impl<Vl, Ul, Vr> $Trait<Vr> for $System<Vl, Ul> where
                     Vl: $Trait<Vr>, Vr: NotDim,
                 {
-                    type Output = $System<<Vl as $Trait<Vr>>::Output, Al>;
+                    type Output = $System<<Vl as $Trait<Vr>>::Output, Ul>;
                     #[inline]
                     fn $fun(self, rhs: Vr) -> Self::Output {
                         $System::new( $Trait::$fun(self.value_unsafe, rhs) )
@@ -499,19 +499,19 @@ macro_rules! __make_units_internal {
                 }
 
                 // Assign: Lhs has units, rhs unitless
-                impl<Vl, Al, Vr, Ar> $TraitAssign<$System<Vr, Ar>> for $System<Vl, Al> where
+                impl<Vl, Ul, Vr, Ur> $TraitAssign<$System<Vr, Ur>> for $System<Vl, Ul> where
                     Vl: $TraitAssign<Vr>,
-                $System<Vr, Ar>: Dimensionless,
+                $System<Vr, Ur>: Dimensionless,
                 {
                     #[inline]
-                    fn $fun_assign(&mut self, rhs: $System<Vr, Ar>) {
+                    fn $fun_assign(&mut self, rhs: $System<Vr, Ur>) {
                         $TraitAssign::$fun_assign(&mut self.value_unsafe, rhs.value_unsafe)
                     }
                 }
 
                 // Assign: Lhs has units, scalar on rhs
                 #[cfg(feature = "oibit")]
-                impl<Vl, A, Vr> $TraitAssign<Vr> for $System<Vl, A> where
+                impl<Vl, U, Vr> $TraitAssign<Vr> for $System<Vl, U> where
                     Vl: $TraitAssign<Vr>, Vr: NotDim,
                 {
                     #[inline]
@@ -537,10 +537,10 @@ macro_rules! __make_units_internal {
 
                         // Unitless on lhs, primitive on rhs
                         #[cfg(not(feature = "oibit"))]
-                        impl<V, A> $Trait<$t> for $System<V, A> where
-                            V: $Trait<$t>, $System<V, A>: Dimensionless
+                        impl<V, U> $Trait<$t> for $System<V, U> where
+                            V: $Trait<$t>, $System<V, U>: Dimensionless
                         {
-                            type Output = $System<<V as $Trait<$t>>::Output, A>;
+                            type Output = $System<<V as $Trait<$t>>::Output, U>;
                             #[inline]
                             fn $fun(self, rhs: $t) -> Self::Output {
                                 $System::new( $Trait::$fun(self.value_unsafe, rhs) )
@@ -548,20 +548,20 @@ macro_rules! __make_units_internal {
                         }
 
                         // Primitive on lhs, unitless on rhs
-                        impl<V, A> $Trait<$System<V, A>> for $t where
-                            $t: $Trait<V>, $System<V, A>: Dimensionless
+                        impl<V, U> $Trait<$System<V, U>> for $t where
+                            $t: $Trait<V>, $System<V, U>: Dimensionless
                         {
-                            type Output = $System<<$t as $Trait<V>>::Output, A>;
+                            type Output = $System<<$t as $Trait<V>>::Output, U>;
                             #[inline]
-                            fn $fun(self, rhs: $System<V, A>) -> Self::Output {
+                            fn $fun(self, rhs: $System<V, U>) -> Self::Output {
                                 $System::new( $Trait::$fun(self, rhs.value_unsafe) )
                             }
                         }
 
                         // Assign: Unitless on lhs, primitive on rhs
                         #[cfg(not(feature = "oibit"))]
-                        impl<V, A> $TraitAssign<$t> for $System<V, A> where
-                            V: $TraitAssign<$t>, $System<V, A>: Dimensionless
+                        impl<V, U> $TraitAssign<$t> for $System<V, U> where
+                            V: $TraitAssign<$t>, $System<V, U>: Dimensionless
                         {
                             #[inline]
                             fn $fun_assign(&mut self, rhs: $t) {
@@ -585,10 +585,10 @@ macro_rules! __make_units_internal {
                     ($Trait:ident, $fun:ident, $TraitAssign:ident, $fun_assign:ident) => (
                         // Units on lhs, primitive on rhs
                         #[cfg(not(feature = "oibit"))]
-                        impl<V, A> $Trait<$t> for $System<V, A> where
+                        impl<V, U> $Trait<$t> for $System<V, U> where
                             V: $Trait<$t>
                         {
-                            type Output = $System<<V as $Trait<$t>>::Output, A>;
+                            type Output = $System<<V as $Trait<$t>>::Output, U>;
                             #[inline]
                             fn $fun(self, rhs: $t) -> Self::Output {
                                 $System::new( $Trait::$fun(self.value_unsafe, rhs) )
@@ -597,7 +597,7 @@ macro_rules! __make_units_internal {
 
                         // Assign: Unitless on lhs, primitive on rhs
                         #[cfg(not(feature = "oibit"))]
-                        impl<V, A> $TraitAssign<$t> for $System<V, A> where
+                        impl<V, U> $TraitAssign<$t> for $System<V, U> where
                             V: $TraitAssign<$t>
                         {
                             #[inline]
@@ -616,28 +616,28 @@ macro_rules! __make_units_internal {
                 rhs_units_differ!(Shr, shr, ShrAssign, shr_assign);
 
                 // Mul: Primitive on lhs, units on rhs
-                impl<V, A> Mul<$System<V, A>> for $t where $t: Mul<V> {
-                    type Output = $System<Prod<$t, V>, A>;
+                impl<V, U> Mul<$System<V, U>> for $t where $t: Mul<V> {
+                    type Output = $System<Prod<$t, V>, U>;
                     #[inline]
-                    fn mul(self, rhs: $System<V, A>) -> Self::Output {
+                    fn mul(self, rhs: $System<V, U>) -> Self::Output {
                         $System::new(self * rhs.value_unsafe)
                     }
                 }
 
                 // Div: Primitive on lhs, units on rhs
-                impl<V, A> Div<$System<V, A>> for $t where $t: Div<V>, A: Neg {
-                    type Output = $System<Quot<$t, V>, <A as Neg>::Output>;
+                impl<V, U> Div<$System<V, U>> for $t where $t: Div<V>, U: Neg {
+                    type Output = $System<Quot<$t, V>, <U as Neg>::Output>;
                     #[inline]
-                    fn div(self, rhs: $System<V, A>) -> Self::Output {
+                    fn div(self, rhs: $System<V, U>) -> Self::Output {
                         $System::new(self / rhs.value_unsafe)
                     }
                 }
 
                 // Rem: Primitive on lhs, units on rhs
-                impl<V, A> Rem<$System<V, A>> for $t where $t: Rem<V> {
+                impl<V, U> Rem<$System<V, U>> for $t where $t: Rem<V> {
                     type Output = $Unitless<<$t as Rem<V>>::Output>;
                     #[inline]
-                    fn rem(self, rhs: $System<V, A>) -> Self::Output {
+                    fn rem(self, rhs: $System<V, U>) -> Self::Output {
                         $System::new(self % rhs.value_unsafe)
                     }
                 }
@@ -665,14 +665,14 @@ macro_rules! __make_units_internal {
     );
 
     (@fmt true S $System:ident $(P $print_as:expr;)* T $Trait:ident E $token:expr) => (
-        impl<V, A> fmt::$Trait for $System<V, A> where
+        impl<V, U> fmt::$Trait for $System<V, U> where
             V: fmt::$Trait,
-        Length<A>: ArrayLength<isize>,
-            A: TypeArray + Len + ToGA<Output = GenericArray<isize, Length<A>>>,
+        Length<U>: ArrayLength<isize>,
+            U: TypeArray + Len + ToGA<Output = GenericArray<isize, Length<U>>>,
         {
             fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error>
             {
-                let exponents = A::to_ga();
+                let exponents = U::to_ga();
                 let print_tokens = [$($print_as),*];
 
                 let mut first = true;
