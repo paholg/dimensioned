@@ -2,7 +2,7 @@ use super::*;
 
 pub fn new() -> System {
     System {
-        name: SI, module: "si",
+        name: "SI", module: "si",
         doc_prelude: "The International System of Units (SI)
 
 Note: Incomplete - fixme.
@@ -137,48 +137,48 @@ Note: Incomplete - fixme.
             WPM: WattPerMeter = Watt / Meter;
         ),
         constants: constants!(
-            RAD: Unitless = 1.0 * ONE.value_unsafe;
-            SR: Unitless = 1.0 * ONE.value_unsafe;
+            RAD: Unitless = 1.0 * ONE.value_unsafe, "radian";
+            SR: Unitless = 1.0 * ONE.value_unsafe, "steradian";
 
-            MIN: Second = 60.0 * S.value_unsafe;
-            HR: Second = 60.0 * MIN.value_unsafe;
-            DAY: Second = 24.0 * HR.value_unsafe;
+            MIN: Second = 60.0 * S.value_unsafe, "minute";
+            HR: Second = 60.0 * MIN.value_unsafe, "hour";
+            DAY: Second = 24.0 * HR.value_unsafe, "day";
 
-            DEG: Unitless = consts::PI / 180.0 * RAD.value_unsafe;
-            HA: Meter2 = 10000.0 * M2.value_unsafe;
-            L: Meter3 = 0.001 * M3.value_unsafe;
-            TONNE: Kilogram = 1.0e3 * KG.value_unsafe;
-            AU: Meter = 149_597_870_700.0 * M.value_unsafe;
+            DEG: Unitless = consts::PI / 180.0 * RAD.value_unsafe, "degree";
+            HA: Meter2 = 10000.0 * M2.value_unsafe, "hectare";
+            L: Meter3 = 0.001 * M3.value_unsafe, "liter";
+            TNE: Kilogram = 1.0e3 * KG.value_unsafe, "tonne";
+            AU: Meter = 149_597_870_700.0 * M.value_unsafe, "astronomical unit";
 
-            E: Coulomb = 1.6021766208e-19 * C.value_unsafe;
-            EV: Joule = E.value_unsafe * V.value_unsafe;
-            U: Kilogram = 1.660539040e-27 * KG.value_unsafe;
+            E: Coulomb = 1.6021766208e-19 * C.value_unsafe, "elementary charge";
+            EV: Joule = E.value_unsafe * V.value_unsafe, "electronvolt";
+            U: Kilogram = 1.660539040e-27 * KG.value_unsafe, "unified atomic mass unit; dalton";
 
-            C0: MeterPerSecond = 299792458.0 * MPS.value_unsafe;
+            C0: MeterPerSecond = 299792458.0 * MPS.value_unsafe, "speed of light in a vacuum";
 
-            HBAR: JouleSecond = 1.054571800e-34 * JS.value_unsafe;
-            M_E: Kilogram = 9.10938356e-31 * KG.value_unsafe;
-            R_BOHR: Meter = 0.52917721067e-10 * M.value_unsafe;
-            HARTREE: Joule = 4.359744650e-18 * J.value_unsafe;
-            AO: Meter = 1e-10 * M.value_unsafe;
-            ARE: Meter2 = 100.0 * M2.value_unsafe;
-            BARN: Meter2 = 1e-28 * M2.value_unsafe;
-            BAR: Pascal = 1e5 * PA.value_unsafe;
-            MBAR: Pascal = 100.0 * PA.value_unsafe;
-            ATM: Pascal = 101325.0 * PA.value_unsafe;
-            BA: Pascal = 0.1 * PA.value_unsafe;
-            MMHG: Pascal = 133.322387415 * PA.value_unsafe;
-            TORR: Pascal = ATM.value_unsafe / 760.0;
+            HBAR: JouleSecond = 1.054571800e-34 * JS.value_unsafe, "reduced Planck constant";
+            M_E: Kilogram = 9.10938356e-31 * KG.value_unsafe, "electron mass";
+            R_BOHR: Meter = 0.52917721067e-10 * M.value_unsafe, "Bohr radius";
+            EH: Joule = 4.359744650e-18 * J.value_unsafe, "Hartree energy";
+            AO: Meter = 1e-10 * M.value_unsafe, "ångström";
+            ARE: Meter2 = 100.0 * M2.value_unsafe, "are";
+            BARN: Meter2 = 1e-28 * M2.value_unsafe, "barn";
+            BAR: Pascal = 1e5 * PA.value_unsafe, "bar";
+            MBAR: Pascal = 100.0 * PA.value_unsafe, "millibar";
+            ATM: Pascal = 101325.0 * PA.value_unsafe, "atmosphere";
+            BA: Pascal = 0.1 * PA.value_unsafe, "barye";
+            MMHG: Pascal = 133.322387415 * PA.value_unsafe, "millimeter of mercury";
+            TORR: Pascal = ATM.value_unsafe / 760.0, "torr";
 
-            DYN: Newton = 1.0e-5 * N.value_unsafe;
+            DYN: Newton = 1.0e-5 * N.value_unsafe, "dyne";
 
-            FT: Meter = 0.3048 * M.value_unsafe;
-            IN: Meter = FT.value_unsafe / 12.0;
-            YD: Meter = 3.0 * FT.value_unsafe;
+            FT: Meter = 0.3048 * M.value_unsafe, "foot";
+            IN: Meter = FT.value_unsafe / 12.0, "inch";
+            YD: Meter = 3.0 * FT.value_unsafe, "yard";
         ),
         fmt: true,
         from: vec![
-            UCUM,
+            "UCUM",
         ],
         refl_blacklist: vec!
             ["MOL", "KAT", "MOLPM", "MPMOL", "MOLPKG", "KGPMOL", "M2PMOL", "M3PMOL",

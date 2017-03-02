@@ -31,6 +31,7 @@ pub struct Constant {
     pub constant: &'static str,
     pub unit: &'static str,
     pub value: &'static str,
+    pub desc: &'static str,
 }
 
 impl Constant {
@@ -39,40 +40,15 @@ impl Constant {
     }
 }
 
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
-pub enum SName {
-    SI,
-    CGS,
-    MKS,
-    UCUM,
-    FPS,
-}
-use SName::*;
-
-impl fmt::Display for SName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        let s = match *self {
-            SI => "SI",
-            CGS => "CGS",
-            MKS => "MKS",
-            UCUM => "UCUM",
-            FPS => "FPS",
-        };
-
-        write!(f, "{}", s)?;
-        Ok(())
-    }
-}
-
-    #[derive(Debug)]
+#[derive(Debug)]
 pub struct System {
     pub module: &'static str,
-    pub name: SName,
+    pub name: &'static str,
     pub doc_prelude: &'static str,
     pub base: Vec<BaseUnit>,
     pub derived: Vec<DerivedUnit>,
     pub constants: Vec<Constant>,
-    pub from: Vec<SName>,
+    pub from: Vec<&'static str>,
     pub refl_blacklist: Vec<&'static str>,
     pub fmt: bool,
 }
@@ -91,10 +67,10 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
 
 
         write!(f, "# Base Units\n")?;
-        write!(f, "Constant | Unit | Dimension | Print Token\n")?;
+        write!(f, "Constant | Unit | Print Token | Dimensionn\n")?;
         write!(f, "---|---|---|---\n")?;
         for b in &self.base {
-            write!(f, "{} | {} | {} | {}\n", b.constant, b.name, b.dim, b.token)?;
+            write!(f, "{} | {} | {} | {}\n", b.constant, b.name, b.token, b.dim)?;
         }
 
         write!(f, "# Derived Units\n")?;
@@ -105,12 +81,12 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
         }
 
         write!(f, "# Constants\n")?;
-        write!(f, "Constant | Value | Unit | Dimension\n")?;
-        write!(f, "---|---|---|---\n")?;
+        write!(f, "Constant | Value | Unit | Dimension | Description\n")?;
+        write!(f, "---|---|---|---|---\n")?;
         for b in &self.base {
             let mut newline = false;
             for c in self.constants.iter().filter(|c| c.unit == b.name) {
-                write!(f, "{} | {} | {} | {}\n", c.constant, c.nice_value(), c.unit, b.dim)?;
+                write!(f, "{} | {} | {} | {} | {}\n", c.constant, c.nice_value(), c.unit, b.dim, c.desc)?;
 
                 newline = true;
             }
@@ -122,7 +98,7 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
         for d in &self.derived {
             let mut newline = false;
             for c in self.constants.iter().filter(|c| c.unit == d.name) {
-                write!(f, "{} | {} | {} | {}\n", c.constant, c.nice_value(), c.unit, d.dim)?;
+                write!(f, "{} | {} | {} | {} | {}\n", c.constant, c.nice_value(), c.unit, d.dim, c.desc)?;
                 newline = true;
             }
             if newline {
@@ -212,7 +188,7 @@ macro_rules! base_units {
             name: stringify!($unit),
             constant: stringify!($constant),
             token: stringify!($token),
-            dim: stringify!($($dim)*)
+            dim: stringify!($($dim)*),
         }),*];
     );
 }
@@ -223,17 +199,18 @@ macro_rules! derived_units {
             name: stringify!($unit),
             constant: stringify!($constant),
             expression: stringify!($e),
-            dim: stringify!($($dim)*)
+            dim: stringify!($($dim)*),
         }),*];
     );
 }
 
 macro_rules! constants {
-    ($($constant:ident: $unit:ident =  $e:expr;)* ) => (
+    ($($constant:ident: $unit:ident =  $e:expr, $desc: expr;)* ) => (
         vec![$(Constant{
             unit: stringify!($unit),
             constant: stringify!($constant),
-            value: stringify!($e)
+            value: stringify!($e),
+            desc: $desc,
         }),*];
     );
 }

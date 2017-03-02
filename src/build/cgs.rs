@@ -2,7 +2,7 @@ use super::*;
 
 pub fn new() -> System {
     System {
-        name: CGS, module: "cgs",
+        name: "CGS", module: "cgs",
         doc_prelude: "The Gaussian CGS unit system
 
 Note: Incomplete - fixme.
@@ -50,12 +50,12 @@ Note: Incomplete - fixme.
             STATV: StatVolt = Erg / StatCoulomb;
         ),
         constants: constants!(
-            M: Centimeter = HECTO * CM.value_unsafe;
+            M: Centimeter = HECTO * CM.value_unsafe, "";
         ),
         fmt: false,
         from: vec![
-            SI,
-            MKS,
+            "SI",
+            "MKS",
         ],
         refl_blacklist: Vec::new(),
     }

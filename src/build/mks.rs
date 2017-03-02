@@ -2,7 +2,7 @@ use super::*;
 
 pub fn new() -> System {
     System {
-        name: MKS, module: "mks",
+        name: "MKS", module: "mks",
         doc_prelude: "The Gaussian MKS unit system
 
 Note: Incomplete - fixme.
@@ -23,8 +23,8 @@ Note: Incomplete - fixme.
         ),
         fmt: false,
         from: vec![
-            SI,
-            CGS,
+            "SI",
+            "CGS",
         ],
         refl_blacklist: Vec::new(),
     }

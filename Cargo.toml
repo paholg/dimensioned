@@ -2,13 +2,14 @@
   name = "dimensioned"
   version = "0.6.0"
   authors = ["Paho Lurie-Gregg <paho@paholg.com>"]
-  description = "Compile-time type checking of arbitrary unit systems."
-  homepage = "http://paholg.com/project/dimensioned"
   documentation = "http://paholg.com/dimensioned"
   repository = "https://github.com/paholg/dimensioned"
   readme = "README.md"
   license = "MIT/Apache-2.0"
   build = "src/build/mod.rs"
+  description = "Compile-time dimensional analysis for arbitrary unit systems."
+  categories = ["no-std", "science"]
+  keywords = ["no_std", "units", "dimensions", "quantities"]
 
 [lib]
   name = "dimensioned"
