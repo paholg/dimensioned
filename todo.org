@@ -1,28 +1,27 @@
 # To do
-- Derived Units :: Get macro working for these. Wait to see if
-                   https://github.com/rust-lang/rfcs/pull/873 goes through, otherwise
-                   will have to be a syntax extension.
-- Index/IndexMut :: Lifetime stuff that I need to figure out.
-- Impls :: Include impls for references and not just pass-by-value.
-- Stable :: Get dimensioned working with Rust stable.
+- Blog :: Write post about history of dimensioned?
+- Doc :: Rewrite docs as well as website tutorial
+- Examples :: Monte Carlo w/ and w/out units
+- Readme :: Write extensive readme
+
+- Convert :: impl From
+- test all ops extensively if possible
+add constant block to mscro, finish unit systems
 
 # Questions
-- make_units_adv! :: Allow custom print function?
-- Dim :: Decide on other traits to implement.
-- Macros :: Investigate more macros for implementing functions.
+- What all derived types should be generated? Do with build script or just macro?
+- What unit systems to include? Definitely si and cgs. fps? An imperial si alternative? Does one
+  exist?
 
 # Future
-- Float :: Implement for dimensionless. This requires num::traits::Zero and
-           num::traits::One. The new versions of these in std::num are much more
-           compatible with dimensioned, so implementation of Float will wait until it
-           uses these. Otherwise, I need to implement Mul and Add for Dimensionless in a
-           type-preserving way, so I will have to use default trait impls to
-           differentiate these from the Mul and Add impls for Dimension.
-- constant initialization value :: Once associated constants hit, use std::num::One.
-- Numbers :: Compare shoggoth to peano. Shoggoth should be faster, and can count
-             higher. Can it divide?
-- Numerics :: If and when Rust supports numerics and arithmetic in type signatures,
-              switch to using them. This will likely correspond to a version 2.0 of
-              dimensioned.
+- OIBIT :: Once opt-in built-in traits stabilizes, we can deprecate the feature and add it to beta
+           / stable
+
+- on_unimplemented :: Once this stabilizes, we can try try to make error messages better.
+
+- Numerics :: If and when Rust supports numerics and arithmetic in type signatures, switch to using
+              them instead of typenum. This is almost certainly in the far future.
+
+- Serialize / Deserialize
 
 # Known Bugs

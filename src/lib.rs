@@ -1,47 +1,91 @@
-//! # dimensioned
-//!
-//! dimensioned** is a library for compile time type checking for arbitrary unit systems.
-//!
-//! For in depth tutorials, check [here](http://paholg.com/project/dimensioned).
-//!
-#![doc(html_logo_url = "http://paholg.com/dimensioned/imgs/favicon.png",
-       html_favicon_url = "http://paholg.com/dimensioned/imgs/favicon.png",
+/*!
+Compile-time dimensional analysis for various unit systems using Rust's type system.
+
+Its goal is to provide zero cost unit safety while requiring minimal effort from the programmer.
+
+For a short introduction and some examples, check out the [readme on
+GitHub](https://github.com/paholg/dimensioned).
+*/
+
+#![doc(html_logo_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
+       html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
        html_root_url = "http://paholg.com/dimensioned")]
+
+#![no_std]
+
 #![warn(missing_docs)]
 
-#![cfg_attr(feature = "nightly", feature(optin_builtin_traits))]
-#![cfg_attr(not(feature="std"), feature(core_float, core_intrinsics))]
+#![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
+#![cfg_attr(feature = "spec", feature(specialization))]
 
-#![cfg_attr(not(feature="std"), no_std)]
+#![cfg_attr(feature="clippy", feature(plugin))]
+#![cfg_attr(feature="clippy", plugin(clippy))]
 
-/// Re-exports from std or core, which allow the `make_units` macro to work properly with or
-/// without the std library.  These are not guaranteed to stay here, and you should import from
-/// `core` or `std` directly, not from here.
-#[cfg(feature = "std")]
-pub mod reexported {
-    pub use std::*;
-}
+#![allow(unknown_lints)]
+#![deny(clippy)]
+#![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
 
-/// Re-exports from std or core, which allow the `make_units` macro to work properly with or
-/// without the std library.  These are not guaranteed to stay here, and you should import from
-/// `core` or `std` directly, not from here.
-#[cfg(not(feature="std"))]
-pub mod reexported {
-    pub use core::*;
-}
+// Macro debugging
+// #![feature(trace_macros)]
+// trace_macros!(true);
 
 pub extern crate typenum;
 
-#[macro_use]
-pub mod dim;
-#[macro_use]
-mod make_units;
-pub mod unit_systems;
+// Copied from typenum so that users don't have to import typenum for the make_units macro to work.
+// Only change is the paths.
+/// Construct a type-level array of type-level integers
+///
+/// # Example
+/// ```rust
+/// #[macro_use]
+/// extern crate dimensioned as dim;
+/// #[macro_use]
+/// extern crate generic_array;
+///
+/// use dim::typenum::consts::*;
+/// type TArr = tarr![P3, P2, N5, N8, P2];
+///
+/// fn main() {
+///     use dim::array::ToGA;
+///     let x = TArr::to_ga();
+///     let y = arr![isize; 3, 2, -5, -8, 2];
+///
+///     assert_eq!(x, y);
+/// }
+/// ```
+#[macro_export]
+macro_rules! tarr {
+    () => ( $crate::typenum::ATerm );
+    ($n:ty) => ( $crate::typenum::TArr<$n, $crate::typenum::ATerm> );
+    ($n:ty,) => ( $crate::typenum::TArr<$n, $crate::typenum::ATerm> );
+    ($n:ty, $($tail:ty),+) => ( $crate::typenum::TArr<$n, tarr![$($tail),+]> );
+    ($n:ty, $($tail:ty),+,) => ( $crate::typenum::TArr<$n, tarr![$($tail),+]> );
+}
 
-pub use typenum::Same;
-pub use typenum::int::Integer;
-pub use typenum::consts::{N9, N8, N7, N6, N5, N4, N3, N2, N1, Z0, P1, P2, P3, P4, P5, P6, P7, P8,
-                          P9};
+// Get a warning without this. If it's fixed, remove `useless_attribute` from clippy allow list
+#[allow(unused_imports)]
+#[macro_use]
+pub extern crate generic_array;
 
-pub use dim::*;
-pub use unit_systems::{si, cgs, mks};
+#[macro_use] mod make_units;
+mod fmt;
+
+
+include!(concat!(env!("OUT_DIR"), "/unit_systems.rs"));
+pub mod traits;
+pub mod dimensions;
+pub mod conversion;
+pub mod array;
+pub mod f32prefixes;
+pub mod f64prefixes;
+
+
+pub use traits::*;
+pub use unit_systems::{si, ucum, cgs, mks, fps};
+
+
+// Used for the make_units macro
+#[doc(hidden)]
+pub mod dimcore {
+    pub use core::{marker, fmt, ops, mem, f32, f64};
+}

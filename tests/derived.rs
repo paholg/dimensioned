@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate dimensioned as dim;
 
 use dim::si::{Meter, Second};

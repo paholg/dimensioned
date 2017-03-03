@@ -1,24 +1,28 @@
 language: rust
 sudo: false
 rust:
+  - stable
   - beta
   - nightly
+cache: cargo
 
 notifications:
   email:
     recipients: paho@paholg.com
 
+# fixme: re-enable rustfmt when it works
 before_script:
   - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
   - export TRAVIS_CARGO_NIGHTLY_FEATURE=""
+  # - test -x $HOME/.cargo/bin/rustfmt || cargo install rustfmt # Only install rustfmt if it's not there
+
 script:
+    # PATH=$PATH:~/.cargo/bin cargo fmt -- --write-mode=diff &&
   - |
-    travis-cargo --only nightly test &&
-    # test core
-    travis-cargo --only nightly test -- --no-default-features --features "nightly" &&
-    # test without nightly
-    travis-cargo test -- --no-default-features --features "std" &&
-    travis-cargo --only nightly doc
+    travis-cargo --only stable test &&
+    travis-cargo --only beta test &&
+    travis-cargo --only nightly test -- --features "test" &&
+    travis-cargo --only stable doc
 
 after_success:
   - travis-cargo doc-upload

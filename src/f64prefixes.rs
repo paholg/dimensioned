@@ -1,0 +1,43 @@
+//! Constants for all SI prefixes as `f64`s
+
+/// The SI prefix for 10^24
+pub const YOTTA: f64 = 1e24;
+/// The SI prefix for 10^21
+pub const ZETTA: f64 = 1e21;
+/// The SI prefix for 10^18
+pub const EXA: f64 = 1e18;
+/// The SI prefix for 10^15
+pub const PETA: f64 = 1e15;
+/// The SI prefix for 10^12
+pub const TERA: f64 = 1e12;
+/// The SI prefix for 10^9
+pub const GIGA: f64 = 1e9;
+/// The SI prefix for 10^6
+pub const MEGA: f64 = 1e6;
+/// The SI prefix for 10^3
+pub const KILO: f64 = 1e3;
+/// The SI prefix for 10^2
+pub const HECTO: f64 = 1e2;
+/// The SI prefix for 10^1
+pub const DECA: f64 = 1e1;
+
+/// The SI prefix for 10^-1
+pub const DECI: f64 = 1e-1;
+/// The SI prefix for 10^-2
+pub const CENTI: f64 = 1e-2;
+/// The SI prefix for 10^-3
+pub const MILLI: f64 = 1e-3;
+/// The SI prefix for 10^-6
+pub const MICRO: f64 = 1e-6;
+/// The SI prefix for 10^-9
+pub const NANO: f64 = 1e-9;
+/// The SI prefix for 10^-12
+pub const PICO: f64 = 1e-12;
+/// The SI prefix for 10^-15
+pub const FEMTO: f64 = 1e-15;
+/// The SI prefix for 10^-18
+pub const ATTO: f64 = 1e-18;
+/// The SI prefix for 10^-21
+pub const ZEPTO: f64 = 1e-21;
+/// The SI prefix for 10^-24
+pub const YOCTO: f64 = 1e-24;
