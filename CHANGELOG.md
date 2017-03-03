@@ -4,8 +4,8 @@ This project follows semantic versioning.
 
 ### 0.6.0 (2017-03-03)
 - `[changed]` ***BREAKING*** Dimensioned has been rewritten from the ground up. It still does the
-  same thing but the internals are completely different. Stay tuned for a blog post that will cover
-  it in more detail.
+  same thing but the internals are completely different. Read about it
+  [here](http://paholg.com/2017/03/03/dimensioned_0.6/).
 
 ### 0.5.0 (2015-12-02)
 - `[added]` This change log!
