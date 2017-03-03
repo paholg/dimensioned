@@ -6,45 +6,51 @@
 Dimensioned
 =====
 
-*Dimensioned* is a Rust library for compile-time dimensional analysis.
+A Rust library for compile-time dimensional analysis.
 
 Its goal is to provide zero cost unit safety while requiring minimal effort from the programmer.
 
-For a moderately in-depth example of using *dimensioned*,
-[please go here](https://github.com/paholg/monte-carlo-test/), where cover using *dimensioned* in a
-couple different ways and what trade-offs are involved.
+# Use
 
-The meat of *dimensioned* is located in the `make_units!` macro, which is used to create a unit
-system. *Dimensioned* also ships with some unit systems, and it is recommended that you use one of
-them if it fits your use case. If you feel that *dimensioned* should ship with more unit systems,
-please submit an issue.
-
-
-## Use
-
-*Dimensioned* requires at least Rust version 1.15. It does not depend on `std`.
+Dimensioned requires at least Rust version 1.15. It does not depend on `std`.
 
 If you are using Rust nightly, then you may enable the "oibit" feature of dimensioned. This will
 make it work a bit better for wrapping non-primitives in units. The recommended way to use
-*dimensioned* is by wrapping only primitives in units, in which case this feature is not helpful.
+dimensioned is by wrapping only primitives in units, in which case this feature is not helpful.
 
-## Minimal Example
+# Examples
+
+[The Simulation Example](https://github.com/paholg/dimensioned-examples/blob/master/hard-spheres.md)
+provides a simple physics simulation and covers how one can use dimensioned with it in a couple
+different ways, and what the trade-offs are. If you're curious about what might be involved in
+adding dimensioned to one of your projects, or what it might look like in semi-real code, then that
+is the place for you.
+
+[The Conversion Example](https://github.com/paholg/dimensioned-examples/blob/master/src/conversion.md)
+covers how one might implement conversions between unit systems.
+
+Finally, just to get the juices flowing, here's a simple example illustrating some of what
+dimensioned can do:
 
 ```rust
 extern crate dimensioned as dim;
 
 use dim::{si, cgs};
-use std::convert::From;
 
+// Calculates speed given a distance and time. Only works for SI units.
 fn speed(dist: si::Meter<f64>, time: si::Second<f64>) -> si::MeterPerSecond<f64> {
     dist / time
 }
 
 use std::ops::Div;
-use dim::{Length, Time};
+use dim::dimensions::{Length, Time};
 use dim::typenum::Quot;
-fn generic_speed<L, T>(dist: L, time: T) -> Quot<L, T> where L: Length + Div<T>, T: Time {
-    dist / time;
+
+// Calculates speed as before, but now we can use *any* unit system.
+fn generic_speed<L, T>(dist: L, time: T) -> Quot<L, T>
+    where L: Length + Div<T>, T: Time,
+{
+    dist / time
 }
 
 fn main() {
@@ -54,27 +60,29 @@ fn main() {
     let v2 = speed(x, t);
     assert_eq!(v, v2);
 
-    let v3 = 2000.0 * cgs::M / cgs::S;
-    let v4 = cgs::CGS::From(v);
-    assert_eq(v3, v4);
+    let v3 = generic_speed(6.0 * cgs::M, 3.0 * cgs::S);
+    let v4 = v.into();
+    assert_eq!(v3, v4);
 }
 ```
 
-For more in-depth examples, please see the documentation or the one linked above.
+This example is also included as `examples/readme-example.rs`.
 
-## Unit Systems
+# Unit Systems
 
-The heart of *dimensioned* is the `make_units!` macro, which creates a unit system. While
-*dimensioned* ships with some unit systems, the macro is available for you to make any you desire.
+Dimensioned aims to include unit systems for a large variety of uses. It also includes a
+`make_units!` macro to allow you to create any unit system you desire.
 
-If you think there's a unit system that would be widely used, please submit an issue. I see no
-reason why *dimensioned* shouldn't provide all kinds of unit systems.
+# Error Messages
 
-## Error Messages
-
-Probably the biggest weakness of *dimensioned* are the error messages generated. The type
-signatures coming from *dimensioned* tend to just look like a bunch of gobbly-guck. Someday, we may
+Probably the biggest weakness of dimensioned are the error messages generated. The type
+signatures coming from dimensioned tend to just look like a bunch of gobbly-guck. Someday, we may
 have a better way to display them.
 
 For now, my advice is that when you get an error message involving *dimensioned*, just go to the
 line number and hopefully the issue will be apparant from the code alone.
+
+# Friends of dimensioned
+
+If there are any libraries that work particularly well with dimensioned, such as the vector3d
+library used in part 3 of the simulation example, please let me know and they will be listed here.

@@ -4,15 +4,14 @@ This project follows semantic versioning.
 
 ### 0.6.0 (Unpublished)
 - `[changed]` ***BREAKING*** Dimensioned has been rewritten from the ground up. It still does the
-  same thing but the internals are completely different. The changes are too many to list (although
-  I will try), and no compatibility with the previous version should be expected.
+  same thing but the internals are completely different. The changes are too many to fully list.
 - `[changed]` ***BREAKING*** Removal of the `Dim` struct. Now, types will look like `SI<Units, T>`
   instead of `Dim<SI<Units>, T>` and type aliases will look like `Meter<T>` instead of `Dim<Meter,
   T>`. One can still be unit system agnostic by using the `Dimensioned` trait.
-- `[added]` Many derived units added to unit systems.
+- `[added]` More unit systems, derived units, and constants.
 - `[added]` The derived block of `make_units!` now works. Derived units can also be made
   separately. Many derived units have been added to unit systems.
-- `[added]` Usable on stable Rust version >= 1.13.0. There is now a feature `oibit` that requires
+- `[added]` Usable on stable Rust version >= 1.15.0. There is now a feature `oibit` that requires
   nightly Rust and makes multiplication and division more painless with non-primitives.
 - `[removed]` Dependency on libstd.
 - `[added]` Unit conversion API.

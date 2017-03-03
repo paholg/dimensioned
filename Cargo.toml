@@ -7,9 +7,15 @@
   readme = "README.md"
   license = "MIT/Apache-2.0"
   build = "src/build/mod.rs"
-  description = "Compile-time dimensional analysis for arbitrary unit systems."
   categories = ["no-std", "science"]
   keywords = ["no_std", "units", "dimensions", "quantities"]
+  description = """Compile-time dimensional analysis for various unit systems using Rust's type system.
+
+Dimensioned aims to build on Rust's safety features by adding unit safety with no runtime cost. In
+addition, it aims to be as easy to use as possible, hopefully making things easier for you not just
+by avoiding bugs but also by making it clear what units things are.
+
+Never again should you need to specify units in a comment!"""
 
 [lib]
   name = "dimensioned"

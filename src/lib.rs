@@ -1,21 +1,19 @@
-//! # dimensioned
-//!
-//! `Dimensioned` is a library for compile time type checking for arbitrary unit systems.
-//!
-//! For in depth tutorials, check [here](http://paholg.com/project/dimensioned).
-//!
+/*!
+Compile-time dimensional analysis for various unit systems using Rust's type system.
 
-#![doc(html_logo_url = "http://paholg.com/dimensioned/imgs/favicon.png",
-       html_favicon_url = "http://paholg.com/dimensioned/imgs/favicon.png",
+*/
+
+#![doc(html_logo_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
+       html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
        html_root_url = "http://paholg.com/dimensioned")]
 
-#![warn(missing_docs)]
 #![no_std]
+
+#![warn(missing_docs)]
 
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
 #![cfg_attr(feature = "spec", feature(specialization))]
 
-// For clippy:
 #![cfg_attr(feature="clippy", feature(plugin))]
 #![cfg_attr(feature="clippy", plugin(clippy))]
 

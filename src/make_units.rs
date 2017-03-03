@@ -412,7 +412,6 @@ macro_rules! make_units {
             type Output = $System<<V as Index<Idx>>::Output, U>;
             #[inline]
             fn index(&self, index: Idx) -> &Self::Output {
-                // fixme: ensure this is safe
                 unsafe {
                     $crate::dimcore::mem::transmute(&self.value_unsafe[index])
                 }
@@ -428,7 +427,6 @@ macro_rules! make_units {
         {
             #[inline]
             fn index_mut(&mut self, index: Idx) -> &mut Self::Output{
-                // fixme: ensure this is safe
                 unsafe {
                     $crate::dimcore::mem::transmute(self.value_unsafe.index_mut(index))
                 }
