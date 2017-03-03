@@ -14,7 +14,7 @@
 //!
 //! * `SI` to `UCUM`: As `UCUM` does not have a unit for amount of substance, this is defined only
 //! for `SI` units that don't contain `Mole`s. In addition, as `UCUM` defines radians as a unit, it
-//! is not correct to perform this conversion if the value expresses an angle.
+//! is not correct to perform this conversion if the quantity expresses an angle.
 //!
 //! * `SI` to `CGS` and `MKS`: These conversions are only defined for `SI` units that are a
 //! combination of `Meter`, `Kilogram`, `Second`, and `Ampere`.

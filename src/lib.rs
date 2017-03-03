@@ -1,6 +1,10 @@
 /*!
 Compile-time dimensional analysis for various unit systems using Rust's type system.
 
+Its goal is to provide zero cost unit safety while requiring minimal effort from the programmer.
+
+For a short introduction and some examples, check out the [readme on
+GitHub](https://github.com/paholg/dimensioned).
 */
 
 #![doc(html_logo_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
