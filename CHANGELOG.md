@@ -2,7 +2,7 @@
 
 This project follows semantic versioning.
 
-### 0.6.0 (Unpublished)
+### 0.6.0 (2017-03-03)
 - `[changed]` ***BREAKING*** Dimensioned has been rewritten from the ground up. It still does the
   same thing but the internals are completely different. Stay tuned for a blog post that will cover
   it in more detail.
