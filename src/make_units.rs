@@ -985,3 +985,17 @@ macro_rules! __derived_internal {
     (@mu commas $t:ty) => ($t);
     (@mu commas $($tail:tt)*) => (__derived_internal!(@mu eval $($tail,)*));
 }
+
+
+// tests to see if we can rewrite derived! macro better
+// #[test]
+// fn derived2_test() {
+//     use si;
+//     use typenum::Prod;
+
+//     type MeterSecond<V> = Prod<si::Meter<V>, si::Second<V>>;
+
+//     let x = MeterSecond::new(1.0);
+
+//     assert_eq!(x, si::M * si::S);
+// }
