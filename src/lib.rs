@@ -56,7 +56,7 @@ power to which each unit is raised. For example, the first three SI units, in or
 type Meter<V>    = SI<V, tarr![P1, Z0, Z0, Z0, Z0, Z0, Z0]>;
 type Kilogram<V> = SI<V, tarr![Z0, P1, Z0, Z0, Z0, Z0, Z0]>;
 type Second<V>   = SI<V, tarr![Z0, Z0, P1, Z0, Z0, Z0, Z0]>;
-type Newton<V>   = SI<V, tarr![Z1, Z1, N2, Z0, Z0, Z0, Z0]>;
+type Newton<V>   = SI<V, tarr![P1, P1, N2, Z0, Z0, Z0, Z0]>;
 ...
 ```
 
