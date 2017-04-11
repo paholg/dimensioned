@@ -29,7 +29,7 @@ Never again should you need to specify units in a comment!"""
 [dependencies]
   typenum = "1.6.0"
   generic-array = "0.5.1"
-  clippy = { version = "0.0.118", optional = true }
+  clippy = { version = "0.0.122", optional = true }
   quickcheck = { version = "0.4.1", optional = true }
   quickcheck_macros = { version = "0.4.1", optional = true }
   approx = { version = "0.1.1", optional = true, features = ["no_std"] }

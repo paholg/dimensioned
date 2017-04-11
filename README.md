@@ -86,3 +86,22 @@ line number and hopefully the issue will be apparant from the code alone.
 
 If there are any libraries that work particularly well with dimensioned, such as the vector3d
 library used in part 3 of the simulation example, please let me know and they will be listed here.
+
+# Known Bugs
+
+If you are using dimensioned with a version of Rust < 1.17, then type annotations for computed
+units may not work.
+
+For example, this will work with any version of Rust that dimensioned supports:
+
+```rust
+use dim::si;
+let area = 3.0 * si::M * si::M;
+```
+
+whereas this will only work with Rust >= 1.17:
+
+```rust
+use dim::si;
+let area: si::Meter2<f64> = 3.0 * si::M * si::M;
+```

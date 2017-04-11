@@ -151,6 +151,9 @@ macro_rules! tarr {
 #[macro_use]
 pub extern crate generic_array;
 
+#[cfg(feature = "approx")]
+pub extern crate approx;
+
 #[macro_use] mod make_units;
 mod fmt;
 

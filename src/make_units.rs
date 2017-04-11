@@ -173,7 +173,7 @@ macro_rules! make_units {
         use $crate::dimcore::marker;
         use $crate::{Dimensioned, Dimensionless};
 
-        /// The $System unit system
+        /// The struct for this unit system
         #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash)]
         pub struct $System<V, U> {
             /// This is the value of whatever type we're giving units. Using it directly bypasses
@@ -285,7 +285,7 @@ macro_rules! make_units {
         // Define consts
         macro_rules! define_consts {
             ($module:ident, $prefixes:ident, $t:ident) => (
-                /// Constants defined for $System of value type $t
+                /// Constants defined for this system
                 pub mod $module {
                     use super::*;
                     use $crate::dimcore::marker::PhantomData;
@@ -434,6 +434,33 @@ macro_rules! make_units {
         }
 
         // --------------------------------------------------------------------------------
+        // ApproxEq
+        #[cfg(feature = "approx")]
+        impl<V, U> $crate::approx::ApproxEq for $System<V, U> where V: $crate::approx::ApproxEq {
+            type Epsilon = $System<V::Epsilon, U>;
+
+            fn default_epsilon() -> Self::Epsilon {
+                $System::new(V::default_epsilon())
+            }
+            fn default_max_relative() -> Self::Epsilon {
+                $System::new(V::default_max_relative())
+            }
+            fn default_max_ulps() -> u32 {
+                V::default_max_ulps()
+            }
+            fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+                self.value_unsafe.relative_eq(&other.value_unsafe, epsilon.value_unsafe, max_relative.value_unsafe)
+            }
+            fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
+                self.value_unsafe.ulps_eq(&other.value_unsafe, epsilon.value_unsafe, max_ulps)
+            }
+            fn relative_ne(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+                self.value_unsafe.relative_ne(&other.value_unsafe, epsilon.value_unsafe, max_relative.value_unsafe)
+            }
+            fn ulps_ne(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
+                self.value_unsafe.ulps_ne(&other.value_unsafe, epsilon.value_unsafe, max_ulps)
+            }
+        }
         // --------------------------------------------------------------------------------
     );
 }

@@ -1,5 +1,6 @@
 use std::fmt;
 use dim::Dimensioned;
+use approx::ApproxEq;
 
 pub trait CmpConsts<B> {
     fn test_eq(self, b: B);
@@ -11,13 +12,8 @@ impl<A, B> CmpConsts<B> for A {
     }
 }
 
-impl<A, B> CmpConsts<B> for A where A: PartialEq + From<B> + fmt::Debug + Dimensioned<Value=f64> {
+impl<A, B> CmpConsts<B> for A where A: From<B> + fmt::Debug + Dimensioned<Value=f64> + ApproxEq<Epsilon=Self> {
     fn test_eq(self, b: B) {
-        let x = self.value_unsafe();
-        let temp = A::from(b);
-        let y = temp.value_unsafe();
-
-        assert_ulps_eq!(x, y, epsilon = 0.0, max_ulps = 2);
-        assert_relative_eq!(x, y, epsilon = 0.0);
+        assert_ulps_eq!(self, b.into(), epsilon = A::new(0.0), max_ulps = 2);
     }
 }
