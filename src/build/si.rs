@@ -119,7 +119,7 @@ Where experimental values are used for constants, the values are obtained from t
             CPM: CoulombPerMeter = Coulomb / Meter;
             MOLPKG: MolePerKilogram = Mole / Kilogram;
             KGPMOL: KilogramPerMole = Kilogram / Mole;
-            KGPS: KilogramPerSecomd = Kilogram / Second;
+            KGPS: KilogramPerSecond = Kilogram / Second;
             JPT: JoulePerTesla = Joule / Tesla;
             WPM3: WattPerMeter3 = Watt / Meter3;
             KPW: KelvinPerWatt = Kelvin / Watt;
