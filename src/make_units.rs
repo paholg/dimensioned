@@ -305,6 +305,34 @@ macro_rules! make_units {
         define_consts!(f32consts, f32prefixes, f32);
         define_consts!(f64consts, f64prefixes, f64);
 
+        macro_rules! define_int_consts {
+            ($module:ident, $t:ident) => (
+                /// Constants defined for this system
+                pub mod $module {
+                    use super::*;
+                    use $crate::dimcore::marker::PhantomData;
+                    #[allow(dead_code, missing_docs)]
+                    pub const $one: $Unitless<$t> = $System { value_unsafe: 1, _marker: PhantomData };
+                    $(#[allow(dead_code, missing_docs)]
+                      pub const $base: $Unit<$t> = $System { value_unsafe: 1, _marker: PhantomData };)*
+                    $(#[allow(dead_code, missing_docs)]
+                      pub const $derived_const: $Derived<$t> = $System { value_unsafe: 1, _marker: PhantomData };)*
+                }
+            );
+        }
+        define_int_consts!(i8consts, i8);
+        define_int_consts!(i16consts, i16);
+        define_int_consts!(i32consts, i32);
+        define_int_consts!(i64consts, i64);
+        define_int_consts!(isize_consts, isize);
+
+        define_int_consts!(u8consts, u8);
+        define_int_consts!(u16consts, u16);
+        define_int_consts!(u32consts, u32);
+        define_int_consts!(u64consts, u64);
+        define_int_consts!(usize_consts, usize);
+
+
         // --------------------------------------------------------------------------------
         // Formatting
         use $crate::dimcore::fmt;
