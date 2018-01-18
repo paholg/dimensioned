@@ -489,6 +489,35 @@ macro_rules! make_units {
                 self.value_unsafe.ulps_ne(&other.value_unsafe, epsilon.value_unsafe, max_ulps)
             }
         }
+
+        // --------------------------------------------------------------------------------
+        // Serde
+        #[cfg(feature = "serde")]
+        use $crate::serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+        #[cfg(feature = "serde")]
+        impl<'de, V, U> Deserialize<'de> for $System<V, U>
+            where V: Deserialize<'de>
+        {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+                where D: Deserializer<'de>
+            {
+                let value_unsafe = V::deserialize(deserializer)?;
+                Ok($System{ value_unsafe, _marker: marker::PhantomData })
+            }
+        }
+
+        #[cfg(feature = "serde")]
+        impl<V, U> Serialize for $System<V, U>
+            where V: Serialize
+        {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                where S: Serializer
+            {
+                self.value_unsafe.serialize(serializer)
+            }
+        }
+
         // --------------------------------------------------------------------------------
     );
 }
