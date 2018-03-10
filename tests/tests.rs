@@ -1,5 +1,4 @@
 #![cfg(feature = "qc")]
-
 #![feature(plugin)]
 #![plugin(quickcheck_macros)]
 
@@ -14,30 +13,38 @@ mod quickchecking {
 
     #[quickcheck]
     fn add(x: f64, y: f64) -> bool {
-        x*M + y*M == Meter::new(x + y) &&
-        x*S + y*S == Second::new(x + y) &&
-        x*J + y*J == Joule::new(x + y)
+        let m_res = x * M + y * M == Meter::new(x + y);
+        let s_res = x * S + y * S == Second::new(x + y);
+        let j_res = x * J + y * J == Joule::new(x + y);
+
+        m_res && s_res && j_res
     }
 
     #[quickcheck]
     fn sub(x: f64, y: f64) -> bool {
-        x*M - y*M == Meter::new(x - y) &&
-        x*S - y*S == Second::new(x - y) &&
-        x*J - y*J == Joule::new(x - y)
+        let m_res = x * M - y * M == Meter::new(x - y);
+        let s_res = x * S - y * S == Second::new(x - y);
+        let j_res = x * J - y * J == Joule::new(x - y);
+
+        m_res && s_res && j_res
     }
 
     #[quickcheck]
     fn mul(x: f64, y: f64) -> bool {
-        (x*M) * y == Meter::new(x * y) &&
-        x * (y*M) == Meter::new(x * y) &&
-        (x*M) * (y*M) == Meter2::new(x * y)
+        let res1 = (x * M) * y == Meter::new(x * y);
+        let res2 = x * (y * M) == Meter::new(x * y);
+        let res3 = (x * M) * (y * M) == Meter2::new(x * y);
+
+        res1 && res2 && res3
     }
 
     #[quickcheck]
     fn div(x: f64, y: f64) -> bool {
-        (x*M) / y == Meter::new(x / y) &&
-        x / (y*M) == PerMeter::new(x / y) &&
-        (x*M) * (y*M) == Meter2::new(x * y)
+        let res1 = (x * M) / y == Meter::new(x / y);
+        let res2 = x / (y * M) == PerMeter::new(x / y);
+        let res3 = (x * M) * (y * M) == Meter2::new(x * y);
+
+        res1 && res2 && res3
     }
 
     use dim::Sqrt;
@@ -47,19 +54,21 @@ mod quickchecking {
             return TestResult::discard();
         }
 
-        TestResult::from_bool(
-            *(x*ONE).sqrt() == x.sqrt() &&
-            (x*M*M).sqrt() == Meter::new(x.sqrt()) &&
-            (x*M*M/S/S).sqrt() == MeterPerSecond::new(x.sqrt())
-        )
+        let res1 = *(x * ONE).sqrt() == x.sqrt();
+        let res2 = (x * M * M).sqrt() == Meter::new(x.sqrt());
+        let res3 = (x * M * M / S / S).sqrt() == MeterPerSecond::new(x.sqrt());
+
+        TestResult::from_bool(res1 && res2 && res3)
     }
 
     use dim::Cbrt;
     #[quickcheck]
     fn cbrt(x: f64) -> bool {
-        *(x*ONE).cbrt() == x.cbrt() &&
-        (x*M*M*M).cbrt() == Meter::new(x.cbrt()) &&
-        (x*M*M*M/S/S/S).cbrt() == MeterPerSecond::new(x.cbrt())
+        let res1 = *(x * ONE).cbrt() == x.cbrt();
+        let res2 = (x * M * M * M).cbrt() == Meter::new(x.cbrt());
+        let res3 = (x * M * M * M / S / S / S).cbrt() == MeterPerSecond::new(x.cbrt());
+
+        res1 && res2 && res3
     }
 
 }

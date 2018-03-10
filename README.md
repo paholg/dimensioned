@@ -1,7 +1,7 @@
 [![crates.io](https://img.shields.io/crates/v/dimensioned.svg)](https://crates.io/crates/dimensioned)
 [![Build Status](https://travis-ci.org/paholg/dimensioned.svg?branch=master)](https://travis-ci.org/paholg/dimensioned)
 
-[Documentation](http://paholg.com/dimensioned/)
+[Documentation](https://docs.rs/dimensioned/)
 
 Dimensioned
 =====

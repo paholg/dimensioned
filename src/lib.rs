@@ -52,12 +52,19 @@ order is the order in which the base units were defined, and the values of the t
 power to which each unit is raised. For example, the first three SI units, in order, are `Meter`,
 `Kilogram`, `Second`, so the following aliases exist:
 
-```ignore
+```rust
+#[macro_use]
+extern crate dimensioned as dim;
+use dim::si::SI;
+use dim::typenum::{P1, Z0, N1, N2};
+
 type Meter<V>    = SI<V, tarr![P1, Z0, Z0, Z0, Z0, Z0, Z0]>;
 type Kilogram<V> = SI<V, tarr![Z0, P1, Z0, Z0, Z0, Z0, Z0]>;
 type Second<V>   = SI<V, tarr![Z0, Z0, P1, Z0, Z0, Z0, Z0]>;
 type Newton<V>   = SI<V, tarr![P1, P1, N2, Z0, Z0, Z0, Z0]>;
-...
+// ...
+
+fn main() {}
 ```
 
 In addition to creating the unit system struct, `SI`, the type aliases, and constants for each,
@@ -91,20 +98,17 @@ crate. Pretty much everything else is for ergonomics.
 
 */
 
-#![doc(html_logo_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
-       html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
-       html_root_url = "http://paholg.com/dimensioned")]
-
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
+    html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
+    html_root_url = "http://paholg.com/dimensioned"
+)]
 #![no_std]
-
 #![warn(missing_docs)]
-
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
 #![cfg_attr(feature = "spec", feature(specialization))]
-
-#![cfg_attr(feature="clippy", feature(plugin))]
-#![cfg_attr(feature="clippy", plugin(clippy))]
-
+#![cfg_attr(feature = "clippy", feature(plugin))]
+#![cfg_attr(feature = "clippy", plugin(clippy))]
 #![allow(unknown_lints)]
 #![deny(clippy)]
 #![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
@@ -159,25 +163,23 @@ pub extern crate serde;
 #[cfg(feature = "serde_test")]
 extern crate serde_test;
 
-#[macro_use] mod make_units;
+#[macro_use]
+mod make_units;
 mod fmt;
 
-
 include!(concat!(env!("OUT_DIR"), "/unit_systems.rs"));
-pub mod traits;
-pub mod dimensions;
-pub mod conversion;
 pub mod array;
+pub mod conversion;
+pub mod dimensions;
 pub mod f32prefixes;
 pub mod f64prefixes;
-
+pub mod traits;
 
 pub use traits::*;
-pub use unit_systems::{si, ucum, cgs, mks, fps};
-
+pub use unit_systems::{cgs, fps, mks, si, ucum};
 
 // Used for the make_units macro
 #[doc(hidden)]
 pub mod dimcore {
-    pub use core::{marker, fmt, ops, mem, f32, f64};
+    pub use core::{f32, f64, fmt, marker, mem, ops};
 }

@@ -2,7 +2,8 @@ use super::*;
 
 pub fn new() -> System {
     System {
-        name: "FPS", module: "fps",
+        name: "FPS",
+        module: "fps",
         doc_prelude: "The foot, pound, second system, using the mass pound as a base unit.
 
 Note: this system is incomplete. More derived units and constants are coming.
@@ -17,8 +18,7 @@ Note: this system is incomplete. More derived units and constants are coming.
             FT: Foot = SqrtFoot * SqrtFoot, Length;
             LB: Pound = SqrtPound * SqrtPound, Mass;
         ),
-        constants: constants!(
-        ),
+        constants: constants!(),
         fmt: false,
         from: vec![
             // "SI",

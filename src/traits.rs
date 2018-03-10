@@ -7,7 +7,6 @@
 ///
 /// It is not recommened to implement this for anything outside this this crate.
 pub trait Dimensioned {
-
     /// The type of the value of a quantity. E.g. For `si::Meter<f64>`, `Value` is `f64`.
     type Value;
 
@@ -26,7 +25,6 @@ pub trait Dimensioned {
 /// This trait is implemented for all quantities with no units. The unit systems that come with
 /// dimensioned use `Unitless<V>` for that type.
 pub trait Dimensionless: Dimensioned {
-
     /// Extract the value from a quantity with no units. As there are no units to ignore, it is
     /// dimensionally safe.
     fn value(&self) -> &Self::Value;
@@ -83,7 +81,6 @@ pub trait Dimensionless: Dimensioned {
 /// }
 /// ```
 pub trait MapUnsafe<ValueOut, UnitsOut>: Dimensioned {
-
     /// The type to which the input is mapped
     type Output;
 
@@ -114,7 +111,6 @@ pub trait MapUnsafe<ValueOut, UnitsOut>: Dimensioned {
 /// }
 /// ```
 pub trait Map<ValueOut>: Dimensionless {
-
     /// The type to which the input is mapped
     type Output;
 
@@ -154,7 +150,6 @@ macro_rules! impl_unary {
 /// }
 /// ```
 pub trait Recip {
-
     /// The resulting type after taking the reciprocal
     type Output;
 
@@ -164,7 +159,6 @@ pub trait Recip {
 
 impl_unary!(f32, Recip, recip);
 impl_unary!(f64, Recip, recip);
-
 
 /// `Root` is used for implementing general integer roots for types that aren't necessarily
 /// preserved under root.
@@ -185,7 +179,6 @@ impl_unary!(f64, Recip, recip);
 /// }
 /// ```
 pub trait Root<Index> {
-
     /// The resulting type after taking the `Index` root
     type Output;
 
@@ -223,7 +216,6 @@ fn test_root() {
     }
 }
 
-
 /// `Sqrt` provides a `sqrt` member function for types that are not necessarily preserved under
 /// square root.
 ///
@@ -242,7 +234,6 @@ fn test_root() {
 /// }
 /// ```
 pub trait Sqrt {
-
     /// The resulting type after taking the square root
     type Output;
 
@@ -268,7 +259,6 @@ pub trait Sqrt {
 /// }
 /// ```
 pub trait Cbrt {
-
     /// The resulting type after taking the cube root
     type Output;
 

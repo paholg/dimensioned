@@ -49,4 +49,3 @@ format_cgs_like!(MKS; ["m", "k", "s"]; Display Octal LowerHex UpperHex Pointer B
 
 use unit_systems::fps::FPS;
 format_cgs_like!(FPS; ["ft", "lb", "s"]; Display Octal LowerHex UpperHex Pointer Binary LowerExp UpperExp);
-

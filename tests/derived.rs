@@ -16,5 +16,5 @@ fn derived() {
 
     let v = speed(d, t);
 
-    assert_eq!(d/t, v);
+    assert_eq!(d / t, v);
 }

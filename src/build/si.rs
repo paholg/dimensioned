@@ -2,7 +2,8 @@ use super::*;
 
 pub fn new() -> System {
     System {
-        name: "SI", module: "si",
+        name: "SI",
+        module: "si",
         doc_prelude: "The International System of Units (SI)
 
 Where experimental values are used for constants, the values are obtained from the 2014 values from
@@ -185,11 +186,22 @@ Where experimental values are used for constants, the values are obtained from t
             LBF: Newton = 4.4482216152605 * N.value_unsafe, "Pound force";
         ),
         fmt: true,
-        from: vec![
-            "UCUM",
+        from: vec!["UCUM"],
+        refl_blacklist: vec![
+            "MOL",
+            "KAT",
+            "MOLPM",
+            "MPMOL",
+            "MOLPKG",
+            "KGPMOL",
+            "M2PMOL",
+            "M3PMOL",
+            "SIEM2PMOL",
+            "JPKMOL",
+            "JPMOL",
+            "MOLPM2",
+            "MOLPM3",
+            "M3PMOLS",
         ],
-        refl_blacklist: vec!
-            ["MOL", "KAT", "MOLPM", "MPMOL", "MOLPKG", "KGPMOL", "M2PMOL", "M3PMOL",
-             "SIEM2PMOL", "JPKMOL", "JPMOL", "MOLPM2", "MOLPM3", "M3PMOLS"],
     }
 }
