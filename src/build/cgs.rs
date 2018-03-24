@@ -53,6 +53,7 @@ Note: this system is incomplete. More derived units and constants are coming.
             M: Centimeter = HECTO * CM.value_unsafe, "Meter";
         ),
         fmt: false,
+        serde: true,
         from: vec![
             "SI",
             "MKS",

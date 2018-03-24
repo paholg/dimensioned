@@ -43,6 +43,7 @@ pub mod ms {
         }
 
         fmt = true;
+        serde = true;
     }
     pub use self::f64consts::*;
 }
@@ -128,12 +129,23 @@ which allows the use of `consts::PI` in the `PI definition.
         }
 ```
 
-Finally, we have the `fmt` line. This line can either be `fmt = true;` or `fmt = false;`. In either
+Next, we have the `fmt` line. This line can either be `fmt = true;` or `fmt = false;`. In either
 case, the trait `core::fmt::Debug` is implemented for your unit system, but all of the other `fmt`
-traits are implemented only if this is true. Setting it to false allows you to have custom printing for your system.
+traits are implemented only if this is true. Setting it to `false` allows you to have custom
+printing for your system.
 
 ```ignore
         fmt = true;
+```
+
+Finally, we have the `serde` line. This line can either be `serde = true;` or `serde = false;`.
+Setting it to `true` implements `serde::Deserialize` and `serde::Serialize`, but only if the `serde`
+feature is enabled. Add `dimensioned = { version = "*", features = ["serde"] }` to you `Cargo.toml`
+to make use of this. The default implementations are dimensionally unsafe; that is, they ignore units.
+If you set it to `false`, you may still implement the serde traits yourself.
+
+```ignore
+        serde = true;
     }
 ```
 
@@ -169,6 +181,7 @@ macro_rules! make_units {
          $($constant:ident: $ConstantUnit:ident = $constant_value:expr;)*
      }
      fmt = $to_fmt:ident;
+     serde = $serde:ident;
     ) => (
         use $crate::dimcore::marker;
         use $crate::{Dimensioned, Dimensionless};
@@ -492,33 +505,7 @@ macro_rules! make_units {
 
         // --------------------------------------------------------------------------------
         // Serde
-        #[cfg(feature = "serde")]
-        use $crate::serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-        #[cfg(feature = "serde")]
-        impl<'de, V, U> Deserialize<'de> for $System<V, U>
-            where V: Deserialize<'de>
-        {
-            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-                where D: Deserializer<'de>
-            {
-                let value_unsafe = V::deserialize(deserializer)?;
-                Ok($System{ value_unsafe, _marker: marker::PhantomData })
-            }
-        }
-
-        #[cfg(feature = "serde")]
-        impl<V, U> Serialize for $System<V, U>
-            where V: Serialize
-        {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-                where S: Serializer
-            {
-                self.value_unsafe.serialize(serializer)
-            }
-        }
-
-        // --------------------------------------------------------------------------------
+        __make_units_internal!(@serde $serde, $System);
     );
 }
 
@@ -967,6 +954,35 @@ macro_rules! __make_units_internal {
 
     (@convert_to_zero $Unit:ident) => ( Z0 );
     (@convert_to_zero) => ();
+
+    (@serde true, $System:ident) => {
+        #[cfg(feature = "serde")]
+        use $crate::serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+        #[cfg(feature = "serde")]
+        impl<'de, V, U> Deserialize<'de> for $System<V, U>
+            where V: Deserialize<'de>
+        {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+                where D: Deserializer<'de>
+            {
+                let value_unsafe = V::deserialize(deserializer)?;
+                Ok($System{ value_unsafe, _marker: marker::PhantomData })
+            }
+        }
+
+        #[cfg(feature = "serde")]
+        impl<V, U> Serialize for $System<V, U>
+            where V: Serialize
+        {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                where S: Serializer
+            {
+                self.value_unsafe.serialize(serializer)
+            }
+        }
+    };
+    (@serde false, $System:ident) => {};
 }
 
 /// Create a derived unit based on existing ones
