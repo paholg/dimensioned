@@ -41,7 +41,8 @@ mod to_si {
         V: Mul<f64>,
     {
         fn from(other: ucum::UCUM<V, tarr![Meter, Second, Gram, Z0, Kelvin, Coulomb, Candela]>) -> Self {
-            let gfac = MILLI.powi(Gram::to_i32());
+            use core::intrinsics::powif64;
+            let gfac = unsafe { powif64(MILLI, Gram::to_i32()) };
 
             let fac = gfac;
 
@@ -66,7 +67,8 @@ mod to_ucum {
         V: Mul<f64>,
     {
         fn from(other: si::SI<V, tarr![Meter, Kilogram, Second, Ampere, Kelvin, Candela, Z0]>) -> Self {
-            let kgfac = KILO.powi(Kilogram::to_i32());
+            use core::intrinsics::powif64;
+            let kgfac = unsafe { powif64(KILO, Kilogram::to_i32()) };
 
             let fac = kgfac;
 
@@ -89,13 +91,14 @@ mod to_cgs {
         V: Mul<f64>,
     {
         fn from(other: mks::MKS<V, tarr![SqrtMeter, SqrtKilogram, Second]>) -> Self {
+            use core::intrinsics::{powif64, sqrtf64};
             let mfac = match SqrtMeter::to_i32() {
-                e if e % 2 == 0 => HECTO.powi(e / 2),
-                e => HECTO.sqrt().powi(e),
+                e if e % 2 == 0 => unsafe { powif64(HECTO, e / 2) },
+                e => unsafe { powif64(sqrtf64(HECTO), e) },
             };
             let kgfac = match SqrtKilogram::to_i32() {
-                e if e % 2 == 0 => KILO.powi(e / 2),
-                e => KILO.sqrt().powi(e),
+                e if e % 2 == 0 => unsafe { powif64(KILO, e / 2) },
+                e => unsafe { powif64(sqrtf64(KILO), e) },
             };
 
             let fac = mfac * kgfac;
@@ -145,13 +148,14 @@ mod to_mks {
         V: Mul<f64>,
     {
         fn from(other: cgs::CGS<V, tarr![SqrtCentimeter, SqrtGram, Second]>) -> Self {
+            use core::intrinsics::{powif64, sqrtf64};
             let cmfac = match SqrtCentimeter::to_i32() {
-                e if e % 2 == 0 => CENTI.powi(e/2),
-                e => CENTI.sqrt().powi(e),
+                e if e % 2 == 0 => unsafe { powif64(CENTI, e / 2) },
+                e => unsafe { powif64(sqrtf64(CENTI), e) },
             };
             let gfac = match SqrtGram::to_i32() {
-                e if e % 2 == 0 => MILLI.powi(e / 2),
-                e => MILLI.sqrt().powi(e),
+                e if e % 2 == 0 => unsafe { powif64(MILLI, e / 2) },
+                e => unsafe { powif64(sqrtf64(MILLI), e) },
             };
 
             let fac = cmfac * gfac;

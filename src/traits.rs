@@ -201,7 +201,8 @@ macro_rules! impl_root {
 
             fn root(self, _: Index) -> Self::Output {
                 let exp = (Index::to_i32() as $t).recip();
-                self.powf(exp)
+                use core::intrinsics::$f;
+                unsafe { $f(self, exp) }
             }
         }
     );
@@ -250,6 +251,21 @@ pub trait Sqrt {
     fn sqrt(self) -> Self::Output;
 }
 
+macro_rules! impl_sqrt {
+    ($t: ty, $f: ident) => (
+        impl Sqrt for $t {
+            type Output = $t;
+            fn sqrt(self) -> Self::Output {
+                use core::intrinsics::$f;
+                unsafe { $f(self) }
+            }
+        }
+    );
+}
+
+impl_sqrt!(f32, sqrtf32);
+impl_sqrt!(f64, sqrtf64);
+
 /// `Cbrt` provides a `cbrt` member function for types that are not necessarily preserved under
 /// cube root.
 ///
@@ -276,23 +292,18 @@ pub trait Cbrt {
     fn cbrt(self) -> Self::Output;
 }
 
-macro_rules! impl_sqcbroot {
-    ($t: ty) => (
-        impl Sqrt for $t {
-            type Output = $t;
-            fn sqrt(self) -> Self::Output {
-                self.sqrt()
-            }
-        }
-
+macro_rules! impl_cbrt {
+    ($t: ty, $f: ident) => (
         impl Cbrt for $t {
             type Output = $t;
             fn cbrt(self) -> Self::Output {
-                self.cbrt()
+                let exp = (3 as $t).recip();
+                use core::intrinsics::$f;
+                unsafe { $f(self, exp) }
             }
         }
     );
 }
 
-impl_sqcbroot!(f32);
-impl_sqcbroot!(f64);
+impl_cbrt!(f32, powf32);
+impl_cbrt!(f64, powf64);
