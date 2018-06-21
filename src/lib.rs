@@ -155,7 +155,7 @@ pub extern crate generic_array;
 pub extern crate approx;
 
 #[cfg(feature = "serde")]
-extern crate serde;
+pub extern crate serde;
 
 #[macro_use] mod make_units;
 mod fmt;

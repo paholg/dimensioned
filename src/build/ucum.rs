@@ -369,7 +369,6 @@ in function signatures), this is something to bear in mind.
             SMOOT: Meter = 67.0 * IN_I.value_unsafe, "Smoot";
         ),
         fmt: true,
-        serde: true,
         from: vec![
             "SI",
         ],

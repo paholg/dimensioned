@@ -22,7 +22,6 @@ Note: this system is incomplete. More derived units and constants are coming.
         constants: constants!(
         ),
         fmt: false,
-        serde: true,
         from: vec![
             "SI",
             "CGS",

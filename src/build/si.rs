@@ -185,7 +185,6 @@ Where experimental values are used for constants, the values are obtained from t
             LBF: Newton = 4.4482216152605 * N.value_unsafe, "Pound force";
         ),
         fmt: true,
-        serde: true,
         from: vec![
             "UCUM",
         ],

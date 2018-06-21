@@ -51,7 +51,6 @@ pub struct System {
     pub from: Vec<&'static str>,
     pub refl_blacklist: Vec<&'static str>,
     pub fmt: bool,
-    pub serde: bool,
 }
 
 impl System {
@@ -154,12 +153,14 @@ pub mod {} {{
         write!(f, "        }}
 
         fmt = {};
-        serde = {};
     }}
+
+    #[cfg(feature = \"serde\")]
+    impl_serde!({});
 
     pub use self::f64consts::*;
 
-", self.fmt, self.serde)?;
+", self.fmt, self.name)?;
 
         write!(f, "
     #[test]
