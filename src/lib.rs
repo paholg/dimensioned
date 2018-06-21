@@ -156,6 +156,8 @@ pub extern crate approx;
 
 #[cfg(feature = "serde")]
 pub extern crate serde;
+#[cfg(feature = "serde_test")]
+extern crate serde_test;
 
 #[macro_use] mod make_units;
 mod fmt;

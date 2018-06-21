@@ -176,8 +176,26 @@ pub mod {} {{
         assert_eq!({}, {});", c.constant, c.nice_value())?;
         }
         write!(f, "
+    }}")?;
+
+        write!(f, "
+    /// Test that serializing/deserializing values with units is
+    /// equivalent to doing so with raw numeric types.
+    #[cfg(feature = \"serde\")]
+    #[test]
+    fn test_{}_serde() {{
+        use ::serde_test::{{assert_tokens, Token}};
+", self.module)?;
+        for base in &self.base {
+            write!(f, "
+        let value = 1.0 * {};
+        assert_tokens(&value, &[Token::F64(1.0)]);
+", base.constant)?;
+        }
+        write!(f, "
     }}
 }}")?;
+
         Ok(())
     }
 }
