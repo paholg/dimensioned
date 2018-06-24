@@ -95,6 +95,7 @@ crate. Pretty much everything else is for ergonomics.
        html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
        html_root_url = "http://paholg.com/dimensioned")]
 
+#![feature(core_intrinsics)]
 #![no_std]
 
 #![warn(missing_docs)]
