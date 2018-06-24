@@ -72,7 +72,8 @@ mod to_ucum {
         for UCUM<
             Prod<V, f64>,
             tarr![Meter, Diff<Second, Ampere>, Kilogram, Z0, Kelvin, Ampere, Candela],
-        > where
+        >
+    where
         Meter: Integer,
         Kilogram: Integer,
         Second: Integer + Sub<Ampere>,
@@ -138,7 +139,8 @@ mod to_cgs {
             Sum<Prod<Kilogram, P2>, Ampere>,
             Sum<Second, Prod<Ampere, P2>>
         ],
-        > where
+        >
+    where
         V: Mul<f64>,
         Meter: Integer + Mul<P2>,
         Kilogram: Integer + Mul<P2>,
@@ -202,7 +204,8 @@ mod to_mks {
             Sum<Prod<Kilogram, P2>, Ampere>,
             Sum<Second, Prod<Ampere, P2>>
         ],
-        > where
+        >
+    where
         V: Mul<f64>,
         Meter: Integer + Mul<P2>,
         Kilogram: Integer + Mul<P2>,
