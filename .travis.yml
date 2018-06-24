@@ -4,7 +4,6 @@ sudo: false
 rust:
   - stable
   - beta
-  - nightly
 
 notifications:
   email:
@@ -12,17 +11,12 @@ notifications:
 
 matrix:
   include:
-    - rust: nightly-2018-06-19
-      env:
-        - CLIPPY_VERSION=0.0.209
+    - rust: nightly
       before_script:
         - rustup component add rustfmt-preview
-        # - cargo install clippy --version $CLIPPY_VERSION || echo "Clippy already installed"
-        # - cargo clippy --version
       script: |
         cargo fmt --version &&
         cargo fmt --all -- --check &&
-        # cargo clippy --all-features -- -D clippy &&
         cargo test --all-features
 
 script: |
