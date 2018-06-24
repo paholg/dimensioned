@@ -17,11 +17,12 @@ matrix:
         - CLIPPY_VERSION=0.0.209
       before_script:
         - rustup component add rustfmt-preview
-        - cargo install clippy --version $CLIPPY_VERSION || echo "Clippy already installed"
-        - cargo clippy --version
-      script:
+        # - cargo install clippy --version $CLIPPY_VERSION || echo "Clippy already installed"
+        # - cargo clippy --version
+      script: |
+        cargo fmt --version &&
         cargo fmt --all -- --check &&
-        cargo clippy --all-features -- -D clippy &&
+        # cargo clippy --all-features -- -D clippy &&
         cargo test --all-features
 
 script: |
