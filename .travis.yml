@@ -2,9 +2,9 @@ language: rust
 cache: cargo
 sudo: false
 rust:
-  # - stable
-  # - beta
-  # - nightly
+  - stable
+  - beta
+  - nightly
 
 notifications:
   email:
@@ -16,16 +16,17 @@ matrix:
       env:
         - CLIPPY_VERSION=0.0.209
       before_script:
-        - rustup component add rustfmt-preview
-        # - cargo install clippy --version $CLIPPY_VERSION || echo "Clippy already installed"
-        # - cargo clippy --version
+        - cargo install clippy --version $CLIPPY_VERSION || echo "Clippy already installed"
+        - cargo clippy --version
       script: |
-        cargo fmt --version &&
-        cargo fmt --all -- --check &&
-        # cargo clippy --all-features -- -D clippy &&
+        cargo clippy --all-features -- -D clippy &&
         cargo test --all-features
 
+before_script:
+  - rustup component add rustfmt-preview
 script: |
+  cargo fmt --version &&
+  cargo fmt --all -- --check &&
   cargo build &&
   cargo test --features "approx quickcheck serde serde_test" &&
   cargo doc
