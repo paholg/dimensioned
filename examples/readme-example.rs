@@ -7,9 +7,9 @@ fn speed(dist: si::Meter<f64>, time: si::Second<f64>) -> si::MeterPerSecond<f64>
     dist / time
 }
 
-use std::ops::Div;
 use dim::dimensions::{Length, Time};
 use dim::typenum::Quot;
+use std::ops::Div;
 
 // Calculates speed as before, but now we can use *any* unit system.
 fn generic_speed<L, T>(dist: L, time: T) -> Quot<L, T>

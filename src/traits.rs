@@ -120,17 +120,17 @@ pub trait Map<ValueOut>: Dimensionless {
 
 #[cfg(feature = "oibit")]
 /// Everything that is not a quantity implements this trait
-pub trait NotDim {}
-#[cfg(feature = "oibit")]
-impl NotDim for .. {}
+pub auto trait NotDim {}
 
 macro_rules! impl_unary {
-    ($Type:ty, $Trait:ident, $fun:ident) => (
+    ($Type:ty, $Trait:ident, $fun:ident) => {
         impl $Trait for $Type {
             type Output = $Type;
-            fn $fun(self) -> Self::Output { self.$fun() }
+            fn $fun(self) -> Self::Output {
+                self.$fun()
+            }
         }
-    );
+    };
 }
 
 /// `Recip` is used for implementing a `recip()` member for types that are not preserved under
@@ -188,7 +188,7 @@ pub trait Root<Index> {
 
 use typenum::Integer;
 macro_rules! impl_root {
-    ($t: ty, $f: ident) => (
+    ($t:ty, $f:ident) => {
         impl<Index: Integer> Root<Index> for $t {
             type Output = $t;
 
@@ -197,7 +197,7 @@ macro_rules! impl_root {
                 self.powf(exp)
             }
         }
-    );
+    };
 }
 
 impl_root!(f32, powf32);
@@ -267,7 +267,7 @@ pub trait Cbrt {
 }
 
 macro_rules! impl_sqcbroot {
-    ($t: ty) => (
+    ($t:ty) => {
         impl Sqrt for $t {
             type Output = $t;
             fn sqrt(self) -> Self::Output {
@@ -281,7 +281,7 @@ macro_rules! impl_sqcbroot {
                 self.cbrt()
             }
         }
-    );
+    };
 }
 
 impl_sqcbroot!(f32);

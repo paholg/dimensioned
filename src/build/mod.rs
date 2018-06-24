@@ -442,7 +442,8 @@ mod constant_conversion {{
 
     for s in systems {
         use std::collections::HashSet;
-        let constants1: HashSet<_> = s.base
+        let constants1: HashSet<_> = s
+            .base
             .iter()
             .map(|b| b.constant)
             .chain(s.derived.iter().map(|d| d.constant))
@@ -460,14 +461,15 @@ mod constant_conversion {{
     fn reflexivity_of_{c}_from_{mod1}_to_{mod2}() {{
         let a = {mod1}::{c};
         let b = {mod1}::{sys1}::from({mod2}::{sys2}::from({mod1}::{c}));
-        a + b; // ensure type hasn't changed for {c} from {mod1} to {mod2}
+        let _ = a + b; // ensure type hasn't changed for {c} from {mod1} to {mod2}
         assert_ulps_eq!(a.value_unsafe, b.value_unsafe, epsilon = 0.0, max_ulps = 2); // ensures value hasn't changed
         assert_relative_eq!(a.value_unsafe, b.value_unsafe, epsilon = 0.0); // ensures value hasn't changed
     }}", mod1=s.module, mod2=s2.module, c=c, sys1=s.name, sys2=s2.name)?;
                 }
             }
 
-            let constants2: HashSet<_> = s2.base
+            let constants2: HashSet<_> = s2
+                .base
                 .iter()
                 .map(|b| b.constant)
                 .chain(s2.derived.iter().map(|d| d.constant))

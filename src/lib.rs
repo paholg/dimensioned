@@ -112,6 +112,9 @@ crate. Pretty much everything else is for ergonomics.
 #![allow(unknown_lints)]
 #![deny(clippy)]
 #![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
+#![cfg_attr(
+    feature = "cargo-clippy", allow(type_complexity, float_cmp, useless_attribute, doc_markdown)
+)]
 
 // Macro debugging
 // #![feature(trace_macros)]
