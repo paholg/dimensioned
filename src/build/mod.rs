@@ -55,13 +55,14 @@ pub struct System {
 
 impl System {
     fn unit_tables(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-
-        write!(f, "
+        write!(
+            f,
+            "
 
 Following, we list all of the [base units](#base-units), [derived units](#derived-units), and
 [constants](#constants) that are defined in this unit system.
-")?;
-
+"
+        )?;
 
         write!(f, "# Base Units\n")?;
         write!(f, "Constant | Unit | Print Token | Dimensionn\n")?;
@@ -74,7 +75,11 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
         write!(f, "Constant | Unit | Unit Definition | Dimension\n")?;
         write!(f, "---|---|---|---\n")?;
         for d in &self.derived {
-            write!(f, "{} | {} | {} | {}\n", d.constant, d.name, d.expression, d.dim)?;
+            write!(
+                f,
+                "{} | {} | {} | {}\n",
+                d.constant, d.name, d.expression, d.dim
+            )?;
         }
 
         write!(f, "# Constants\n")?;
@@ -83,7 +88,15 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
         for b in &self.base {
             let mut newline = false;
             for c in self.constants.iter().filter(|c| c.unit == b.name) {
-                write!(f, "{} | {} | {} | {} | {}\n", c.name, c.constant, c.nice_value(), c.unit, b.dim)?;
+                write!(
+                    f,
+                    "{} | {} | {} | {} | {}\n",
+                    c.name,
+                    c.constant,
+                    c.nice_value(),
+                    c.unit,
+                    b.dim
+                )?;
 
                 newline = true;
             }
@@ -95,7 +108,15 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
         for d in &self.derived {
             let mut newline = false;
             for c in self.constants.iter().filter(|c| c.unit == d.name) {
-                write!(f, "{} | {} | {} | {} | {}\n", c.name, c.constant, c.nice_value(), c.unit, d.dim)?;
+                write!(
+                    f,
+                    "{} | {} | {} | {} | {}\n",
+                    c.name,
+                    c.constant,
+                    c.nice_value(),
+                    c.unit,
+                    d.dim
+                )?;
                 newline = true;
             }
             if newline {
@@ -115,42 +136,62 @@ impl fmt::Display for System {
 
         write!(f, "*/")?;
 
-        write!(f, "
+        write!(
+            f,
+            "
 pub mod {} {{
     make_units! {{
         {};
         ONE: Unitless;
 
-        base {{\n", self.module, self.name)?;
+        base {{\n",
+            self.module, self.name
+        )?;
         for unit in &self.base {
             let dim = match unit.dim {
                 "" => String::new(),
                 d => format!(", {}", d),
             };
-            write!(f, "            {}: {}, \"{}\"{};\n", unit.constant, unit.name, unit.token, dim)?;
+            write!(
+                f,
+                "            {}: {}, \"{}\"{};\n",
+                unit.constant, unit.name, unit.token, dim
+            )?;
         }
 
-        write!(f, "        }}
+        write!(
+            f,
+            "        }}
 
-        derived {{\n")?;
+        derived {{\n"
+        )?;
 
         for unit in &self.derived {
             let dim = match unit.dim {
                 "" => String::new(),
                 d => format!(", {}", d),
             };
-            write!(f, "            {}: {} = ({}){};\n", unit.constant, unit.name, unit.expression, dim)?;
+            write!(
+                f,
+                "            {}: {} = ({}){};\n",
+                unit.constant, unit.name, unit.expression, dim
+            )?;
         }
 
-        write!(f, "        }}
+        write!(
+            f,
+            "        }}
 
-        constants {{\n")?;
+        constants {{\n"
+        )?;
 
         for c in &self.constants {
             write!(f, "            {}: {} = {};\n", c.constant, c.unit, c.value)?;
         }
 
-        write!(f, "        }}
+        write!(
+            f,
+            "        }}
 
         fmt = {};
     }}
@@ -160,41 +201,66 @@ pub mod {} {{
 
     pub use self::f64consts::*;
 
-", self.fmt, self.name)?;
+",
+            self.fmt, self.name
+        )?;
 
-        write!(f, "
+        write!(
+            f,
+            "
     #[test]
     fn test_{}_constants() {{
         #[allow(unused_imports)]
         use f64prefixes::*;
         #[allow(unused_imports)]
         use core::f64::consts;
-", self.module)?;
+",
+            self.module
+        )?;
 
         for c in &self.constants {
-            write!(f, "
-        assert_eq!({}, {});", c.constant, c.nice_value())?;
+            write!(
+                f,
+                "
+        assert_eq!({}, {});",
+                c.constant,
+                c.nice_value()
+            )?;
         }
-        write!(f, "
-    }}")?;
+        write!(
+            f,
+            "
+    }}"
+        )?;
 
-        write!(f, "
+        write!(
+            f,
+            "
     /// Test that serializing/deserializing values with units is
     /// equivalent to doing so with raw numeric types.
     #[cfg(feature = \"serde\")]
     #[test]
     fn test_{}_serde() {{
         use ::serde_test::{{assert_tokens, Token}};
-", self.module)?;
+",
+            self.module
+        )?;
         for base in &self.base {
-            write!(f, "
+            write!(
+                f,
+                "
         let value = 1.0 * {};
         assert_tokens(&value, &[Token::F64(1.0)]);
-", base.constant)?;
+",
+                base.constant
+            )?;
         }
-        write!(f, "
+        write!(
+            f,
+            "
     }}
-}}")?;
+}}"
+        )?;
 
         Ok(())
     }
@@ -243,11 +309,11 @@ fn make_system(s: &System) {
     write!(f, "{}", s).unwrap();
 }
 
-mod si;
-mod ucum;
-mod mks;
 mod cgs;
 mod fps;
+mod mks;
+mod si;
+mod ucum;
 
 use std::io::Write;
 
@@ -262,7 +328,8 @@ fn main() {
     let dest = std::path::Path::new(&out_dir).join("unit_systems.rs");
     let mut f = std::fs::File::create(&dest).unwrap();
 
-    f.write(r#"/**
+    f.write(
+        r#"/**
 Predefined unit systems
 
 When it makes sense, conversions are defined between unit systems. See the `conversion` module for
@@ -329,15 +396,23 @@ more information.
 
 */
 
-pub mod unit_systems {"#.as_bytes()).unwrap();
+pub mod unit_systems {"#.as_bytes(),
+    ).unwrap();
 
     for s in &systems {
-        write!(f, "
-    include!(concat!(env!(\"OUT_DIR\"), \"/{}.rs\"));", s.module).unwrap();
+        write!(
+            f,
+            "
+    include!(concat!(env!(\"OUT_DIR\"), \"/{}.rs\"));",
+            s.module
+        ).unwrap();
     }
 
-    write!(f, "
-}}").unwrap();
+    write!(
+        f,
+        "
+}}"
+    ).unwrap();
 
     #[cfg(feature = "test")]
     make_conversion_tests(&systems, &out_dir).unwrap();
@@ -349,7 +424,9 @@ fn make_conversion_tests(systems: &[System], out_dir: &str) -> Result<(), std::i
     let dest = std::path::Path::new(&out_dir).join("test_consts.rs");
     let mut f = std::fs::File::create(&dest).unwrap();
 
-    write!(f, "
+    write!(
+        f,
+        "
 extern crate dimensioned as dim;
 #[macro_use] extern crate approx;
 
@@ -360,48 +437,65 @@ mod test;
 mod constant_conversion {{
     use dim::unit_systems::*;
     use test::CmpConsts;
-")?;
+"
+    )?;
 
     for s in systems {
         use std::collections::HashSet;
-        let constants1: HashSet<_> =
-            s.base.iter().map(|b| b.constant)
+        let constants1: HashSet<_> = s
+            .base
+            .iter()
+            .map(|b| b.constant)
             .chain(s.derived.iter().map(|d| d.constant))
             .chain(s.constants.iter().map(|c| c.constant))
             .collect();
         for s2 in systems.iter().filter(|s2| s2.name != s.name) {
             if s.from.iter().any(|&f| f == s2.name) && s2.from.iter().any(|&f| f == s.name) {
-                for c in constants1.iter().filter(|&c| !s.refl_blacklist.iter().any(|b| c == b)) {
-                write!(f, "
+                for c in constants1
+                    .iter()
+                    .filter(|&c| !s.refl_blacklist.iter().any(|b| c == b))
+                {
+                    write!(f, "
     #[test]
     #[allow(non_snake_case)]
     fn reflexivity_of_{c}_from_{mod1}_to_{mod2}() {{
         let a = {mod1}::{c};
         let b = {mod1}::{sys1}::from({mod2}::{sys2}::from({mod1}::{c}));
-        a + b; // ensure type hasn't changed for {c} from {mod1} to {mod2}
+        let _ = a + b; // ensure type hasn't changed for {c} from {mod1} to {mod2}
         assert_ulps_eq!(a.value_unsafe, b.value_unsafe, epsilon = 0.0, max_ulps = 2); // ensures value hasn't changed
         assert_relative_eq!(a.value_unsafe, b.value_unsafe, epsilon = 0.0); // ensures value hasn't changed
     }}", mod1=s.module, mod2=s2.module, c=c, sys1=s.name, sys2=s2.name)?;
                 }
             }
 
-            let constants2: HashSet<_> =
-                s2.base.iter().map(|b| b.constant)
+            let constants2: HashSet<_> = s2
+                .base
+                .iter()
+                .map(|b| b.constant)
                 .chain(s2.derived.iter().map(|d| d.constant))
                 .chain(s2.constants.iter().map(|c| c.constant))
                 .collect();
             for c in constants1.intersection(&constants2) {
-                write!(f, "
+                write!(
+                    f,
+                    "
     #[test]
     #[allow(non_snake_case)]
     fn cmp_of_{c}_from_{mod2}_to_{mod1}() {{
         {mod1}::{c}.test_eq({mod2}::{c});
-    }}", mod1=s.module, mod2=s2.module, c=c)?;
+    }}",
+                    mod1 = s.module,
+                    mod2 = s2.module,
+                    c = c
+                )?;
             }
         }
     }
 
-    write!(f, "
-}}")?;
+    write!(
+        f,
+        "
+}}"
+    )?;
     Ok(())
 }

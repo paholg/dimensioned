@@ -2,7 +2,8 @@ use super::*;
 
 pub fn new() -> System {
     System {
-        name: "CGS", module: "cgs",
+        name: "CGS",
+        module: "cgs",
         doc_prelude: "The Gaussian CGS unit system
 
 Note: this system is incomplete. More derived units and constants are coming.
@@ -53,10 +54,7 @@ Note: this system is incomplete. More derived units and constants are coming.
             M: Centimeter = HECTO * CM.value_unsafe, "Meter";
         ),
         fmt: false,
-        from: vec![
-            "SI",
-            "MKS",
-        ],
+        from: vec!["SI", "MKS"],
         refl_blacklist: Vec::new(),
     }
 }

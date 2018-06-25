@@ -2,7 +2,8 @@ use super::*;
 
 pub fn new() -> System {
     System {
-        name: "MKS", module: "mks",
+        name: "MKS",
+        module: "mks",
         doc_prelude: "The Gaussian MKS unit system
 
 Note: this system is incomplete. More derived units and constants are coming.
@@ -19,13 +20,9 @@ Note: this system is incomplete. More derived units and constants are coming.
 
             MPS: MeterPerSecond = Meter / Second, Velocity;
         ),
-        constants: constants!(
-        ),
+        constants: constants!(),
         fmt: false,
-        from: vec![
-            "SI",
-            "CGS",
-        ],
+        from: vec!["SI", "CGS"],
         refl_blacklist: Vec::new(),
     }
 }

@@ -7,7 +7,6 @@
 ///
 /// It is not recommened to implement this for anything outside this this crate.
 pub trait Dimensioned {
-
     /// The type of the value of a quantity. E.g. For `si::Meter<f64>`, `Value` is `f64`.
     type Value;
 
@@ -26,7 +25,6 @@ pub trait Dimensioned {
 /// This trait is implemented for all quantities with no units. The unit systems that come with
 /// dimensioned use `Unitless<V>` for that type.
 pub trait Dimensionless: Dimensioned {
-
     /// Extract the value from a quantity with no units. As there are no units to ignore, it is
     /// dimensionally safe.
     fn value(&self) -> &Self::Value;
@@ -83,7 +81,6 @@ pub trait Dimensionless: Dimensioned {
 /// }
 /// ```
 pub trait MapUnsafe<ValueOut, UnitsOut>: Dimensioned {
-
     /// The type to which the input is mapped
     type Output;
 
@@ -114,7 +111,6 @@ pub trait MapUnsafe<ValueOut, UnitsOut>: Dimensioned {
 /// }
 /// ```
 pub trait Map<ValueOut>: Dimensionless {
-
     /// The type to which the input is mapped
     type Output;
 
@@ -124,17 +120,17 @@ pub trait Map<ValueOut>: Dimensionless {
 
 #[cfg(feature = "oibit")]
 /// Everything that is not a quantity implements this trait
-pub trait NotDim {}
-#[cfg(feature = "oibit")]
-impl NotDim for .. {}
+pub auto trait NotDim {}
 
 macro_rules! impl_unary {
-    ($Type:ty, $Trait:ident, $fun:ident) => (
+    ($Type:ty, $Trait:ident, $fun:ident) => {
         impl $Trait for $Type {
             type Output = $Type;
-            fn $fun(self) -> Self::Output { self.$fun() }
+            fn $fun(self) -> Self::Output {
+                self.$fun()
+            }
         }
-    );
+    };
 }
 
 /// `Recip` is used for implementing a `recip()` member for types that are not preserved under
@@ -154,7 +150,6 @@ macro_rules! impl_unary {
 /// }
 /// ```
 pub trait Recip {
-
     /// The resulting type after taking the reciprocal
     type Output;
 
@@ -164,7 +159,6 @@ pub trait Recip {
 
 impl_unary!(f32, Recip, recip);
 impl_unary!(f64, Recip, recip);
-
 
 /// `Root` is used for implementing general integer roots for types that aren't necessarily
 /// preserved under root.
@@ -185,7 +179,6 @@ impl_unary!(f64, Recip, recip);
 /// }
 /// ```
 pub trait Root<Index> {
-
     /// The resulting type after taking the `Index` root
     type Output;
 
@@ -195,7 +188,7 @@ pub trait Root<Index> {
 
 use typenum::Integer;
 macro_rules! impl_root {
-    ($t: ty, $f: ident) => (
+    ($t:ty, $f:ident) => {
         impl<Index: Integer> Root<Index> for $t {
             type Output = $t;
 
@@ -204,7 +197,7 @@ macro_rules! impl_root {
                 self.powf(exp)
             }
         }
-    );
+    };
 }
 
 impl_root!(f32, powf32);
@@ -222,7 +215,6 @@ fn test_root() {
         assert_eq!(r, (r * r * r * r * r).root(P5::new()));
     }
 }
-
 
 /// `Sqrt` provides a `sqrt` member function for types that are not necessarily preserved under
 /// square root.
@@ -242,7 +234,6 @@ fn test_root() {
 /// }
 /// ```
 pub trait Sqrt {
-
     /// The resulting type after taking the square root
     type Output;
 
@@ -268,7 +259,6 @@ pub trait Sqrt {
 /// }
 /// ```
 pub trait Cbrt {
-
     /// The resulting type after taking the cube root
     type Output;
 
@@ -277,7 +267,7 @@ pub trait Cbrt {
 }
 
 macro_rules! impl_sqcbroot {
-    ($t: ty) => (
+    ($t:ty) => {
         impl Sqrt for $t {
             type Output = $t;
             fn sqrt(self) -> Self::Output {
@@ -291,7 +281,7 @@ macro_rules! impl_sqcbroot {
                 self.cbrt()
             }
         }
-    );
+    };
 }
 
 impl_sqcbroot!(f32);

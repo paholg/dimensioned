@@ -228,7 +228,9 @@ macro_rules! make_units {
         }
 
         use $crate::MapUnsafe;
-        impl<ValueIn, UnitsIn, ValueOut, UnitsOut> MapUnsafe<ValueOut, UnitsOut> for $System<ValueIn, UnitsIn> {
+        impl<ValueIn, UnitsIn, ValueOut, UnitsOut> MapUnsafe<ValueOut, UnitsOut>
+            for $System<ValueIn, UnitsIn>
+        {
             type Output = $System<ValueOut, UnitsOut>;
             #[inline]
             fn map_unsafe<F: FnOnce(ValueIn) -> ValueOut>(self, f: F) -> Self::Output {
@@ -261,7 +263,8 @@ macro_rules! make_units {
             #[allow(unused_imports)]
             use $crate::typenum::consts::*;
             __make_units_internal!(@base_arrays $Unitless $($Unit)*);
-            $(#[allow(missing_docs)] pub type $Derived = __derived_internal!(@mu commas $($derived_rhs)+);)*
+            $(#[allow(missing_docs)] pub type $Derived =
+              __derived_internal!(@mu commas $($derived_rhs)+);)*
         }
 
         #[allow(missing_docs)]
@@ -293,13 +296,17 @@ macro_rules! make_units {
                     #[allow(unused_imports)] use $crate::dimcore::$t::consts;
                     #[allow(unused_imports)] use $crate::$prefixes::*;
                     #[allow(dead_code, missing_docs)]
-                    pub const $one: $Unitless<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };
+                    pub const $one: $Unitless<$t> =
+                        $System { value_unsafe: 1.0, _marker: PhantomData };
                     $(#[allow(dead_code, missing_docs)]
-                      pub const $base: $Unit<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+                      pub const $base: $Unit<$t> =
+                          $System { value_unsafe: 1.0, _marker: PhantomData };)*
                     $(#[allow(dead_code, missing_docs)]
-                      pub const $derived_const: $Derived<$t> = $System { value_unsafe: 1.0, _marker: PhantomData };)*
+                      pub const $derived_const: $Derived<$t> =
+                          $System { value_unsafe: 1.0, _marker: PhantomData };)*
                     $(#[allow(dead_code, missing_docs)]
-                      pub const $constant: $ConstantUnit<$t> = $System { value_unsafe: $constant_value, _marker: PhantomData };)*
+                      pub const $constant: $ConstantUnit<$t> =
+                          $System { value_unsafe: $constant_value, _marker: PhantomData };)*
                 }
             );
         }
@@ -313,11 +320,14 @@ macro_rules! make_units {
                     use super::*;
                     use $crate::dimcore::marker::PhantomData;
                     #[allow(dead_code, missing_docs)]
-                    pub const $one: $Unitless<$t> = $System { value_unsafe: 1, _marker: PhantomData };
+                    pub const $one: $Unitless<$t> =
+                        $System { value_unsafe: 1, _marker: PhantomData };
                     $(#[allow(dead_code, missing_docs)]
-                      pub const $base: $Unit<$t> = $System { value_unsafe: 1, _marker: PhantomData };)*
+                      pub const $base: $Unit<$t> =
+                          $System { value_unsafe: 1, _marker: PhantomData };)*
                     $(#[allow(dead_code, missing_docs)]
-                      pub const $derived_const: $Derived<$t> = $System { value_unsafe: 1, _marker: PhantomData };)*
+                      pub const $derived_const: $Derived<$t> =
+                          $System { value_unsafe: 1, _marker: PhantomData };)*
                 }
             );
         }
@@ -354,7 +364,9 @@ macro_rules! make_units {
         // --------------------------------------------------------------------------------
         // Operator traits from this crate
 
-        impl<V, U> $crate::Recip for $System<V, U> where V: $crate::Recip, U: $crate::dimcore::ops::Neg, {
+        impl<V, U> $crate::Recip for $System<V, U>
+            where V: $crate::Recip, U: $crate::dimcore::ops::Neg,
+        {
             type Output = $System<<V as $crate::Recip>::Output, $crate::typenum::Negate<U>>;
             #[inline]
             fn recip(self) -> Self::Output { $System::new(self.value_unsafe.recip()) }
@@ -376,7 +388,10 @@ macro_rules! make_units {
             where V: $crate::Root<Index>,
                   U: $crate::typenum::PartialDiv<Index>,
         {
-            type Output = $System< <V as $crate::Root<Index>>::Output, $crate::typenum::PartialQuot<U, Index>>;
+            type Output = $System<
+                <V as $crate::Root<Index>>::Output,
+                $crate::typenum::PartialQuot<U, Index>
+            >;
             #[inline]
             fn root(self, idx: Index) -> Self::Output {
                 $System::new( self.value_unsafe.root(idx) )
@@ -388,7 +403,8 @@ macro_rules! make_units {
             where V: $crate::Sqrt,
                   U: $crate::typenum::PartialDiv<P2>,
         {
-            type Output = $System< <V as $crate::Sqrt>::Output, $crate::typenum::PartialQuot<U, P2>>;
+            type Output = $System<
+                <V as $crate::Sqrt>::Output, $crate::typenum::PartialQuot<U, P2>>;
             #[inline]
             fn sqrt(self) -> Self::Output {
                 $System::new( self.value_unsafe.sqrt() )
@@ -400,7 +416,10 @@ macro_rules! make_units {
             where V: $crate::Cbrt,
                   U: $crate::typenum::PartialDiv<P3>,
         {
-            type Output = $System< <V as $crate::Cbrt>::Output, $crate::typenum::PartialQuot<U, P3>>;
+            type Output = $System<
+                <V as $crate::Cbrt>::Output,
+                $crate::typenum::PartialQuot<U, P3>
+            >;
             #[inline]
             fn cbrt(self) -> Self::Output {
                 $System::new( self.value_unsafe.cbrt() )
@@ -477,14 +496,32 @@ macro_rules! make_units {
             fn default_max_ulps() -> u32 {
                 V::default_max_ulps()
             }
-            fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
-                self.value_unsafe.relative_eq(&other.value_unsafe, epsilon.value_unsafe, max_relative.value_unsafe)
+            fn relative_eq(
+                &self,
+                other: &Self,
+                epsilon: Self::Epsilon,
+                max_relative: Self::Epsilon
+            ) -> bool {
+                self.value_unsafe.relative_eq(
+                    &other.value_unsafe,
+                    epsilon.value_unsafe,
+                    max_relative.value_unsafe,
+                )
             }
             fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
                 self.value_unsafe.ulps_eq(&other.value_unsafe, epsilon.value_unsafe, max_ulps)
             }
-            fn relative_ne(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
-                self.value_unsafe.relative_ne(&other.value_unsafe, epsilon.value_unsafe, max_relative.value_unsafe)
+            fn relative_ne(
+                &self,
+                other: &Self,
+                epsilon: Self::Epsilon,
+                max_relative: Self::Epsilon
+            ) -> bool {
+                self.value_unsafe.relative_ne(
+                    &other.value_unsafe,
+                    epsilon.value_unsafe,
+                    max_relative.value_unsafe,
+                )
             }
             fn ulps_ne(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
                 self.value_unsafe.ulps_ne(&other.value_unsafe, epsilon.value_unsafe, max_ulps)
@@ -1012,15 +1049,27 @@ macro_rules! __derived_internal {
 
     // Both qualify as identifiers
     (@eval $module:ident, $a:ident, /, $b:ident, $($tail:tt)*) => (
-        __derived_internal!(@eval $module, $crate::typenum::Diff<$module::inner::$a, $module::inner::$b>, $($tail)* )
+        __derived_internal!(
+            @eval $module,
+            $crate::typenum::Diff<$module::inner::$a, $module::inner::$b>,
+            $($tail)*
+        )
     );
     (@eval $module:ident, $a:ident, *, $b:ident, $($tail:tt)*) => (
-        __derived_internal!(@eval $module, $crate::typenum::Sum<$module::inner::$a, $module::inner::$b>, $($tail)* )
+        __derived_internal!(
+            @eval $module,
+            $crate::typenum::Sum<$module::inner::$a, $module::inner::$b>,
+            $($tail)*
+        )
     );
 
     // $a is an intermediate result:
     (@eval $module:ident, $a:ty, /, $b:ident, $($tail:tt)*) => (
-        __derived_internal!(@eval $module, $crate::typenum::Diff<$a, $module::inner::$b>, $($tail)* )
+        __derived_internal!(
+            @eval $module,
+            $crate::typenum::Diff<$a, $module::inner::$b>,
+            $($tail)*
+        )
     );
     (@eval $module:ident, $a:ty, *, $b:ident, $($tail:tt)*) => (
         __derived_internal!(@eval $module, $crate::typenum::Sum<$a, $module::inner::$b>, $($tail)* )

@@ -1,32 +1,33 @@
 language: rust
+cache: cargo
 sudo: false
 rust:
   - stable
   - beta
-  - nightly
-cache: cargo
 
 notifications:
   email:
     recipients: paho@paholg.com
 
-# fixme: re-enable rustfmt when it works
-before_script:
-  - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
-  - export TRAVIS_CARGO_NIGHTLY_FEATURE=""
-  # - test -x $HOME/.cargo/bin/rustfmt || cargo install rustfmt # Only install rustfmt if it's not there
+matrix:
+  include:
+    - rust: nightly
+      before_script:
+        - rustup component add rustfmt-preview
+      script: |
+        cargo fmt --version &&
+        cargo fmt --all -- --check &&
+        cargo test --all-features
 
-script:
-    # PATH=$PATH:~/.cargo/bin cargo fmt -- --write-mode=diff &&
-  - |
-    travis-cargo --only stable test &&
-    travis-cargo --only beta test &&
-    travis-cargo --only nightly test -- --features "test" &&
-    travis-cargo --only stable doc
+script: |
+  cargo build &&
+  cargo test --features "approx quickcheck serde serde_test" &&
+  cargo doc
 
 after_success:
-  - travis-cargo doc-upload
-  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && cargo publish --token ${CRATESIO_TOKEN}
+  - test $TRAVIS_PULL_REQUEST == "false" &&
+    test $TRAVIS_BRANCH == "master" &&
+    cargo publish --token ${CRATESIO_TOKEN}
 
 env:
   global:

@@ -4,9 +4,9 @@
 //!
 //! Consider this module **unstable**.
 
-use typenum::{Add1, B1, Length, TArr, ATerm, Len, Integer, Unsigned, U0};
+use typenum::{ATerm, Add1, B1, Integer, Len, Length, TArr, U0, Unsigned};
 
-use generic_array::{GenericArray, ArrayLength};
+use generic_array::{ArrayLength, GenericArray};
 
 use core::ops::Add;
 
@@ -31,14 +31,12 @@ use core::ops::Add;
 /// }
 /// ```
 pub trait ToGA {
-
     /// The type of the `GenericArray` to which we've converted
     type Output;
 
     /// Create a `GenericArray` of integers from a `TArr` of type numbers.
     fn to_ga() -> Self::Output;
 }
-
 
 impl ToGA for ATerm {
     type Output = GenericArray<isize, U0>;
@@ -47,20 +45,19 @@ impl ToGA for ATerm {
     }
 }
 
-
 impl<V, A> ToGA for TArr<V, A>
-    where V: Integer,
-          A: Len + ToGA,
-          <A as ToGA>::Output: AppendFront<isize>,
-          Length<A>: Add<B1>,
-          Add1<Length<A>>: Unsigned + ArrayLength<isize>
+where
+    V: Integer,
+    A: Len + ToGA,
+    <A as ToGA>::Output: AppendFront<isize>,
+    Length<A>: Add<B1>,
+    Add1<Length<A>>: Unsigned + ArrayLength<isize>,
 {
     type Output = <<A as ToGA>::Output as AppendFront<isize>>::Output;
     fn to_ga() -> Self::Output {
         A::to_ga().append_front(V::to_isize())
     }
 }
-
 
 /// Implemented for `GenericArray`, this allows growable `GenericArray`s by appending elements to the front.
 ///
@@ -80,7 +77,6 @@ impl<V, A> ToGA for TArr<V, A>
 /// }
 
 pub trait AppendFront<T> {
-
     /// The resulting type after performing the append
     type Output;
 
@@ -89,9 +85,10 @@ pub trait AppendFront<T> {
 }
 
 impl<T, N> AppendFront<T> for GenericArray<T, N>
-    where T: Default,
-          N: Add<B1> + ArrayLength<T>,
-          Add1<N>: ArrayLength<T>
+where
+    T: Default,
+    N: Add<B1> + ArrayLength<T>,
+    Add1<N>: ArrayLength<T>,
 {
     type Output = GenericArray<T, Add1<N>>;
     fn append_front(self, element: T) -> Self::Output {

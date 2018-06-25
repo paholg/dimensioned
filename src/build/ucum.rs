@@ -2,7 +2,8 @@ use super::*;
 
 pub fn new() -> System {
     System {
-        name: "UCUM", module: "ucum",
+        name: "UCUM",
+        module: "ucum",
         doc_prelude: "
 
 The Unified Code for Units of Measure (UCUM)
@@ -369,9 +370,7 @@ in function signatures), this is something to bear in mind.
             SMOOT: Meter = 67.0 * IN_I.value_unsafe, "Smoot";
         ),
         fmt: true,
-        from: vec![
-            "SI",
-        ],
+        from: vec!["SI"],
         refl_blacklist: vec!["RAD", "SR", "GON", "DEG", "CIRC", "LM", "SPH", "PHT", "LX"],
     }
 }
