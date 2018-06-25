@@ -372,6 +372,12 @@ macro_rules! make_units {
             fn recip(self) -> Self::Output { $System::new(self.value_unsafe.recip()) }
         }
 
+        impl<V: $crate::Abs, U> $crate::Abs for $System<V,U>
+        {
+            #[inline]
+            fn abs(self) -> Self { $System::new(self.value_unsafe.abs()) }
+        }
+
         use $crate::typenum::Pow;
         impl<Exp, V, U> Pow<Exp> for $System<V, U>
             where V: Pow<Exp>,
