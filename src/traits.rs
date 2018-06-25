@@ -160,6 +160,44 @@ pub trait Recip {
 impl_unary!(f32, Recip, recip);
 impl_unary!(f64, Recip, recip);
 
+/// `Abs` is used for implementing an `abs()` member for types that
+/// can have their absolute value taken (which is most of them).
+///
+/// # Example
+/// ```rust
+/// extern crate dimensioned as dim;
+/// use dim::si;
+///
+/// fn main() {
+///     let t = -2.0 * si::S;
+///     let abst = 2.0 * si::S;
+///
+///     use dim::Abs;
+///     assert_eq!(t.abs(), abst);
+/// }
+/// ```
+pub trait Abs {
+    /// The method for taking the absolute value
+    fn abs(self) -> Self;
+}
+
+macro_rules! impl_abs {
+    ($t:ty) => {
+        impl Abs for $t {
+            fn abs(self) -> Self {
+                self.abs()
+            }
+        }
+    };
+}
+impl_abs!(f32);
+impl_abs!(f64);
+impl_abs!(i8);
+impl_abs!(i16);
+impl_abs!(i32);
+impl_abs!(i64);
+impl_abs!(isize);
+
 /// `Root` is used for implementing general integer roots for types that aren't necessarily
 /// preserved under root.
 ///
