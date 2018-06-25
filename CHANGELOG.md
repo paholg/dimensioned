@@ -3,6 +3,8 @@
 This project follows semantic versioning.
 
 ### Unpublished
+- [added] Trait `Abs` for taking the absolute value of quantities.
+- [added] Feature flag `serde` that derives Serialization/Deserialization for unit systems.
 - [added] Modules for integer constants to `make_units!` macro.
 
 ### 0.6.0 (2017-03-03)
