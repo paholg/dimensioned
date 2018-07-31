@@ -120,7 +120,6 @@ crate. Pretty much everything else is for ergonomics.
 extern crate core;
 #[cfg(feature="clapme")]
 extern crate clapme;
-#[cfg(feature="clapme")]
 
 // Macro debugging
 // #![feature(trace_macros)]
