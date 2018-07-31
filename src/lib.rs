@@ -166,6 +166,9 @@ pub extern crate serde;
 #[cfg(feature = "serde_test")]
 extern crate serde_test;
 
+#[cfg(feature = "rand")]
+pub extern crate rand;
+
 #[macro_use]
 mod make_units;
 mod fmt;
