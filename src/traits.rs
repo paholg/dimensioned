@@ -185,7 +185,7 @@ macro_rules! impl_abs {
     ($t:ty) => {
         impl Abs for $t {
             fn abs(self) -> Self {
-                self.abs()
+                ::num_traits::sign::abs(self)
             }
         }
     };
@@ -232,7 +232,10 @@ macro_rules! impl_root {
 
             fn root(self, _: Index) -> Self::Output {
                 let exp = (Index::to_i32() as $t).recip();
-                self.powf(exp)
+                #[cfg(feature = "std")]
+                return self.powf(exp);
+                #[cfg(not(feature = "std"))]
+                return unsafe { core::intrinsics::$f(self, exp) };
             }
         }
     };
@@ -282,6 +285,8 @@ pub trait Sqrt {
 /// `Cbrt` provides a `cbrt` member function for types that are not necessarily preserved under
 /// cube root.
 ///
+/// This is not currently implemented for built-in floating point types unless you are using `std`.
+///
 /// # Example
 ///
 /// ```rust
@@ -293,6 +298,7 @@ pub trait Sqrt {
 ///     let v = 8.0 * si::M3;
 ///
 ///     use dim::Cbrt;
+///     #[cfg(feature = "std")]
 ///     assert_eq!(v.cbrt(), x);
 /// }
 /// ```
@@ -305,14 +311,24 @@ pub trait Cbrt {
 }
 
 macro_rules! impl_sqcbroot {
-    ($t:ty) => {
+    ($t:ty, $f:ident, $nan:path) => {
         impl Sqrt for $t {
             type Output = $t;
             fn sqrt(self) -> Self::Output {
-                self.sqrt()
+                #[cfg(feature = "std")]
+                return self.sqrt();
+                #[cfg(not(feature = "std"))]
+                {
+                    if self < 0.0 {
+                        $nan
+                    } else {
+                        unsafe { core::intrinsics::$f(self) }
+                    }
+                }
             }
         }
 
+        #[cfg(feature = "std")]
         impl Cbrt for $t {
             type Output = $t;
             fn cbrt(self) -> Self::Output {
@@ -322,5 +338,5 @@ macro_rules! impl_sqcbroot {
     };
 }
 
-impl_sqcbroot!(f32);
-impl_sqcbroot!(f64);
+impl_sqcbroot!(f32, sqrtf32, core::f32::NAN);
+impl_sqcbroot!(f64, sqrtf64, core::f64::NAN);

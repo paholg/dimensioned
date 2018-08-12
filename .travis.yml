@@ -15,11 +15,12 @@ matrix:
       before_script:
         - rustup component add rustfmt-preview
       script: |
+        cargo test --no-default-features --features ci
         cargo test --all-features
 
 script: |
   cargo build &&
-  cargo test --features "approx quickcheck serde serde_test" &&
+  cargo test --features b"test" &&
   cargo doc
 
 after_success:

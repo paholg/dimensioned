@@ -30,6 +30,7 @@ mod to_si {
     use core::convert::From;
     use core::ops::{Add, Mul};
     use f64prefixes::*;
+    use num_traits::float::FloatCore;
     use si::SI;
     use typenum::{Integer, Prod, Sum, Z0};
     use ucum;
@@ -49,7 +50,7 @@ mod to_si {
         fn from(
             other: ucum::UCUM<V, tarr![Meter, Second, Gram, Z0, Kelvin, Coulomb, Candela]>,
         ) -> Self {
-            let gfac = MILLI.powi(Gram::to_i32());
+            let gfac = FloatCore::powi(MILLI, Gram::to_i32());
 
             let fac = gfac;
 
@@ -63,6 +64,7 @@ mod to_ucum {
     use core::convert::From;
     use core::ops::{Mul, Sub};
     use f64prefixes::*;
+    use num_traits::float::FloatCore;
     use si;
     use typenum::{Diff, Integer, Prod, Z0};
     use ucum::UCUM;
@@ -85,7 +87,7 @@ mod to_ucum {
         fn from(
             other: si::SI<V, tarr![Meter, Kilogram, Second, Ampere, Kelvin, Candela, Z0]>,
         ) -> Self {
-            let kgfac = KILO.powi(Kilogram::to_i32());
+            let kgfac = FloatCore::powi(KILO, Kilogram::to_i32());
 
             let fac = kgfac;
 
@@ -101,6 +103,8 @@ mod to_cgs {
     use core::ops::{Add, Mul};
     use f64prefixes::*;
     use mks;
+    use num_traits::float::FloatCore;
+    use traits::Sqrt;
     use typenum::{Integer, Prod, Sum};
     impl<V, SqrtMeter, SqrtKilogram, Second>
         From<mks::MKS<V, tarr![SqrtMeter, SqrtKilogram, Second]>>
@@ -113,12 +117,12 @@ mod to_cgs {
     {
         fn from(other: mks::MKS<V, tarr![SqrtMeter, SqrtKilogram, Second]>) -> Self {
             let mfac = match SqrtMeter::to_i32() {
-                e if e % 2 == 0 => HECTO.powi(e / 2),
-                e => HECTO.sqrt().powi(e),
+                e if e % 2 == 0 => FloatCore::powi(HECTO, e / 2),
+                e => FloatCore::powi(Sqrt::sqrt(HECTO), e),
             };
             let kgfac = match SqrtKilogram::to_i32() {
-                e if e % 2 == 0 => KILO.powi(e / 2),
-                e => KILO.sqrt().powi(e),
+                e if e % 2 == 0 => FloatCore::powi(KILO, e / 2),
+                e => FloatCore::powi(Sqrt::sqrt(KILO), e),
             };
 
             let fac = mfac * kgfac;
@@ -164,6 +168,8 @@ mod to_mks {
     use core::ops::{Add, Mul};
     use f64prefixes::*;
     use mks::MKS;
+    use num_traits::float::FloatCore;
+    use traits::Sqrt;
     use typenum::{Integer, Prod, Sum};
     // From CGS
     use cgs;
@@ -178,12 +184,12 @@ mod to_mks {
     {
         fn from(other: cgs::CGS<V, tarr![SqrtCentimeter, SqrtGram, Second]>) -> Self {
             let cmfac = match SqrtCentimeter::to_i32() {
-                e if e % 2 == 0 => CENTI.powi(e / 2),
-                e => CENTI.sqrt().powi(e),
+                e if e % 2 == 0 => FloatCore::powi(CENTI, e / 2),
+                e => FloatCore::powi(Sqrt::sqrt(CENTI), e),
             };
             let gfac = match SqrtGram::to_i32() {
-                e if e % 2 == 0 => MILLI.powi(e / 2),
-                e => MILLI.sqrt().powi(e),
+                e if e % 2 == 0 => FloatCore::powi(MILLI, e / 2),
+                e => FloatCore::powi(Sqrt::sqrt(MILLI), e),
             };
 
             let fac = cmfac * gfac;
