@@ -20,7 +20,7 @@ matrix:
 
 script: |
   cargo build &&
-  cargo test --features b"test" &&
+  cargo test --features "test" &&
   cargo doc
 
 after_success:
