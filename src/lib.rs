@@ -107,18 +107,13 @@ crate. Pretty much everything else is for ergonomics.
 #![allow(unknown_lints)]
 #![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
 #![deny(clippy)]
-#![cfg_attr(feature = "ci", deny_warnings)]
+#![cfg_attr(feature = "ci", deny(warnings))]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(not(feature = "std"), feature(core_intrinsics, extern_prelude))]
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
 #![cfg_attr(feature = "spec", feature(specialization))]
-#![cfg_attr(feature = "clippy", feature(plugin))]
-#![cfg_attr(feature = "clippy", plugin(clippy))]
-#![cfg_attr(
-    feature = "cargo-clippy", allow(type_complexity, float_cmp, useless_attribute, doc_markdown)
-)]
 
-// Get a warning without this. If it's fixed, remove `useless_attribute` from clippy allow list
+// Get a warning without this.
 #[allow(unused_imports)]
 #[macro_use]
 pub extern crate generic_array;
