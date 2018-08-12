@@ -426,8 +426,7 @@ more information.
 
 */
 
-pub mod unit_systems {"#
-            .as_bytes(),
+pub mod unit_systems {"#.as_bytes(),
     ).unwrap();
 
     for s in &systems {

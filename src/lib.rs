@@ -112,6 +112,18 @@ crate. Pretty much everything else is for ergonomics.
 #![cfg_attr(not(feature = "std"), feature(core_intrinsics, extern_prelude))]
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
 #![cfg_attr(feature = "spec", feature(specialization))]
+#![cfg_attr(feature = "cargo-clippy", allow(
+    // Don't think we'll ever be able to remove this.
+    type_complexity,
+    // Not great. See issue #52.
+    transmute_ptr_to_ptr,
+    // These are output from the build macros; if we could get output integers to include
+    // underscores, we could remove it.
+    unreadable_literal,
+    // This is fine; we have constants defined as f32 and f64, so excessive precition for f32 is
+    // good.
+    excessive_precision,
+))]
 
 // Get a warning without this.
 #[allow(unused_imports)]
