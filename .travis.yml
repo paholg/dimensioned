@@ -1,9 +1,6 @@
 language: rust
 cache: cargo
 sudo: false
-rust:
-  - stable
-  - beta
 
 notifications:
   email:
@@ -11,17 +8,23 @@ notifications:
 
 matrix:
   include:
+    - rust: stable
+      script: |
+        cargo build &&
+        cargo test --features "test" &&
+        cargo doc
+  include:
+    - rust: beta
+      script: |
+        cargo build &&
+        cargo test --features "test" &&
+  include:
     - rust: nightly
       before_script:
         - rustup component add rustfmt-preview
       script: |
         cargo test --no-default-features --features ci
         cargo test --all-features
-
-script: |
-  cargo build &&
-  cargo test --features "test" &&
-  cargo doc
 
 after_success:
   - test $TRAVIS_PULL_REQUEST == "false" &&
