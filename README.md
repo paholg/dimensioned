@@ -18,6 +18,18 @@ If you are using Rust nightly, then you may enable the "oibit" feature of dimens
 make it work a bit better for wrapping non-primitives in units. The recommended way to use
 dimensioned is by wrapping only primitives in units, in which case this feature is not helpful.
 
+# Contributing
+
+Contributions are welcome! There aren't super strict contributing guidelines, but I have a few
+requests.
+
+* Note changes that you make in [CHANGELOG.md](CHANGELOG.md).
+* Add documentation and tests for anything that you add.
+* Try to keep lists alphabetized in files not addressed by rustfmt.
+* Don't hesitate to prod me if I haven't responded to you in a timely manner. I get
+  busy and forgetful, but I would like to repond to issues and PRs promptly.
+* Feel free to ask questions!
+
 # Examples
 
 [The Simulation Example](https://github.com/paholg/dimensioned-examples/blob/master/hard-spheres.md)
@@ -86,22 +98,3 @@ line number and hopefully the issue will be apparant from the code alone.
 
 If there are any libraries that work particularly well with dimensioned, such as the vector3d
 library used in part 3 of the simulation example, please let me know and they will be listed here.
-
-# Known Bugs
-
-If you are using dimensioned with a version of Rust < 1.17, then type annotations for computed
-units may not work.
-
-For example, this will work with any version of Rust that dimensioned supports:
-
-```rust
-use dim::si;
-let area = 3.0 * si::M * si::M;
-```
-
-whereas this will only work with Rust >= 1.17:
-
-```rust
-use dim::si;
-let area: si::Meter2<f64> = 3.0 * si::M * si::M;
-```
