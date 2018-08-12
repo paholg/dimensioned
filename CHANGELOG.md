@@ -3,6 +3,7 @@
 This project follows semantic versioning.
 
 ### Unpublished
+- [added] Optional dependency on `ClapMe` and implementation for unit systems via `clapme!` macro.
 - [added] Trait `Abs` for taking the absolute value of quantities.
 - [added] Feature flag `serde` that derives Serialization/Deserialization for unit systems.
 - [added] Modules for integer constants to `make_units!` macro.
