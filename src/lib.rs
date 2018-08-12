@@ -103,7 +103,7 @@ crate. Pretty much everything else is for ergonomics.
     html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
     html_root_url = "http://paholg.com/dimensioned"
 )]
-#![no_std]
+#![cfg_attr(not(feature="clapme"), no_std)]
 #![warn(missing_docs)]
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
 #![cfg_attr(feature = "spec", feature(specialization))]
@@ -115,6 +115,11 @@ crate. Pretty much everything else is for ergonomics.
 #![cfg_attr(
     feature = "cargo-clippy", allow(type_complexity, float_cmp, useless_attribute, doc_markdown)
 )]
+
+#[cfg(feature="clapme")]
+extern crate core;
+#[cfg(feature="clapme")]
+extern crate clapme;
 
 // Macro debugging
 // #![feature(trace_macros)]
