@@ -264,7 +264,6 @@ pub mod {} {{
 "
         )?;
 
-
         write!(
             f,
             "
@@ -283,8 +282,7 @@ pub mod {} {{
         assert_eq!(value,
                    <{}<f64> as ClapMe>::from_iter(&[\"test\", \"3.0\"]).unwrap());
 ",
-                base.constant,
-                base.name
+                base.constant, base.name
             )?;
         }
         write!(
@@ -428,7 +426,8 @@ more information.
 
 */
 
-pub mod unit_systems {"#.as_bytes(),
+pub mod unit_systems {"#
+            .as_bytes(),
     ).unwrap();
 
     for s in &systems {

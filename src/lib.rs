@@ -103,29 +103,36 @@ crate. Pretty much everything else is for ergonomics.
     html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
     html_root_url = "http://paholg.com/dimensioned"
 )]
-#![cfg_attr(not(feature="clapme"), no_std)]
 #![warn(missing_docs)]
+#![allow(unknown_lints)]
+#![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
+#![deny(clippy)]
+#![cfg_attr(feature = "ci", deny(warnings))]
+#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), feature(core_intrinsics, extern_prelude))]
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
 #![cfg_attr(feature = "spec", feature(specialization))]
-#![cfg_attr(feature = "clippy", feature(plugin))]
-#![cfg_attr(feature = "clippy", plugin(clippy))]
-#![allow(unknown_lints)]
-#![deny(clippy)]
-#![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
-#![cfg_attr(
-    feature = "cargo-clippy", allow(type_complexity, float_cmp, useless_attribute, doc_markdown)
-)]
 
-#[cfg(feature="clapme")]
-extern crate core;
-#[cfg(feature="clapme")]
+// Get a warning without this.
+#[allow(unused_imports)]
+#[macro_use]
+pub extern crate generic_array;
+#[cfg(feature = "approx")]
+pub extern crate approx;
+#[cfg(feature = "clapme")]
 extern crate clapme;
+#[cfg(feature = "std")]
+extern crate core;
+extern crate num_traits;
+#[cfg(feature = "serde")]
+pub extern crate serde;
+#[cfg(feature = "serde_test")]
+extern crate serde_test;
+pub extern crate typenum;
 
 // Macro debugging
 // #![feature(trace_macros)]
 // trace_macros!(true);
-
-pub extern crate typenum;
 
 // Copied from typenum so that users don't have to import typenum for the make_units macro to work.
 // Only change is the paths.
@@ -157,19 +164,6 @@ macro_rules! tarr {
     ($n:ty, $($tail:ty),+) => ( $crate::typenum::TArr<$n, tarr![$($tail),+]> );
     ($n:ty, $($tail:ty),+,) => ( $crate::typenum::TArr<$n, tarr![$($tail),+]> );
 }
-
-// Get a warning without this. If it's fixed, remove `useless_attribute` from clippy allow list
-#[allow(unused_imports)]
-#[macro_use]
-pub extern crate generic_array;
-
-#[cfg(feature = "approx")]
-pub extern crate approx;
-
-#[cfg(feature = "serde")]
-pub extern crate serde;
-#[cfg(feature = "serde_test")]
-extern crate serde_test;
 
 #[macro_use]
 mod make_units;
