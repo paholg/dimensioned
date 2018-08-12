@@ -21,16 +21,17 @@ Never again should you need to specify units in a comment!"""
   name = "dimensioned"
 
 [features]
-  default = []
+  default = ["std"]
   oibit = []
   spec = []
-  test = ["quickcheck", "approx", "oibit", "spec", "clapme", "serde", "serde_test"]
+  std = []
+  test = [ "approx", "clapme", "oibit", "quickcheck", "spec", "serde", "serde_test"]
 
 [dependencies]
   approx = { version = "0.1.1", optional = true, features = [] }
-  generic-array = "0.5.1"
-  quickcheck = { version = "0.6.2", optional = true }
   clapme = { version = "0.1.1", optional = true }
+  generic-array = "0.11.1"
+  quickcheck = { version = "0.6.2", optional = true }
   serde = { version = "1.0.0", optional = true }
   serde_test = { version = "1.0.0", optional = true }
   typenum = "1.6.0"
