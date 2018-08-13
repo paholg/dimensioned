@@ -3,12 +3,26 @@ cache: cargo
 sudo: false
 rust:
   - stable
+  - beta
+  - nightly
 
 notifications:
   email:
     recipients: paho@paholg.com
 
 matrix:
+  include:
+    - rust: stable
+      before_script:
+        - rustup component add rustfmt-preview
+      script: |
+        cargo fmt --version
+        cargo fmt --all -- --check
+        cargo build
+        cargo test --features "test"
+        cargo doc
+      after_success: |
+        test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && cargo publish --token ${CRATESIO_TOKEN}
   include:
     - rust: beta
       script: |
@@ -23,18 +37,6 @@ matrix:
         cargo clippy
         cargo test --no-default-features --features ci
         cargo test --all-features
-
-before_script:
-  - rustup component add rustfmt-preview
-script: |
-  cargo fmt --version
-  cargo fmt --all -- --check
-  cargo build
-  cargo test --features "test"
-  cargo doc
-
-after_success: |
-  test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && cargo publish --token ${CRATESIO_TOKEN}
 
 env:
   global:
