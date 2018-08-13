@@ -9,27 +9,28 @@ notifications:
 matrix:
   include:
     - rust: stable
-      script: |
-        cargo build &&
-        cargo test --features "test" &&
-        cargo doc
-  include:
-    - rust: beta
-      script: |
-        cargo build &&
-        cargo test --features "test" &&
-  include:
-    - rust: nightly
       before_script:
         - rustup component add rustfmt-preview
       script: |
+        cargo fmt --version
+        cargo fmt --all -- --check
+        cargo build
+        cargo test --features "test"
+        cargo doc
+      after_success: |
+        test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && cargo publish --token ${CRATESIO_TOKEN}
+    - rust: beta
+      script: |
+        cargo build
+        cargo test --features "test"
+    - rust: nightly
+      before_script:
+        - rustup component add clippy-preview
+      script: |
+        cargo clippy --version
+        cargo clippy
         cargo test --no-default-features --features ci
         cargo test --all-features
-
-after_success:
-  - test $TRAVIS_PULL_REQUEST == "false" &&
-    test $TRAVIS_BRANCH == "master" &&
-    cargo publish --token ${CRATESIO_TOKEN}
 
 env:
   global:

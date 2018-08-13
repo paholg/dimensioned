@@ -231,6 +231,7 @@ macro_rules! impl_root {
             type Output = $t;
 
             fn root(self, _: Index) -> Self::Output {
+                #[allow(cast_lossless)]
                 let exp = (Index::to_i32() as $t).recip();
                 #[cfg(feature = "std")]
                 return self.powf(exp);
