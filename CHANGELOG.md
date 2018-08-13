@@ -3,6 +3,8 @@
 This project follows semantic versioning.
 
 ### Unpublished
+
+### 0.7.0 (2018-08-12)
 - [changed] ***BREAKING*** Made dimensioned work with `no_std` again, and added the default feature
   `std`. Using this without `std` now requires nightly Rust and using `dimensioned` without default
   features. I don't think this will actually break anything, as it was not working before, but is at

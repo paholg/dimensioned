@@ -1,6 +1,6 @@
 [package]
   name = "dimensioned"
-  version = "0.6.0"
+  version = "0.7.0"
   authors = ["Paho Lurie-Gregg <paho@paholg.com>"]
   documentation = "https://docs.rs/dimensioned"
   repository = "https://github.com/paholg/dimensioned"
