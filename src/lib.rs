@@ -103,24 +103,38 @@ crate. Pretty much everything else is for ergonomics.
     html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
     html_root_url = "http://paholg.com/dimensioned"
 )]
-#![no_std]
 #![warn(missing_docs)]
+#![allow(unknown_lints)]
+#![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
+#![deny(clippy)]
+#![cfg_attr(feature = "ci", deny(warnings))]
+#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), feature(core_intrinsics, extern_prelude))]
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
 #![cfg_attr(feature = "spec", feature(specialization))]
-#![cfg_attr(feature = "clippy", feature(plugin))]
-#![cfg_attr(feature = "clippy", plugin(clippy))]
-#![allow(unknown_lints)]
-#![deny(clippy)]
-#![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
-#![cfg_attr(
-    feature = "cargo-clippy", allow(type_complexity, float_cmp, useless_attribute, doc_markdown)
-)]
+#![cfg_attr(feature = "cargo-clippy", allow(
+    // Don't think we'll ever be able to remove this.
+    type_complexity,
+    // Not great. See issue #52.
+    transmute_ptr_to_ptr,
+    // These are output from the build macros; if we could get output integers to include
+    // underscores, we could remove it.
+    unreadable_literal,
+    // This is fine; we have constants defined as f32 and f64, so excessive precition for f32 is
+    // good.
+    excessive_precision,
+))]
+
+#[cfg(feature = "clapme")]
+extern crate clapme;
+#[cfg(feature = "std")]
+extern crate core;
+extern crate num_traits;
+pub extern crate typenum;
 
 // Macro debugging
 // #![feature(trace_macros)]
 // trace_macros!(true);
-
-pub extern crate typenum;
 
 // Copied from typenum so that users don't have to import typenum for the make_units macro to work.
 // Only change is the paths.

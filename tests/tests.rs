@@ -67,6 +67,7 @@ mod quickchecking {
     }
 
     use dim::Cbrt;
+    #[cfg(feature = "std")]
     quickcheck!{
         fn cbrt(x: f64) -> bool {
             let res1 = *(x * ONE).cbrt() == x.cbrt();
@@ -76,5 +77,4 @@ mod quickchecking {
             res1 && res2 && res3
         }
     }
-
 }

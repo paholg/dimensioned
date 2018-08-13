@@ -157,7 +157,7 @@ Where experimental values are used for constants, the values are obtained from t
             EV: Joule = E.value_unsafe * V.value_unsafe, "Electronvolt";
             U: Kilogram = 1.660539040e-27 * KG.value_unsafe, "Unified atomic mass unit; dalton";
 
-            C0: MeterPerSecond = 299792458.0 * MPS.value_unsafe, "Speed of light in a vacuum";
+            C0: MeterPerSecond = 299_792_458.0 * MPS.value_unsafe, "Speed of light in a vacuum";
 
             HBAR: JouleSecond = 1.054571800e-34 * JS.value_unsafe, "Reduced Planck constant";
             M_E: Kilogram = 9.10938356e-31 * KG.value_unsafe, "Electron mass";
@@ -168,7 +168,7 @@ Where experimental values are used for constants, the values are obtained from t
             BARN: Meter2 = 1e-28 * M2.value_unsafe, "Barn";
             BAR: Pascal = 1e5 * PA.value_unsafe, "Bar";
             MBAR: Pascal = 100.0 * PA.value_unsafe, "Millibar";
-            ATM: Pascal = 101325.0 * PA.value_unsafe, "Atmosphere";
+            ATM: Pascal = 101_325.0 * PA.value_unsafe, "Atmosphere";
             BA: Pascal = 0.1 * PA.value_unsafe, "Barye";
             MMHG: Pascal = 133.322387415 * PA.value_unsafe, "Millimeter of mercury";
             TORR: Pascal = ATM.value_unsafe / 760.0, "Torr";
@@ -178,7 +178,7 @@ Where experimental values are used for constants, the values are obtained from t
             FT: Meter = 0.3048 * M.value_unsafe, "Foot";
             IN: Meter = FT.value_unsafe / 12.0, "Inch";
             YD: Meter = 3.0 * FT.value_unsafe, "Yard";
-            MI: Meter = 5280.0 * FT.value_unsafe, "Mile";
+            MI: Meter = 5_280.0 * FT.value_unsafe, "Mile";
 
             LB: Kilogram = 0.45359237 * KG.value_unsafe, "Pound mass";
             OZ: Kilogram = LB.value_unsafe / 16.0, "Ounce";

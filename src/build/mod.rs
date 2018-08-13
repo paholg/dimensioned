@@ -193,19 +193,21 @@ pub mod {} {{
             f,
             "        }}
 
-        fmt = {};
+        fmt = {0};
     }}
 
     #[cfg(feature = \"serde\")]
-    impl_serde!({});
+    impl_serde!({1});
+    #[cfg(feature = \"clapme\")]
+    impl_clapme!({1});
 
     #[cfg(feature = \"rand\")]
-    impl_rand!({});
+    impl_rand!({1});
 
     pub use self::f64consts::*;
 
 ",
-            self.fmt, self.name, self.name
+            self.fmt, self.name,
         )?;
 
         write!(
@@ -315,6 +317,28 @@ pub mod {} {{
         write!(
             f,
             "
+    /// Test that clapme can generate a help message, and can produce a value.
+    #[cfg(feature = \"clapme\")]
+    #[test]
+    fn test_{}_clapme() {{
+",
+            self.module
+        )?;
+        for base in &self.base {
+            write!(
+                f,
+                "
+        let value = 3.0 * {};
+        assert_eq!(value,
+                   <{}<f64> as ClapMe>::from_iter(&[\"test\", \"3.0\"]).unwrap());
+",
+                base.constant, base.name
+            )?;
+        }
+        write!(
+            f,
+            "
+    }}
 }}"
         )?;
 

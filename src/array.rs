@@ -41,7 +41,7 @@ pub trait ToGA {
 impl ToGA for ATerm {
     type Output = GenericArray<isize, U0>;
     fn to_ga() -> Self::Output {
-        GenericArray::new()
+        GenericArray::default()
     }
 }
 
@@ -92,7 +92,7 @@ where
 {
     type Output = GenericArray<T, Add1<N>>;
     fn append_front(self, element: T) -> Self::Output {
-        let mut a = GenericArray::new();
+        let mut a = GenericArray::default();
         a[0] = element;
         for (i, el) in self.into_iter().enumerate() {
             a[i + 1] = el;
