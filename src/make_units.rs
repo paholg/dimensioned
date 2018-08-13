@@ -110,11 +110,28 @@ constants in the `base` and `derived` blocks are always created with a value of 
 All constants are created in both `f32` and `f64` flavors, in the submodules `f32consts` and
 `f64consts`, respectively.
 
+In addition, the modules for all integer constants are created. However, these only include
+constants for base and derived units. The full list of integer modules is `i8consts`, `i16consts`,
+`i32consts`, `i64consts`, `isize_consts`, `u8consts`, `u16consts`, `u32consts`, `u64consts`,
+`usize_consts`.
+
+If you would like non-unary integer constants, you will have to construct them yourself, like so
+
+```rust
+# extern crate dimensioned as dim;
+# use std::marker::PhantomData;
+use dim::si;
+const MIN: si::Second<u32> = si::SI { value_unsafe: 60, _marker: PhantomData };
+# fn main() {}
+```
+
+Support for making this better is in the works.
+
 In these submodules, the consts from the respective version of `f32prefixes` or `f64prefixes` are in
 scope, hence the use of `CENTI` in the `CM` definition.
 
-In addition, the the respective version of `core::f32::consts` or `core::f64::consts` is in scope,
-which allows the use of `consts::PI` in the `PI definition.
+In addition, the respective version of `core::f32::consts` or `core::f64::consts` is in scope, which
+allows the use of `consts::PI` in the `PI definition.
 
 ```ignore
         constants {
@@ -142,7 +159,7 @@ This line isn't part of the macro, but I wanted to include it as it is in all of
 defined in dimensioned. It lets us use the `f64` flavor of constants much easier. E.g. we can now
 type `ms::M` instead of `ms::f64consts::M`.
 
-```igore
+```ignore
     pub use self::f64consts::*;
 }
 ```
