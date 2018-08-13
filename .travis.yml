@@ -6,6 +6,10 @@ notifications:
   email:
     recipients: paho@paholg.com
 
+branches:
+  only:
+    - master
+
 matrix:
   include:
     - rust: stable
