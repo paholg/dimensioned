@@ -12,7 +12,10 @@ Its goal is to provide zero cost unit safety while requiring minimal effort from
 
 # Use
 
-Dimensioned requires at least Rust version 1.15. It does not depend on `std`.
+Dimensioned requires at least Rust version 1.23.0 (and is tested on this version).
+
+It does not depend on `std`; simple include without the default feature `std`. Doing so requires a
+nightly version of rustc.
 
 If you are using Rust nightly, then you may enable the "oibit" feature of dimensioned. This will
 make it work a bit better for wrapping non-primitives in units. The recommended way to use
