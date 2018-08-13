@@ -1,6 +1,10 @@
 language: rust
 cache: cargo
 sudo: false
+rust:
+  - stable
+  - beta
+  - nightly
 
 notifications:
   email:
@@ -8,7 +12,8 @@ notifications:
 
 matrix:
   include:
-    - rust: stable
+    - name: stable
+      rust: stable
       before_script:
         - rustup component add rustfmt-preview
       script: |
@@ -17,13 +22,17 @@ matrix:
         cargo build
         cargo test --features "test"
         cargo doc
+      after_success: |
+        test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && cargo publish --token ${CRATESIO_TOKEN}
   include:
-    - rust: beta
+    - name: beta
+      rust: beta
       script: |
         cargo build
         cargo test --features "test"
   include:
-    - rust: nightly
+    - name: nightly
+      rust: nightly
       before_script:
         - rustup component add clippy-preview
       script: |
@@ -31,11 +40,6 @@ matrix:
         cargo clippy
         cargo test --no-default-features --features ci
         cargo test --all-features
-
-after_success:
-  - test $TRAVIS_PULL_REQUEST == "false" &&
-    test $TRAVIS_BRANCH == "master" &&
-    cargo publish --token ${CRATESIO_TOKEN}
 
 env:
   global:
