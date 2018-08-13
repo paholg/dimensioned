@@ -1,10 +1,6 @@
 language: rust
 cache: cargo
 sudo: false
-rust:
-  - stable
-  - beta
-  - nightly
 
 notifications:
   email:
@@ -23,12 +19,10 @@ matrix:
         cargo doc
       after_success: |
         test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && cargo publish --token ${CRATESIO_TOKEN}
-  include:
     - rust: beta
       script: |
         cargo build
         cargo test --features "test"
-  include:
     - rust: nightly
       before_script:
         - rustup component add clippy-preview
