@@ -193,18 +193,21 @@ pub mod {} {{
             f,
             "        }}
 
-        fmt = {};
+        fmt = {0};
     }}
 
     #[cfg(feature = \"serde\")]
-    impl_serde!({});
+    impl_serde!({1});
     #[cfg(feature = \"clapme\")]
-    impl_clapme!({});
+    impl_clapme!({1});
+
+    #[cfg(feature = \"rand\")]
+    impl_rand!({1});
 
     pub use self::f64consts::*;
 
 ",
-            self.fmt, self.name, self.name
+            self.fmt, self.name,
         )?;
 
         write!(
@@ -260,9 +263,56 @@ pub mod {} {{
         write!(
             f,
             "
-    }}
-"
+    }}"
         )?;
+        // done with serde test
+
+        write!(
+            f,
+            "
+    /// Test that we can get random numbers nicely.
+    #[cfg(feature = \"rand\")]
+    #[test]
+    fn test_{}_rand() {{
+        use ::rand::prelude::*;
+        use ::rand::rngs::{{StdRng}};
+        use ::rand::distributions::Uniform;
+        use ::rand::{{SeedableRng}};
+        let mut rng1 = StdRng::from_seed([0u8;32]);
+        let mut rng2 = rng1.clone();
+",
+            self.module
+        )?;
+        for base in &self.base {
+            write!(
+                f,
+                "
+        let raw_value: f64 = rng1.gen();
+        let value: {0}<f64>  = rng2.gen();
+        assert_eq!(value, {0}::new(raw_value));
+",
+                base.name)?;
+        }
+        for derived in &self.derived {
+            write!(
+                f,
+                "
+        let raw_value: f64 = rng1.gen();
+        let value: {0}<f64>  = rng2.gen();
+        assert_eq!(value, {0}::new(raw_value));
+
+        let raw_value = rng1.sample(Uniform::new(-5.0, 7.0));
+        let value = rng2.sample(Uniform::new({0}::new(-5.0), {0}::new(7.0)));;
+        assert_eq!(value, {0}::new(raw_value));
+",
+                derived.name)?;
+        }
+        write!(
+            f,
+            "
+    }}"
+        )?;
+        // done with serde test
 
         write!(
             f,

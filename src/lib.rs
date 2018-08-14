@@ -125,21 +125,11 @@ crate. Pretty much everything else is for ergonomics.
     excessive_precision,
 ))]
 
-// Get a warning without this.
-#[allow(unused_imports)]
-#[macro_use]
-pub extern crate generic_array;
-#[cfg(feature = "approx")]
-pub extern crate approx;
 #[cfg(feature = "clapme")]
 extern crate clapme;
 #[cfg(feature = "std")]
 extern crate core;
 extern crate num_traits;
-#[cfg(feature = "serde")]
-pub extern crate serde;
-#[cfg(feature = "serde_test")]
-extern crate serde_test;
 pub extern crate typenum;
 
 // Macro debugging
@@ -176,6 +166,22 @@ macro_rules! tarr {
     ($n:ty, $($tail:ty),+) => ( $crate::typenum::TArr<$n, tarr![$($tail),+]> );
     ($n:ty, $($tail:ty),+,) => ( $crate::typenum::TArr<$n, tarr![$($tail),+]> );
 }
+
+// Get a warning without this. If it's fixed, remove `useless_attribute` from clippy allow list
+#[allow(unused_imports)]
+#[macro_use]
+pub extern crate generic_array;
+
+#[cfg(feature = "approx")]
+pub extern crate approx;
+
+#[cfg(feature = "serde")]
+pub extern crate serde;
+#[cfg(feature = "serde_test")]
+extern crate serde_test;
+
+#[cfg(feature = "rand")]
+pub extern crate rand;
 
 #[macro_use]
 mod make_units;
