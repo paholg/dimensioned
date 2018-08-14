@@ -484,7 +484,7 @@ macro_rules! make_units {
             #[inline]
             fn index(&self, index: Idx) -> &Self::Output {
                 unsafe {
-                    $crate::dimcore::mem::transmute(&self.value_unsafe[index])
+                    &*(&self.value_unsafe[index] as *const V::Output as *const Self::Output)
                 }
             }
         }
@@ -499,7 +499,7 @@ macro_rules! make_units {
             #[inline]
             fn index_mut(&mut self, index: Idx) -> &mut Self::Output{
                 unsafe {
-                    $crate::dimcore::mem::transmute(self.value_unsafe.index_mut(index))
+                    &mut *(self.value_unsafe.index_mut(index) as *mut V::Output as *mut Self::Output)
                 }
             }
         }
