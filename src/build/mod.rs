@@ -291,7 +291,8 @@ pub mod {} {{
         let value: {0}<f64>  = rng2.gen();
         assert_eq!(value, {0}::new(raw_value));
 ",
-                base.name)?;
+                base.name
+            )?;
         }
         for derived in &self.derived {
             write!(
@@ -305,7 +306,8 @@ pub mod {} {{
         let value = rng2.sample(Uniform::new({0}::new(-5.0), {0}::new(7.0)));;
         assert_eq!(value, {0}::new(raw_value));
 ",
-                derived.name)?;
+                derived.name
+            )?;
         }
         write!(
             f,
