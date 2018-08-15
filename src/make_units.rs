@@ -507,18 +507,24 @@ macro_rules! make_units {
         // --------------------------------------------------------------------------------
         // ApproxEq
         #[cfg(feature = "approx")]
-        impl<V, U> $crate::approx::ApproxEq for $System<V, U> where V: $crate::approx::ApproxEq {
+        impl<V, U> $crate::approx::AbsDiffEq for $System<V, U> where V: $crate::approx::AbsDiffEq, U: PartialEq {
             type Epsilon = $System<V::Epsilon, U>;
 
             fn default_epsilon() -> Self::Epsilon {
                 $System::new(V::default_epsilon())
             }
+
+            fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+                true || self.value_unsafe.abs_diff_eq(&other.value_unsafe, epsilon.value_unsafe)
+            }
+        }
+
+        #[cfg(feature = "approx")]
+        impl<V, U> $crate::approx::RelativeEq for $System<V, U> where V: $crate::approx::RelativeEq, U: PartialEq {
             fn default_max_relative() -> Self::Epsilon {
                 $System::new(V::default_max_relative())
             }
-            fn default_max_ulps() -> u32 {
-                V::default_max_ulps()
-            }
+
             fn relative_eq(
                 &self,
                 other: &Self,
@@ -531,9 +537,7 @@ macro_rules! make_units {
                     max_relative.value_unsafe,
                 )
             }
-            fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-                self.value_unsafe.ulps_eq(&other.value_unsafe, epsilon.value_unsafe, max_ulps)
-            }
+
             fn relative_ne(
                 &self,
                 other: &Self,
@@ -546,6 +550,18 @@ macro_rules! make_units {
                     max_relative.value_unsafe,
                 )
             }
+        }
+
+        #[cfg(feature = "approx")]
+        impl<V, U> $crate::approx::UlpsEq for $System<V, U> where V: $crate::approx::UlpsEq, U: PartialEq {
+            fn default_max_ulps() -> u32 {
+                V::default_max_ulps()
+            }
+
+            fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
+                self.value_unsafe.ulps_eq(&other.value_unsafe, epsilon.value_unsafe, max_ulps)
+            }
+
             fn ulps_ne(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
                 self.value_unsafe.ulps_ne(&other.value_unsafe, epsilon.value_unsafe, max_ulps)
             }
