@@ -1145,13 +1145,13 @@ macro_rules! __derived_internal {
 #[macro_export]
 macro_rules! impl_rand {
     ($System:ident) => {
-        use $crate::rand::distributions::{Standard, Distribution};
         use $crate::rand::distributions::uniform::{SampleUniform, UniformSampler};
+        use $crate::rand::distributions::{Distribution, Standard};
         use $crate::rand::Rng;
 
         impl<V, U> Distribution<$System<V, U>> for Standard
         where
-            Standard: Distribution<V>
+            Standard: Distribution<V>,
         {
             fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> $System<V, U> {
                 $System::new(self.sample(rng))
@@ -1166,7 +1166,7 @@ macro_rules! impl_rand {
             _marker: marker::PhantomData<U>,
         }
         impl<V: SampleUniform, U> UniformSampler for MyUniformSampler<V, U> {
-            type X = $System<V,U>;
+            type X = $System<V, U>;
             fn new(low: Self::X, high: Self::X) -> Self {
                 MyUniformSampler {
                     inner: V::Sampler::new(low.value_unsafe, high.value_unsafe),
@@ -1180,8 +1180,8 @@ macro_rules! impl_rand {
                 $System::new(self.inner.sample(rng))
             }
         }
-        impl<V: SampleUniform, U> SampleUniform for $System<V,U> {
-            type Sampler = MyUniformSampler<V,U>;
+        impl<V: SampleUniform, U> SampleUniform for $System<V, U> {
+            type Sampler = MyUniformSampler<V, U>;
         }
     };
 }
