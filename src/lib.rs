@@ -111,7 +111,11 @@ crate. Pretty much everything else is for ergonomics.
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(
     all(not(feature = "std"), feature = "nightly"),
-    feature(core_intrinsics, extern_prelude)
+    feature(core_intrinsics)
+)]
+#![cfg_attr(
+    all(not(feature = "std"), not(feature = "nightly")),
+    feature(extern_prelude)
 )]
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
 #![cfg_attr(feature = "spec", feature(specialization))]
