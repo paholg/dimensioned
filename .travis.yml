@@ -44,7 +44,7 @@ matrix:
         set -e
         cargo clippy --version
         cargo clippy
-        cargo test --no-default-features --features "ci"
+        cargo test --no-default-features --features "ci nightly"
         cargo test --all-features
 
 env:
