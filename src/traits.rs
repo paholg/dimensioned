@@ -224,9 +224,12 @@ pub trait Root<Index> {
     fn root(self, idx: Index) -> Self::Output;
 }
 
+#[cfg(any(feature = "std", feature = "nightly"))]
 use typenum::Integer;
+
 macro_rules! impl_root {
     ($t:ty, $f:ident) => {
+        #[cfg(any(feature = "std", feature = "nightly"))]
         impl<Index: Integer> Root<Index> for $t {
             type Output = $t;
 
@@ -313,6 +316,7 @@ pub trait Cbrt {
 
 macro_rules! impl_sqcbroot {
     ($t:ty, $f:ident, $nan:path) => {
+        #[cfg(any(feature = "std", feature = "nightly"))]
         impl Sqrt for $t {
             type Output = $t;
             fn sqrt(self) -> Self::Output {

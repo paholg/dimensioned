@@ -26,6 +26,7 @@ Never again should you need to specify units in a comment!"""
   oibit = []
   spec = []
   std = []
+  nightly = []
   test = [ "approx", "ci", "clapme", "quickcheck", "serde", "serde_test", "rand"]
 
 [dependencies]
