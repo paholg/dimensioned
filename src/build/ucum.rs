@@ -335,7 +335,7 @@ in function signatures), this is something to bear in mind.
             DEN: GramPerMeter = TEX.value_unsafe / 9.0, "Denier";
 
             // Units used predominantly in clinical medicine (UCUM Section 44):
-            MH20: MilliPascal = 9.80665 * KILO*PA.value_unsafe, "Meter of water column";
+            MH2O: MilliPascal = 9.80665 * KILO*PA.value_unsafe, "Meter of water column";
             MHG: MilliPascal = 133.3220 * KILO*PA.value_unsafe, "Meter of mercury column";
             PRU: GramPerMeter4Second = MHG.value_unsafe * S.value_unsafe / L.value_unsafe, "Peripheral vascular resistance unit";
             DIOP: PerMeter = 1.0 / M.value_unsafe, "Diopter";
