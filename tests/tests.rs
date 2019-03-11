@@ -11,7 +11,7 @@ mod quickchecking {
 
     use quickcheck::TestResult;
 
-    quickcheck!{
+    quickcheck! {
         fn add(x: f64, y: f64) -> bool {
             let m_res = x * M + y * M == Meter::new(x + y);
             let s_res = x * S + y * S == Second::new(x + y);
@@ -21,7 +21,7 @@ mod quickchecking {
         }
     }
 
-    quickcheck!{
+    quickcheck! {
         fn sub(x: f64, y: f64) -> bool {
             let m_res = x * M - y * M == Meter::new(x - y);
             let s_res = x * S - y * S == Second::new(x - y);
@@ -31,7 +31,7 @@ mod quickchecking {
         }
     }
 
-    quickcheck!{
+    quickcheck! {
         fn mul(x: f64, y: f64) -> bool {
             let res1 = (x * M) * y == Meter::new(x * y);
             let res2 = x * (y * M) == Meter::new(x * y);
@@ -41,7 +41,7 @@ mod quickchecking {
         }
     }
 
-    quickcheck!{
+    quickcheck! {
         fn div(x: f64, y: f64) -> bool {
             let res1 = (x * M) / y == Meter::new(x / y);
             let res2 = x / (y * M) == PerMeter::new(x / y);
@@ -52,7 +52,7 @@ mod quickchecking {
     }
 
     use dim::Sqrt;
-    quickcheck!{
+    quickcheck! {
         fn sqrt(x: f64) -> TestResult {
             if x < 0. {
                 return TestResult::discard();
@@ -68,7 +68,7 @@ mod quickchecking {
 
     use dim::Cbrt;
     #[cfg(feature = "std")]
-    quickcheck!{
+    quickcheck! {
         fn cbrt(x: f64) -> bool {
             let res1 = *(x * ONE).cbrt() == x.cbrt();
             let res2 = (x * M * M * M).cbrt() == Meter::new(x.cbrt());

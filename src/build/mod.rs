@@ -480,7 +480,8 @@ more information.
 
 pub mod unit_systems {"#
             .as_bytes(),
-    ).unwrap();
+    )
+    .unwrap();
 
     for s in &systems {
         write!(
@@ -488,14 +489,16 @@ pub mod unit_systems {"#
             "
     include!(concat!(env!(\"OUT_DIR\"), \"/{}.rs\"));",
             s.module
-        ).unwrap();
+        )
+        .unwrap();
     }
 
     write!(
         f,
         "
 }}"
-    ).unwrap();
+    )
+    .unwrap();
 
     #[cfg(feature = "test")]
     make_conversion_tests(&systems, &out_dir).unwrap();
