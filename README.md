@@ -70,16 +70,24 @@ fn generic_speed<L, T>(dist: L, time: T) -> Quot<L, T>
 }
 
 fn main() {
-    let x = 6.0 * si::M;
-    let t = 3.0 * si::S;
-    let v = 2.0 * si::M/si::S;
-    let v2 = speed(x, t);
-    assert_eq!(v, v2);
+    let si_x = 6.0 * si::M;
+    let si_t = 3.0 * si::S;
+    let si_v = 2.0 * si::M / si::S;
 
-    let v3 = generic_speed(6.0 * cgs::M, 3.0 * cgs::S);
-    let v4 = v.into();
-    assert_eq!(v3, v4);
+    let si_v2 = speed(si_x, si_t);
+    assert_eq!(si_v, si_v2);
+
+    let cgs_x = 6.0 * cgs::M;
+    let cgs_t = 3.0 * cgs::S;
+    let cgs_v = 2.0 * cgs::M / cgs::S;
+
+    let cgs_v2 = generic_speed(cgs_x, cgs_t);
+    assert_eq!(cgs_v, cgs_v2);
+
+    let si_v3 = cgs_v2.into();
+    assert_eq!(si_v2, si_v3);
 }
+
 ```
 
 This example is also included as `examples/readme-example.rs`.

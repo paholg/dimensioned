@@ -208,12 +208,15 @@ impl_abs!(isize);
 /// extern crate dimensioned as dim;
 ///
 /// fn main() {
+/// # #[cfg(any(feature = "std", feature = "nightly"))]
+/// # {
 ///     use dim::Root;
 ///     use dim::typenum::P2;
 ///     let x = 4.0.root(P2::new());
 ///     let y = 2.0;
 ///
-///    assert_eq!(x, y);
+///     assert_eq!(x, y);
+/// # }
 /// }
 /// ```
 pub trait Root<Index> {
@@ -248,10 +251,11 @@ macro_rules! impl_root {
 impl_root!(f32, powf32);
 impl_root!(f64, powf64);
 
+#[cfg(any(feature = "std", feature = "nightly"))]
 #[test]
 fn test_root() {
     use typenum::consts::*;
-    let radicands = &[0.0, 0.5, 1.0, 2.0];
+    let radicands: &[f32] = &[0.0, 0.5, 1.0, 2.0];
 
     for &r in radicands {
         assert_eq!(r, r.root(P1::new()));
@@ -270,12 +274,15 @@ fn test_root() {
 /// extern crate dimensioned as dim;
 ///
 /// fn main() {
+/// # #[cfg(any(feature = "std", feature = "nightly"))]
+/// # {
 ///     use dim::si;
 ///     let x = 2.0 * si::M;
 ///     let a = 4.0 * si::M2;
 ///
 ///     use dim::Sqrt;
 ///     assert_eq!(a.sqrt(), x);
+/// # }
 /// }
 /// ```
 pub trait Sqrt {
