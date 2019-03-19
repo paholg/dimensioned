@@ -100,8 +100,7 @@ crate. Pretty much everything else is for ergonomics.
 
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
-    html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png",
-    html_root_url = "http://paholg.com/dimensioned"
+    html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png"
 )]
 #![warn(missing_docs)]
 #![allow(unknown_lints)]

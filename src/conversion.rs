@@ -153,10 +153,10 @@ mod si_to_cgs {
         for CGS<
             Prod<Prod<V, f64>, f64>,
             tarr![
-            Sum<Prod<Meter, P2>, Prod<Ampere, P3>>,
-            Sum<Prod<Kilogram, P2>, Ampere>,
-            Sum<Second, Prod<Ampere, P2>>
-        ],
+                Sum<Prod<Meter, P2>, Prod<Ampere, P3>>,
+                Sum<Prod<Kilogram, P2>, Ampere>,
+                Sum<Second, Prod<Ampere, P2>>
+            ],
         >
     where
         V: Mul<f64>,
@@ -231,10 +231,10 @@ mod si_to_mks {
         for MKS<
             Prod<V, f64>,
             tarr![
-            Sum<Prod<Meter, P2>, Prod<Ampere, P3>>,
-            Sum<Prod<Kilogram, P2>, Ampere>,
-            Sum<Second, Prod<Ampere, P2>>
-        ],
+                Sum<Prod<Meter, P2>, Prod<Ampere, P3>>,
+                Sum<Prod<Kilogram, P2>, Ampere>,
+                Sum<Second, Prod<Ampere, P2>>
+            ],
         >
     where
         V: Mul<f64>,
