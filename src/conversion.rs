@@ -25,7 +25,7 @@
 //! * `CGS` to `MKS`
 //! * `MKS` to `CGS`
 
-mod to_si {
+mod ucum_to_si {
     // From UCUM
     use core::convert::From;
     use core::ops::{Add, Mul};
@@ -59,7 +59,7 @@ mod to_si {
     }
 }
 
-mod to_ucum {
+mod si_to_ucum {
     // From SI
     use core::convert::From;
     use core::ops::{Mul, Sub};
@@ -96,16 +96,19 @@ mod to_ucum {
     }
 }
 
-mod to_cgs {
+#[cfg(any(feature = "std", feature = "nightly"))]
+mod mks_to_cgs {
     use cgs::CGS;
+
     // From MKS
     use core::convert::From;
-    use core::ops::{Add, Mul};
+    use core::ops::Mul;
     use f64prefixes::*;
     use mks;
     use num_traits::float::FloatCore;
     use traits::Sqrt;
-    use typenum::{Integer, Prod, Sum};
+    use typenum::{Integer, Prod};
+
     impl<V, SqrtMeter, SqrtKilogram, Second>
         From<mks::MKS<V, tarr![SqrtMeter, SqrtKilogram, Second]>>
         for CGS<Prod<V, f64>, tarr![SqrtMeter, SqrtKilogram, Second]>
@@ -130,10 +133,21 @@ mod to_cgs {
             CGS::new(other.value_unsafe * fac)
         }
     }
+}
+
+#[cfg(any(feature = "std", feature = "nightly"))]
+mod si_to_cgs {
+    use cgs::CGS;
+
+    use core::convert::From;
+    use core::ops::{Add, Mul};
+    use mks;
+    use typenum::{Integer, Prod, Sum};
 
     // From SI
     use si;
     use typenum::{P2, P3, Z0};
+
     impl<V, Meter, Kilogram, Second, Ampere>
         From<si::SI<V, tarr![Meter, Kilogram, Second, Ampere, Z0, Z0, Z0]>>
         for CGS<
@@ -163,16 +177,19 @@ mod to_cgs {
     }
 }
 
-mod to_mks {
+#[cfg(any(feature = "std", feature = "nightly"))]
+mod cgs_to_mks {
     use core::convert::From;
-    use core::ops::{Add, Mul};
+    use core::ops::Mul;
     use f64prefixes::*;
     use mks::MKS;
     use num_traits::float::FloatCore;
     use traits::Sqrt;
-    use typenum::{Integer, Prod, Sum};
+    use typenum::{Integer, Prod};
+
     // From CGS
     use cgs;
+
     impl<V, SqrtCentimeter, SqrtGram, Second>
         From<cgs::CGS<V, tarr![SqrtCentimeter, SqrtGram, Second]>>
         for MKS<Prod<V, f64>, tarr![SqrtCentimeter, SqrtGram, Second]>
@@ -197,10 +214,18 @@ mod to_mks {
             MKS::new(other.value_unsafe * fac)
         }
     }
+}
+
+mod si_to_mks {
+    use core::convert::From;
+    use core::ops::{Add, Mul};
+    use mks::MKS;
+    use typenum::{Integer, Prod, Sum};
 
     // From SI
     use si;
     use typenum::{P2, P3, Z0};
+
     impl<V, Meter, Kilogram, Second, Ampere>
         From<si::SI<V, tarr![Meter, Kilogram, Second, Ampere, Z0, Z0, Z0]>>
         for MKS<

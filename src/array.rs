@@ -4,7 +4,7 @@
 //!
 //! Consider this module **unstable**.
 
-use typenum::{ATerm, Add1, B1, Integer, Len, Length, TArr, U0, Unsigned};
+use typenum::{ATerm, Add1, Integer, Len, Length, TArr, Unsigned, B1, U0};
 
 use generic_array::{ArrayLength, GenericArray};
 
