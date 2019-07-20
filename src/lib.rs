@@ -106,6 +106,7 @@ crate. Pretty much everything else is for ergonomics.
 #![allow(unknown_lints)]
 #![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
 #![deny(clippy)]
+#![deny(meta_variable_misuse)]
 #![cfg_attr(feature = "ci", deny(warnings))]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
