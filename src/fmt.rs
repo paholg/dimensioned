@@ -16,7 +16,7 @@ macro_rules! format_cgs_like {
 
                 let mut first = true;
                 for (&exp, token) in
-                    exponents.into_iter()
+                    exponents.iter()
                     .zip(print_tokens.iter())
                 {
                     if first {
