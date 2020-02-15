@@ -200,6 +200,8 @@ pub mod {} {{
     impl_serde!({1});
     #[cfg(feature = \"clapme\")]
     impl_clapme!({1});
+    #[cfg(feature = \"auto-args\")]
+    impl_auto_args!({1});
 
     #[cfg(feature = \"rand\")]
     impl_rand!({1});
@@ -333,6 +335,34 @@ pub mod {} {{
         let value = 3.0 * {};
         assert_eq!(value,
                    <{}<f64> as ClapMe>::from_iter(&[\"test\", \"3.0\"]).unwrap());
+",
+                base.constant, base.name
+            )?;
+        }
+        write!(
+            f,
+            "
+    }}
+"
+        )?;
+
+        write!(
+            f,
+            "
+    /// Test that clapme can generate a help message, and can produce a value.
+    #[cfg(feature = \"auto-args\")]
+    #[test]
+    fn test_{}_auto_args() {{
+",
+            self.module
+        )?;
+        for base in &self.base {
+            write!(
+                f,
+                "
+        let value = 3.0 * {};
+        assert_eq!(value,
+                   <{}<f64> as auto_args::AutoArgs>::from_iter(&[\"test\", \"3.0\"]).unwrap());
 ",
                 base.constant, base.name
             )?;
