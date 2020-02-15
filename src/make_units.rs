@@ -1278,9 +1278,7 @@ macro_rules! impl_clapme {
 #[macro_export]
 macro_rules! impl_auto_args {
     ($System:ident) => {
-        use $crate::auto_args::AutoArgs;
-
-        impl<V: AutoArgs, U> AutoArgs for $System<V, U> {
+        impl<V: auto_args::AutoArgs, U> auto_args::AutoArgs for $System<V, U> {
             fn parse_internal(key: &str, args: &mut Vec<std::ffi::OsString>) -> Result<Self, auto_args::Error>
             {
                 let v = V::parse_internal(key, args)?;
