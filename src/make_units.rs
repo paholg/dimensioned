@@ -515,6 +515,17 @@ macro_rules! make_units {
         }
 
         // --------------------------------------------------------------------------------
+        // Sum
+
+        use $crate::dimcore::iter::{Iterator, Sum};
+        impl<V, U> Sum for $System<V, U> where V: Sum {
+            fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+                let sum = iter.map(|item| item.value_unsafe).sum();
+                $System::new(sum)
+            }
+        }
+
+        // --------------------------------------------------------------------------------
         // ApproxEq
         #[cfg(feature = "approx")]
         impl<V, U> $crate::approx::AbsDiffEq for $System<V, U> where V: $crate::approx::AbsDiffEq, U: PartialEq {
