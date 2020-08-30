@@ -505,6 +505,16 @@ macro_rules! make_units {
         }
 
         // --------------------------------------------------------------------------------
+        // Default
+
+        use $crate::dimcore::default::Default;
+        impl<V, U> Default for $System<V,U> where V: Default {
+            fn default() -> Self {
+                $System::new( V::default() )
+            }
+        }
+
+        // --------------------------------------------------------------------------------
         // ApproxEq
         #[cfg(feature = "approx")]
         impl<V, U> $crate::approx::AbsDiffEq for $System<V, U> where V: $crate::approx::AbsDiffEq, U: PartialEq {
