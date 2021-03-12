@@ -263,6 +263,7 @@ macro_rules! make_units {
             /// Output the units of this type in the same format as in the
             /// formatting traits.
             #[inline]
+            #[cfg(feature = "std")]
             pub fn to_string() -> String {
                 struct Displayer<U2>(PhantomData<U2>);
                 impl<U2> fmt::Display for Displayer<U2>

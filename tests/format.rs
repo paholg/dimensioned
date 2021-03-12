@@ -1,3 +1,5 @@
+#![cfg(feature = "std")]
+
 extern crate dimensioned as dim;
 
 use dim::si::{self, f64consts::*};
