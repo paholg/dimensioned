@@ -280,7 +280,7 @@ macro_rules! make_units {
             use $crate::traits::*;
             #[allow(unused_imports)]
             use $crate::typenum::consts::*;
-            __make_units_internal!(@base_arrays $Unitless $($Unit)*);
+            __make_units_internal!(@base_arrays $Unitless $($Unit)+);
             $(#[allow(missing_docs)] pub type $Derived =
               __derived_internal!(@mu commas $($derived_rhs)+);)*
         }
@@ -290,7 +290,7 @@ macro_rules! make_units {
         $(#[allow(missing_docs)]
           pub type $Unit<V> = $System<V, inner::$Unit>;
           $(impl<V> $crate::dimensions::$base_dim for $Unit<V> {})*
-        )*
+        )+
 
         impl<Value> $crate::Dimensionless for $Unitless<Value> {
             #[inline]
@@ -318,7 +318,7 @@ macro_rules! make_units {
                         $System { value_unsafe: 1.0, _marker: PhantomData };
                     $(#[allow(dead_code, missing_docs)]
                       pub const $base: $Unit<$t> =
-                          $System { value_unsafe: 1.0, _marker: PhantomData };)*
+                          $System { value_unsafe: 1.0, _marker: PhantomData };)+
                     $(#[allow(dead_code, missing_docs)]
                       pub const $derived_const: $Derived<$t> =
                           $System { value_unsafe: 1.0, _marker: PhantomData };)*
@@ -342,7 +342,7 @@ macro_rules! make_units {
                         $System { value_unsafe: 1, _marker: PhantomData };
                     $(#[allow(dead_code, missing_docs)]
                       pub const $base: $Unit<$t> =
-                          $System { value_unsafe: 1, _marker: PhantomData };)*
+                          $System { value_unsafe: 1, _marker: PhantomData };)+
                     $(#[allow(dead_code, missing_docs)]
                       pub const $derived_const: $Derived<$t> =
                           $System { value_unsafe: 1, _marker: PhantomData };)*
@@ -369,15 +369,15 @@ macro_rules! make_units {
         use $crate::generic_array::{GenericArray, ArrayLength};
         use $crate::array::ToGA;
 
-        __make_units_internal!(@fmt true S $System $(P $print_as;)* T Debug E "{:?}");
-        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T Display E "{}");
-        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T Octal E "{:o}");
-        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T LowerHex E "{:x}");
-        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T UpperHex E "{:X}");
-        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T Pointer E "{:p}");
-        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T Binary E "{:b}");
-        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T LowerExp E "{:e}");
-        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)* T UpperExp E "{:E}");
+        __make_units_internal!(@fmt true S $System $(P $print_as;)+ T Debug E "{:?}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)+ T Display E "{}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)+ T Octal E "{:o}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)+ T LowerHex E "{:x}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)+ T UpperHex E "{:X}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)+ T Pointer E "{:p}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)+ T Binary E "{:b}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)+ T LowerExp E "{:e}");
+        __make_units_internal!(@fmt $to_fmt S $System $(P $print_as;)+ T UpperExp E "{:E}");
 
         // --------------------------------------------------------------------------------
         // Operator traits from this crate
