@@ -127,10 +127,10 @@ crate. Pretty much everything else is for ergonomics.
     clippy::excessive_precision,
 )]
 
-#[cfg(feature = "clapme")]
-extern crate clapme;
 #[cfg(feature = "auto-args")]
 extern crate auto_args;
+#[cfg(feature = "clapme")]
+extern crate clapme;
 #[cfg(feature = "std")]
 extern crate core;
 extern crate num_traits;

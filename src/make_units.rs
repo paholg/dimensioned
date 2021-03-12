@@ -1312,8 +1312,10 @@ macro_rules! impl_clapme {
 macro_rules! impl_auto_args {
     ($System:ident) => {
         impl<V: auto_args::AutoArgs, U> auto_args::AutoArgs for $System<V, U> {
-            fn parse_internal(key: &str, args: &mut Vec<std::ffi::OsString>) -> Result<Self, auto_args::Error>
-            {
+            fn parse_internal(
+                key: &str,
+                args: &mut Vec<std::ffi::OsString>,
+            ) -> Result<Self, auto_args::Error> {
                 let v = V::parse_internal(key, args)?;
                 Ok($System {
                     value_unsafe: v,
