@@ -1,5 +1,5 @@
 [![crates.io](https://img.shields.io/crates/v/dimensioned.svg)](https://crates.io/crates/dimensioned)
-[![Build Status](https://travis-ci.org/paholg/dimensioned.svg?branch=master)](https://travis-ci.org/paholg/dimensioned)
+[![Build Status](https://github.com/paholg/dimensioned/actions/workflows/check.yml/badge.svg)](https://github.com/paholg/dimensioned/actions/workflows/check.yml)
 
 [Documentation](https://docs.rs/dimensioned/)
 
