@@ -4,6 +4,8 @@ This project follows semantic versioning.
 
 ### Unpublished
 - [fixed] A compilation error with the `rand` feature.
+- [added] The optional `auto-args` feature to derive argument parsing.
+- [added] The static method `to_string`.
 
 ### 0.8.0 (2019-03-13)
 - [changed] ***BREAKING*** Reduced requirement of nightly for use in `no_std`
