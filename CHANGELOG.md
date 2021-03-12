@@ -3,10 +3,18 @@
 This project follows semantic versioning.
 
 ### Unpublished
+- [fixed] A compilation error with the `rand` feature.
 
 ### 0.8.0 (2019-03-13)
-- [changed] ***BREAKING*** Reduced requirement of nightly for use in `no_std` (as introduced in 0.7.0) down to just unit system conversions and `Sqrt`/`Root` traits. Everything else now works with `no_std` on stable!
-  Using unit system conversions and/or `Sqrt`/`Root` traits without `std` now requires nightly Rust and the `nightly` feature. Just like with 0.7.0 I don't think this will actually break anything, as things that were not working before on stable now are working, but is at least a break in the intended way to use `dimensioned` without `std`. Again, once `sqrt`, `powf`, and `cbrt` are usable without std on stable, the nightly requirement can be removed.
+- [changed] ***BREAKING*** Reduced requirement of nightly for use in `no_std`
+  (as introduced in 0.7.0) down to just unit system conversions and
+  `Sqrt`/`Root` traits. Everything else now works with `no_std` on stable!
+  Using unit system conversions and/or `Sqrt`/`Root` traits without `std` now
+  requires nightly Rust and the `nightly` feature. Just like with 0.7.0 I don't
+  think this will actually break anything, as things that were not working
+  before on stable now are working, but is at least a break in the intended way
+  to use `dimensioned` without `std`. Again, once `sqrt`, `powf`, and `cbrt` are
+  usable without std on stable, the nightly requirement can be removed.
 - [changed] ***BREAKING*** Updated dependency `rand` from "0.5.4" to "0.6.5".
 - [changed] ***BREAKING*** Updated dependency `quickcheck` from "0.6.2" to "0.8.2".
 - [changed] ***BREAKING*** Updated dependency `generic-array` from "0.11.0" to "0.12.0".

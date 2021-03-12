@@ -103,25 +103,28 @@ crate. Pretty much everything else is for ergonomics.
     html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png"
 )]
 #![warn(missing_docs)]
-#![allow(unknown_lints)]
-#![allow(type_complexity, float_cmp, useless_attribute, doc_markdown)]
-#![deny(clippy)]
-#![cfg_attr(feature = "ci", deny(warnings))]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
+#![cfg_attr(feature = "oibit", feature(auto_traits))]
+#![cfg_attr(feature = "oibit", feature(negative_impls))]
+// fixme: See if we can use min_specialization instead.
 #![cfg_attr(feature = "spec", feature(specialization))]
-#![cfg_attr(feature = "cargo-clippy", allow(
+#![cfg_attr(feature = "spec", allow(incomplete_features))]
+#![cfg_attr(not(feature = "std"), feature(core_intrinsics))]
+#![allow(
+    clippy::float_cmp,
+    clippy::useless_attribute,
+    clippy::doc_markdown,
     // Don't think we'll ever be able to remove this.
-    type_complexity,
+    clippy::type_complexity,
     // Not great. See issue #52.
-    transmute_ptr_to_ptr,
+    clippy::transmute_ptr_to_ptr,
     // These are output from the build macros; if we could get output integers to include
     // underscores, we could remove it.
-    unreadable_literal,
+    clippy::unreadable_literal,
     // This is fine; we have constants defined as f32 and f64, so excessive precition for f32 is
     // good.
-    excessive_precision,
-))]
+    clippy::excessive_precision,
+)]
 
 #[cfg(feature = "clapme")]
 extern crate clapme;

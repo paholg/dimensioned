@@ -64,33 +64,33 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
 "
         )?;
 
-        write!(f, "# Base Units\n")?;
-        write!(f, "Constant | Unit | Print Token | Dimensionn\n")?;
-        write!(f, "---|---|---|---\n")?;
+        writeln!(f, "# Base Units")?;
+        writeln!(f, "Constant | Unit | Print Token | Dimension")?;
+        writeln!(f, "---|---|---|---")?;
         for b in &self.base {
-            write!(f, "{} | {} | {} | {}\n", b.constant, b.name, b.token, b.dim)?;
+            writeln!(f, "{} | {} | {} | {}", b.constant, b.name, b.token, b.dim)?;
         }
 
-        write!(f, "# Derived Units\n")?;
-        write!(f, "Constant | Unit | Unit Definition | Dimension\n")?;
-        write!(f, "---|---|---|---\n")?;
+        writeln!(f, "# Derived Units")?;
+        writeln!(f, "Constant | Unit | Unit Definition | Dimension")?;
+        writeln!(f, "---|---|---|---")?;
         for d in &self.derived {
-            write!(
+            writeln!(
                 f,
-                "{} | {} | {} | {}\n",
+                "{} | {} | {} | {}",
                 d.constant, d.name, d.expression, d.dim
             )?;
         }
 
-        write!(f, "# Constants\n")?;
-        write!(f, "Name | Constant | Value | Unit | Dimension \n")?;
-        write!(f, "---|---|---|---|---\n")?;
+        writeln!(f, "# Constants")?;
+        writeln!(f, "Name | Constant | Value | Unit | Dimension")?;
+        writeln!(f, "---|---|---|---|---")?;
         for b in &self.base {
             let mut newline = false;
             for c in self.constants.iter().filter(|c| c.unit == b.name) {
-                write!(
+                writeln!(
                     f,
-                    "{} | {} | {} | {} | {}\n",
+                    "{} | {} | {} | {} | {}",
                     c.name,
                     c.constant,
                     c.nice_value(),
@@ -101,16 +101,16 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
                 newline = true;
             }
             if newline {
-                write!(f, "|\n")?;
+                writeln!(f, "|")?;
             }
         }
 
         for d in &self.derived {
             let mut newline = false;
             for c in self.constants.iter().filter(|c| c.unit == d.name) {
-                write!(
+                writeln!(
                     f,
-                    "{} | {} | {} | {} | {}\n",
+                    "{} | {} | {} | {} | {}",
                     c.name,
                     c.constant,
                     c.nice_value(),
@@ -120,7 +120,7 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
                 newline = true;
             }
             if newline {
-                write!(f, "|\n")?;
+                writeln!(f, "|")?;
             }
         }
 
@@ -130,21 +130,22 @@ Following, we list all of the [base units](#base-units), [derived units](#derive
 
 impl fmt::Display for System {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "/**\n{}\n\n", self.doc_prelude)?;
+        writeln!(f, "/**\n{}\n", self.doc_prelude)?;
 
         self.unit_tables(f)?;
 
         write!(f, "*/")?;
 
-        write!(
+        writeln!(
             f,
             "
 pub mod {} {{
+    #![allow(clippy::upper_case_acronyms)]
     make_units! {{
         {};
         ONE: Unitless;
 
-        base {{\n",
+        base {{",
             self.module, self.name
         )?;
         for unit in &self.base {
@@ -152,18 +153,18 @@ pub mod {} {{
                 "" => String::new(),
                 d => format!(", {}", d),
             };
-            write!(
+            writeln!(
                 f,
-                "            {}: {}, \"{}\"{};\n",
+                "            {}: {}, \"{}\"{};",
                 unit.constant, unit.name, unit.token, dim
             )?;
         }
 
-        write!(
+        writeln!(
             f,
             "        }}
 
-        derived {{\n"
+        derived {{"
         )?;
 
         for unit in &self.derived {
@@ -171,22 +172,22 @@ pub mod {} {{
                 "" => String::new(),
                 d => format!(", {}", d),
             };
-            write!(
+            writeln!(
                 f,
-                "            {}: {} = ({}){};\n",
+                "            {}: {} = ({}){};",
                 unit.constant, unit.name, unit.expression, dim
             )?;
         }
 
-        write!(
+        writeln!(
             f,
             "        }}
 
-        constants {{\n"
+        constants {{"
         )?;
 
         for c in &self.constants {
-            write!(f, "            {}: {} = {};\n", c.constant, c.unit, c.value)?;
+            writeln!(f, "            {}: {} = {};", c.constant, c.unit, c.value)?;
         }
 
         write!(
@@ -303,7 +304,7 @@ pub mod {} {{
         assert_eq!(value, {0}::new(raw_value));
 
         let raw_value = rng1.sample(Uniform::new(-5.0, 7.0));
-        let value = rng2.sample(Uniform::new({0}::new(-5.0), {0}::new(7.0)));;
+        let value = rng2.sample(Uniform::new({0}::new(-5.0), {0}::new(7.0)));
         assert_eq!(value, {0}::new(raw_value));
 ",
                 derived.name
@@ -387,7 +388,6 @@ fn make_system(s: &System) {
     let dest = std::path::Path::new(&out_dir).join(format!("{}.rs", s.module));
     let mut f = std::fs::File::create(&dest).unwrap();
 
-    use std::io::Write;
     write!(f, "{}", s).unwrap();
 }
 
@@ -410,7 +410,7 @@ fn main() {
     let dest = std::path::Path::new(&out_dir).join("unit_systems.rs");
     let mut f = std::fs::File::create(&dest).unwrap();
 
-    f.write(
+    f.write_all(
         r#"/**
 Predefined unit systems
 

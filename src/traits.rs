@@ -48,8 +48,8 @@ pub trait Dimensionless: Dimensioned {
 /// ```rust
 /// extern crate dimensioned as dim;
 ///
-/// use dim::{Dimensioned, MapUnsafe};
 /// use dim::typenum::{Prod, P2};
+/// use dim::{Dimensioned, MapUnsafe};
 /// use std::ops::Mul;
 ///
 /// pub trait Weird {
@@ -57,11 +57,11 @@ pub trait Dimensionless: Dimensioned {
 ///     fn weird(self) -> Self::Output;
 /// }
 ///
-/// impl<D, Value, Units> Weird for D where
+/// impl<D, Value, Units> Weird for D
+/// where
 ///     Value: Clone,
 ///     Units: Mul<P2>,
-///     D: Dimensioned<Value=Value, Units=Units> +
-///        MapUnsafe<(Value, Value), Prod<Units, P2>>,
+///     D: Dimensioned<Value = Value, Units = Units> + MapUnsafe<(Value, Value), Prod<Units, P2>>,
 /// {
 ///     type Output = <D as MapUnsafe<(Value, Value), Prod<Units, P2>>>::Output;
 ///     fn weird(self) -> Self::Output {
@@ -210,8 +210,8 @@ impl_abs!(isize);
 /// fn main() {
 /// # #[cfg(any(feature = "std", feature = "nightly"))]
 /// # {
-///     use dim::Root;
 ///     use dim::typenum::P2;
+///     use dim::Root;
 ///     let x = 4.0.root(P2::new());
 ///     let y = 2.0;
 ///
@@ -237,7 +237,7 @@ macro_rules! impl_root {
             type Output = $t;
 
             fn root(self, _: Index) -> Self::Output {
-                #[allow(cast_lossless)]
+                #[allow(clippy::cast_lossless)]
                 let exp = (Index::to_i32() as $t).recip();
                 #[cfg(feature = "std")]
                 return self.powf(exp);
