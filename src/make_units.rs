@@ -10,7 +10,8 @@ Rather than try to parse the definition above, we will show an example of callin
 walk through it line by line.
 
 ```rust
-# #![cfg_attr(feature = "oibit", feature(optin_builtin_traits))]
+# #![cfg_attr(feature = "oibit", feature(auto_traits))]
+# #![cfg_attr(feature = "oibit", feature(negative_impls))]
 #[macro_use]
 extern crate dimensioned as dim;
 

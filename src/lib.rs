@@ -106,7 +106,9 @@ crate. Pretty much everything else is for ergonomics.
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "oibit", feature(auto_traits))]
 #![cfg_attr(feature = "oibit", feature(negative_impls))]
-#![cfg_attr(feature = "spec", feature(min_specialization))]
+// fixme: See if we can use min_specialization instead.
+#![cfg_attr(feature = "spec", feature(specialization))]
+#![cfg_attr(feature = "spec", allow(incomplete_features))]
 #![allow(
     clippy::float_cmp,
     clippy::useless_attribute,
