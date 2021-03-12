@@ -103,6 +103,7 @@ crate. Pretty much everything else is for ergonomics.
     html_favicon_url = "https://raw.githubusercontent.com/paholg/dimensioned/master/favicon.png"
 )]
 #![warn(missing_docs)]
+#![deny(meta_variable_misuse)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "oibit", feature(auto_traits))]
 #![cfg_attr(feature = "oibit", feature(negative_impls))]
