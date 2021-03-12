@@ -3,6 +3,7 @@
 This project follows semantic versioning.
 
 ### Unpublished
+- [fixed] A compilation error with the `rand` feature.
 
 ### 0.8.0 (2019-03-13)
 - [changed] ***BREAKING*** Reduced requirement of nightly for use in `no_std`
