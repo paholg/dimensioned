@@ -1030,7 +1030,7 @@ macro_rules! __make_units_internal {
 /// use dim::si::M;
 ///
 /// # fn main() {
-/// let inverse_volume = 3.0 / M/M/M;
+/// let inverse_volume = 3.0 / M / M / M;
 /// # }
 /// ```
 ///
@@ -1065,10 +1065,10 @@ macro_rules! __make_units_internal {
 /// }
 ///
 /// fn main() {
-///    let v = 12.0 * si::M3;
+///     let v = 12.0 * si::M3;
 ///
-///    let inverse_volume = invert_volume(v);
-///    assert_eq!(1.0/v, inverse_volume);
+///     let inverse_volume = invert_volume(v);
+///     assert_eq!(1.0 / v, inverse_volume);
 /// }
 /// ```
 #[macro_export]
@@ -1145,7 +1145,7 @@ macro_rules! __derived_internal {
 #[macro_export]
 macro_rules! impl_rand {
     ($System:ident) => {
-        use $crate::rand::distributions::uniform::{SampleUniform, UniformSampler};
+        use $crate::rand::distributions::uniform::{SampleBorrow, SampleUniform, UniformSampler};
         use $crate::rand::distributions::{Distribution, Standard};
         use $crate::rand::Rng;
 
@@ -1167,13 +1167,24 @@ macro_rules! impl_rand {
         }
         impl<V: SampleUniform, U> UniformSampler for MyUniformSampler<V, U> {
             type X = $System<V, U>;
-            fn new(low: Self::X, high: Self::X) -> Self {
+            fn new<B1, B2>(low: B1, high: B2) -> Self
+            where
+                B1: SampleBorrow<Self::X> + Sized,
+                B2: SampleBorrow<Self::X> + Sized,
+            {
                 MyUniformSampler {
-                    inner: V::Sampler::new(low.value_unsafe, high.value_unsafe),
+                    inner: V::Sampler::new(
+                        low.borrow().value_unsafe(),
+                        high.borrow().value_unsafe(),
+                    ),
                     _marker: marker::PhantomData,
                 }
             }
-            fn new_inclusive(low: Self::X, high: Self::X) -> Self {
+            fn new_inclusive<B1, B2>(low: B1, high: B2) -> Self
+            where
+                B1: SampleBorrow<Self::X> + Sized,
+                B2: SampleBorrow<Self::X> + Sized,
+            {
                 UniformSampler::new(low, high)
             }
             fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Self::X {

@@ -11,11 +11,15 @@
 //! ```rust
 //! extern crate dimensioned as dim;
 //!
-//! use std::ops::Div;
 //! use dim::dimensions::{Length, Time};
 //! use dim::typenum::Quot;
+//! use std::ops::Div;
 //!
-//! fn speed<L, T>(dist: L, time: T) -> Quot<L, T> where L: Length + Div<T>, T: Time {
+//! fn speed<L, T>(dist: L, time: T) -> Quot<L, T>
+//! where
+//!     L: Length + Div<T>,
+//!     T: Time,
+//! {
 //!     dist / time
 //! }
 //!
@@ -26,7 +30,7 @@
 //!     let t = 2.0 * si::S;
 //!     let v = speed(x, t);
 //!
-//!     assert_eq!(v, x/t);
+//!     assert_eq!(v, x / t);
 //!
 //!     // Compiler error:
 //!     // speed(x, x);
