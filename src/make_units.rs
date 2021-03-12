@@ -246,7 +246,7 @@ macro_rules! make_units {
                     } else {
                         write!(f, "{}^{}", token, exp)
                     }
-                };
+                }
 
                 let mut units = exponents.into_iter()
                     .zip(print_tokens.iter()).filter(|(exp, _)| *exp != 0);
@@ -1340,7 +1340,11 @@ macro_rules! impl_clapme {
 #[macro_export]
 macro_rules! impl_auto_args {
     ($System:ident) => {
-        impl<V: auto_args::AutoArgs, U> auto_args::AutoArgs for $System<V, U> {
+        impl<V: auto_args::AutoArgs, U> auto_args::AutoArgs for $System<V, U>
+        where
+            Length<U>: ArrayLength<isize>,
+            U: TypeArray + Len + ToGA<Output = GenericArray<isize, Length<U>>>,
+        {
             fn parse_internal(
                 key: &str,
                 args: &mut Vec<std::ffi::OsString>,
@@ -1354,9 +1358,9 @@ macro_rules! impl_auto_args {
             const REQUIRES_INPUT: bool = true;
             fn tiny_help_message(key: &str) -> String {
                 if key == "" {
-                    format!("FLOAT in units {}", $System::to_string())
+                    format!("FLOAT in units {}", <$System<V, U>>::to_string())
                 } else {
-                    format!("{} FLOAT in units {}", key, $System::to_string())
+                    format!("{} FLOAT in units {}", key, <$System<V, U>>::to_string())
                 }
             }
         }
