@@ -203,5 +203,5 @@ pub use unit_systems::{cgs, fps, mks, si, ucum};
 // Used for the make_units macro
 #[doc(hidden)]
 pub mod dimcore {
-    pub use core::{f32, f64, fmt, marker, mem, ops};
+    pub use core::{default, f32, f64, fmt, iter, marker, mem, ops};
 }
