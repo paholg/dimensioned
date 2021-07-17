@@ -299,9 +299,16 @@ macro_rules! make_units {
             }
         }
 
-        $(#[allow(missing_docs)] pub type $Derived<V> = $System<V, inner::$Derived>;
+        $(#[allow(missing_docs)]
+          pub type $Derived<V> = $System<V, inner::$Derived>;
           $(impl<V> $crate::dimensions::$derived_dim for $Derived<V> {})*
         )*
+
+        #[allow(missing_docs)]
+        pub mod dimensions {
+            $($(#[allow(missing_docs)]pub type $base_dim<V> = super::$Unit<V>;)*)+
+            $($(#[allow(missing_docs)]pub type $derived_dim<V> = super::$Derived<V>;)*)*
+        }
 
         // --------------------------------------------------------------------------------
         // Define consts

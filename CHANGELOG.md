@@ -4,6 +4,8 @@ This project follows semantic versioning.
 
 ### Unpublished
 - [fixed] A compilation error with the `rand` feature.
+- [added] Added ability to more specify type signatures using the marker trait
+  names from `dimensions.rs`. Now defined in module `dimensions`.
 
 ### 0.8.0 (2019-03-13)
 - [changed] ***BREAKING*** Reduced requirement of nightly for use in `no_std`
