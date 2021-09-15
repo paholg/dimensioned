@@ -189,7 +189,7 @@ macro_rules! make_units {
      }
      fmt = $to_fmt:ident;
     ) => (
-        use $crate::dimcore::marker;
+        use $crate::dimcore::marker::PhantomData;
         use $crate::{Dimensioned, Dimensionless};
 
         /// The struct for this unit system
@@ -216,7 +216,7 @@ macro_rules! make_units {
             ///
             /// Once `const_fns` is stabilized, that will be able to be replaced with a call to
             /// `Meter::new` and `_marker` will be made private.
-            pub _marker: marker::PhantomData<U>,
+            pub _marker: PhantomData<U>,
         }
 
         impl<V, U> $System<V, U> {
@@ -224,7 +224,60 @@ macro_rules! make_units {
             /// Create a new quantity in the $System unit system
             #[inline]
             pub fn new(v: V) -> Self {
-                $System { value_unsafe: v, _marker: marker::PhantomData }
+                $System { value_unsafe: v, _marker: PhantomData }
+            }
+        }
+
+        impl<V, U> $System<V, U>
+        where
+            Length<U>: ArrayLength<isize>,
+            U: TypeArray + Len + ToGA<Output = GenericArray<isize, Length<U>>>,
+        {
+            /// Format just the units of this type.
+            #[inline]
+            fn fmt_units(f: &mut fmt::Formatter) -> Result<(), fmt::Error>
+            {
+                let exponents = U::to_ga();
+                let print_tokens = [$($print_as),+];
+
+                fn write_unit(f: &mut fmt::Formatter, exp: isize, token: &str) -> Result<(), fmt::Error> {
+                    if exp == 1 {
+                        write!(f, "{}", token)
+                    } else {
+                        write!(f, "{}^{}", token, exp)
+                    }
+                }
+
+                let mut units = exponents.into_iter()
+                    .zip(print_tokens.iter()).filter(|(exp, _)| *exp != 0);
+                if let Some((exp, token)) = units.next() {
+                    write_unit(f, exp, token)?;
+                }
+                for (exp, token) in units {
+                    write!(f, "*")?;
+                    write_unit(f, exp, token)?;
+                }
+                Ok(())
+            }
+
+            /// Output the units of this type in the same format as in the
+            /// formatting traits.
+            #[inline]
+            #[cfg(feature = "std")]
+            pub fn to_string() -> String {
+                struct Displayer<U2>(PhantomData<U2>);
+                impl<U2> fmt::Display for Displayer<U2>
+                where
+                    Length<U2>: ArrayLength<isize>,
+                    U2: TypeArray + Len + ToGA<Output = GenericArray<isize, Length<U2>>>,
+                {
+                    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+                    {
+                        <$System<f32, U2>>::fmt_units(f)
+                    }
+                }
+
+                format!("{}", Displayer::<U>(PhantomData))
             }
         }
 
@@ -977,33 +1030,10 @@ macro_rules! __make_units_internal {
         {
             fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error>
             {
-                let exponents = U::to_ga();
-                let print_tokens = [$($print_as),*];
-
-                let mut first = true;
-
                 self.value_unsafe.fmt(f)?;
-
-                for (exp, token) in
-                    exponents.into_iter()
-                    .zip(print_tokens.iter())
-                {
-                    if first {
-                        if exp != 0 {
-                            first = false;
-                            write!(f, " ")?;
-                        }
-                    } else if exp != 0 {
-                        write!(f, "*")?;
-                    }
-
-                    match exp {
-                        0 => (),
-                        1 => write!(f, "{}", token)?,
-                        _ => {
-                            write!(f, "{}^{}", token, exp)?
-                        },
-                    }
+                if U::to_ga().iter().any(|&exp| exp != 0) {
+                    write!(f, " ")?;
+                    Self::fmt_units(f)?;
                 }
                 Ok(())
             }
@@ -1185,7 +1215,7 @@ macro_rules! impl_rand {
         #[derive(Clone, Copy, Debug)]
         pub struct MyUniformSampler<V: SampleUniform, U> {
             inner: V::Sampler,
-            _marker: marker::PhantomData<U>,
+            _marker: PhantomData<U>,
         }
         impl<V: SampleUniform, U> UniformSampler for MyUniformSampler<V, U> {
             type X = $System<V, U>;
@@ -1199,7 +1229,7 @@ macro_rules! impl_rand {
                         low.borrow().value_unsafe(),
                         high.borrow().value_unsafe(),
                     ),
-                    _marker: marker::PhantomData,
+                    _marker: PhantomData,
                 }
             }
             fn new_inclusive<B1, B2>(low: B1, high: B2) -> Self
@@ -1251,7 +1281,7 @@ macro_rules! impl_serde {
                 let value_unsafe = V::deserialize(deserializer)?;
                 Ok($System {
                     value_unsafe,
-                    _marker: marker::PhantomData,
+                    _marker: PhantomData,
                 })
             }
         }
@@ -1292,7 +1322,7 @@ macro_rules! impl_clapme {
             fn from_clap(name: &str, matches: &::clapme::clap::ArgMatches) -> Option<Self> {
                 V::from_clap(name, matches).map(|v| $System {
                     value_unsafe: v,
-                    _marker: marker::PhantomData,
+                    _marker: PhantomData,
                 })
             }
             fn requires_flags(name: &str) -> Vec<String> {
@@ -1311,7 +1341,11 @@ macro_rules! impl_clapme {
 #[macro_export]
 macro_rules! impl_auto_args {
     ($System:ident) => {
-        impl<V: auto_args::AutoArgs, U> auto_args::AutoArgs for $System<V, U> {
+        impl<V: auto_args::AutoArgs, U> auto_args::AutoArgs for $System<V, U>
+        where
+            Length<U>: ArrayLength<isize>,
+            U: TypeArray + Len + ToGA<Output = GenericArray<isize, Length<U>>>,
+        {
             fn parse_internal(
                 key: &str,
                 args: &mut Vec<std::ffi::OsString>,
@@ -1319,15 +1353,15 @@ macro_rules! impl_auto_args {
                 let v = V::parse_internal(key, args)?;
                 Ok($System {
                     value_unsafe: v,
-                    _marker: marker::PhantomData,
+                    _marker: PhantomData,
                 })
             }
             const REQUIRES_INPUT: bool = true;
             fn tiny_help_message(key: &str) -> String {
                 if key == "" {
-                    "FLOAT".to_string()
+                    format!("FLOAT in units {}", <$System<V, U>>::to_string())
                 } else {
-                    format!("{} FLOAT", key)
+                    format!("{} FLOAT in units {}", key, <$System<V, U>>::to_string())
                 }
             }
         }
