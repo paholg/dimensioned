@@ -219,7 +219,7 @@ pub mod {} {{
     #[test]
     fn test_{}_constants() {{
         #[allow(unused_imports)]
-        use f64prefixes::*;
+        use crate::f64prefixes::*;
         #[allow(unused_imports)]
         use core::f64::consts;
 ",
