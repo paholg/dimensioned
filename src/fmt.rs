@@ -41,11 +41,11 @@ macro_rules! format_cgs_like {
     );
 }
 
-use unit_systems::cgs::CGS;
+use crate::unit_systems::cgs::CGS;
 format_cgs_like!(CGS; ["cm", "g", "s"]; Display Octal LowerHex UpperHex Pointer Binary LowerExp UpperExp);
 
-use unit_systems::mks::MKS;
+use crate::unit_systems::mks::MKS;
 format_cgs_like!(MKS; ["m", "k", "s"]; Display Octal LowerHex UpperHex Pointer Binary LowerExp UpperExp);
 
-use unit_systems::fps::FPS;
+use crate::unit_systems::fps::FPS;
 format_cgs_like!(FPS; ["ft", "lb", "s"]; Display Octal LowerHex UpperHex Pointer Binary LowerExp UpperExp);

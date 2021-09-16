@@ -2,7 +2,7 @@
 
 extern crate dimensioned as dim;
 
-use dim::si::{self, f64consts::*};
+use crate::dim::si::{self, f64consts::*};
 
 #[test]
 fn formatting() {

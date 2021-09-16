@@ -4,15 +4,15 @@ extern crate dimensioned as dim;
 
 use std::fmt::Debug;
 
-use dim::{cgs, si};
+use crate::dim::{cgs, si};
 
 // Calculates speed given a distance and time. Only works for SI units.
 fn speed(dist: si::Meter<f64>, time: si::Second<f64>) -> si::MeterPerSecond<f64> {
     dist / time
 }
 
-use dim::dimensions::{Length, Time};
-use dim::typenum::Quot;
+use crate::dim::dimensions::{Length, Time};
+use crate::dim::typenum::Quot;
 use std::ops::Div;
 
 // Calculates speed as before, but now we can use *any* unit system.

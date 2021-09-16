@@ -1,12 +1,12 @@
 extern crate dimensioned as dim;
 
-use dim::si;
+use crate::dim::si;
 
 // Just a couple simple tests to ensure that we're creating int consts.
 
 #[test]
 fn int_consts() {
-    use si::Meter;
+    use crate::si::Meter;
 
     assert_eq!(Meter::new(1), si::i8consts::M);
     assert_eq!(Meter::new(1), si::i16consts::M);
@@ -23,7 +23,7 @@ fn int_consts() {
 
 #[test]
 fn derived_int_consts() {
-    use si::Newton;
+    use crate::si::Newton;
 
     assert_eq!(Newton::new(1), si::i8consts::N);
     assert_eq!(Newton::new(1), si::i16consts::N);

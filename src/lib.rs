@@ -199,8 +199,8 @@ pub mod f32prefixes;
 pub mod f64prefixes;
 pub mod traits;
 
-pub use traits::*;
-pub use unit_systems::{cgs, fps, mks, si, ucum};
+pub use crate::traits::*;
+pub use crate::unit_systems::{cgs, fps, mks, si, ucum};
 
 // Used for the make_units macro
 #[doc(hidden)]

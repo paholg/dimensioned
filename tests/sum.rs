@@ -1,6 +1,6 @@
 extern crate dimensioned as dim;
 
-use dim::si::*;
+use crate::dim::si::*;
 
 #[test]
 fn sum() {

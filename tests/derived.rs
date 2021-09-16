@@ -1,7 +1,7 @@
 extern crate dimensioned as dim;
 
-use dim::si::{Meter, Second};
-use dim::typenum::Quot;
+use crate::dim::si::{Meter, Second};
+use crate::dim::typenum::Quot;
 
 type MPS<T> = Quot<Meter<T>, Second<T>>;
 

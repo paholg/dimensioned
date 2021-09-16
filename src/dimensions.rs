@@ -39,7 +39,7 @@
 
 #![allow(missing_docs)]
 
-use Dimensioned;
+use crate::Dimensioned;
 
 pub trait Length: Dimensioned {}
 pub trait ReciprocalLength: Dimensioned {}
