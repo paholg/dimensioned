@@ -386,7 +386,7 @@ macro_rules! base_units {
             constant: stringify!($constant),
             token: stringify!($token),
             dim: stringify!($($dim)*),
-        }),*];
+        }),*]
     );
 }
 
@@ -397,7 +397,7 @@ macro_rules! derived_units {
             constant: stringify!($constant),
             expression: stringify!($e),
             dim: stringify!($($dim)*),
-        }),*];
+        }),*]
     );
 }
 
@@ -408,7 +408,7 @@ macro_rules! constants {
             constant: stringify!($constant),
             value: stringify!($e),
             name: $name,
-        }),*];
+        }),*]
     );
 }
 
@@ -545,14 +545,35 @@ fn make_conversion_tests(systems: &[System], out_dir: &str) -> Result<(), std::i
         "
 extern crate dimensioned as dim;
 #[macro_use] extern crate approx;
+mod test {{
+    use approx::UlpsEq;
+    use dim::Dimensioned;
+    use std::fmt;
 
-#[path=\"../../../../../src/build/test.rs\"]
-mod test;
+    pub trait CmpConsts<B> {{
+        fn test_eq(self, b: B);
+    }}
+
+    #[cfg(feature = \"spec\")]
+    impl<A, B> CmpConsts<B> for A {{
+        default fn test_eq(self, _: B) {{}}
+    }}
+
+    impl<A, B> CmpConsts<B> for A
+    where
+        A: From<B> + fmt::Debug + UlpsEq,
+        A::Epsilon: Dimensioned<Value = f64>,
+    {{
+        fn test_eq(self, b: B) {{
+            assert_ulps_eq!(self, b.into(), epsilon = A::Epsilon::new(0.0), max_ulps = 2);
+        }}
+    }}
+}}
 
 #[cfg(test)]
 mod constant_conversion {{
     use dim::unit_systems::*;
-    use test::CmpConsts;
+    use crate::test::CmpConsts;
 "
     )?;
 
