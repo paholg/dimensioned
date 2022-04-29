@@ -122,7 +122,7 @@ If you would like non-unary integer constants, you will have to construct them y
 # extern crate dimensioned as dim;
 # use std::marker::PhantomData;
 use dim::si;
-const MIN: si::Second<u32> = si::SI { value_unsafe: 60, _marker: PhantomData };
+const MIN: si::Second<u32> = si::Second::new(60);
 # fn main() {}
 ```
 
@@ -203,27 +203,14 @@ macro_rules! make_units {
             /// calculation in a dimensionally-safe interface.
             pub value_unsafe: V,
 
-            /// This member is only temporarily public and so its use is considered unstable.
-            /// Right now, the only way to create a `const` with units is with this pattern:
-            ///
-            /// ```rust
-            /// extern crate dimensioned as dim;
-            /// use dim::si;
-            ///
-            /// const x: si::Meter<f64> = si::Meter { value_unsafe: 3.4, _marker: std::marker::PhantomData };
-            /// # fn main() {}
-            /// ```
-            ///
-            /// Once `const_fns` is stabilized, that will be able to be replaced with a call to
-            /// `Meter::new` and `_marker` will be made private.
-            pub _marker: PhantomData<U>,
+            _marker: PhantomData<U>,
         }
 
         impl<V, U> $System<V, U> {
 
             /// Create a new quantity in the $System unit system
             #[inline]
-            pub fn new(v: V) -> Self {
+            pub const fn new(v: V) -> Self {
                 $System { value_unsafe: v, _marker: PhantomData }
             }
         }

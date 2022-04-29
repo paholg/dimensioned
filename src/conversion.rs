@@ -27,13 +27,13 @@
 
 mod ucum_to_si {
     // From UCUM
+    use crate::f64prefixes::*;
+    use crate::si::SI;
+    use crate::ucum;
     use core::convert::From;
     use core::ops::{Add, Mul};
-    use crate::f64prefixes::*;
     use num_traits::float::FloatCore;
-    use crate::si::SI;
     use typenum::{Integer, Prod, Sum, Z0};
-    use crate::ucum;
 
     impl<V, Meter, Second, Gram, Kelvin, Coulomb, Candela>
         From<ucum::UCUM<V, tarr![Meter, Second, Gram, Z0, Kelvin, Coulomb, Candela]>>
@@ -61,13 +61,13 @@ mod ucum_to_si {
 
 mod si_to_ucum {
     // From SI
+    use crate::f64prefixes::*;
+    use crate::si;
+    use crate::ucum::UCUM;
     use core::convert::From;
     use core::ops::{Mul, Sub};
-    use crate::f64prefixes::*;
     use num_traits::float::FloatCore;
-    use crate::si;
     use typenum::{Diff, Integer, Prod, Z0};
-    use crate::ucum::UCUM;
 
     impl<V, Meter, Kilogram, Second, Ampere, Kelvin, Candela>
         From<si::SI<V, tarr![Meter, Kilogram, Second, Ampere, Kelvin, Candela, Z0]>>
@@ -101,12 +101,12 @@ mod mks_to_cgs {
     use crate::cgs::CGS;
 
     // From MKS
-    use core::convert::From;
-    use core::ops::Mul;
     use crate::f64prefixes::*;
     use crate::mks;
-    use num_traits::float::FloatCore;
     use crate::traits::Sqrt;
+    use core::convert::From;
+    use core::ops::Mul;
+    use num_traits::float::FloatCore;
     use typenum::{Integer, Prod};
 
     impl<V, SqrtMeter, SqrtKilogram, Second>
@@ -139,9 +139,9 @@ mod mks_to_cgs {
 mod si_to_cgs {
     use crate::cgs::CGS;
 
+    use crate::mks;
     use core::convert::From;
     use core::ops::{Add, Mul};
-    use crate::mks;
     use typenum::{Integer, Prod, Sum};
 
     // From SI
@@ -179,12 +179,12 @@ mod si_to_cgs {
 
 #[cfg(any(feature = "std", feature = "nightly"))]
 mod cgs_to_mks {
-    use core::convert::From;
-    use core::ops::Mul;
     use crate::f64prefixes::*;
     use crate::mks::MKS;
-    use num_traits::float::FloatCore;
     use crate::traits::Sqrt;
+    use core::convert::From;
+    use core::ops::Mul;
+    use num_traits::float::FloatCore;
     use typenum::{Integer, Prod};
 
     // From CGS
@@ -217,9 +217,9 @@ mod cgs_to_mks {
 }
 
 mod si_to_mks {
+    use crate::mks::MKS;
     use core::convert::From;
     use core::ops::{Add, Mul};
-    use crate::mks::MKS;
     use typenum::{Integer, Prod, Sum};
 
     // From SI
