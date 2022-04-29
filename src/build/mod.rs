@@ -386,7 +386,7 @@ macro_rules! base_units {
             constant: stringify!($constant),
             token: stringify!($token),
             dim: stringify!($($dim)*),
-        }),*];
+        }),*]
     );
 }
 
@@ -397,7 +397,7 @@ macro_rules! derived_units {
             constant: stringify!($constant),
             expression: stringify!($e),
             dim: stringify!($($dim)*),
-        }),*];
+        }),*]
     );
 }
 
@@ -408,7 +408,7 @@ macro_rules! constants {
             constant: stringify!($constant),
             value: stringify!($e),
             name: $name,
-        }),*];
+        }),*]
     );
 }
 
